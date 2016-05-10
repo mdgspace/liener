@@ -1,4 +1,5 @@
 package com.apps.my.liener;
+
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.Service;
@@ -11,6 +12,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -137,6 +139,13 @@ public class BubbleService extends Service{
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    @Override
+    public int onStartCommand (Intent intent, int flags, int startId) {
+        String url = intent.getStringExtra("url");
+        browser.loadUrl(url);
+        return START_NOT_STICKY;
     }
 
 }

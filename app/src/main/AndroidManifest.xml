@@ -14,26 +14,27 @@
         <activity android:name=".MainActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
         </activity>
 
-        <service android:name="com.apps.my.liener.BubbleService" >
-            <intent-filter android:label="@string/app_name">
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <!-- Accepts URIs that begin with "http://recipe-app.com/recipe" -->
-                <data android:scheme="http"
-                    android:host="recipe-app.com"
-                    android:pathPrefix="/recipe" />
-            </intent-filter>
+        <service android:name=".BubbleService" >
         </service>
 
+        <activity android:name="com.apps.my.liener.ServiceCall" >
+            <intent-filter android:label="@string/app_name">
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.DEFAULT" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="http"
+                android:pathPrefix=""
+                />
+            <data android:scheme="https"
+                android:pathPrefix=""
+            />
+            </intent-filter>
+
+        </activity>
     </application>
 
 </manifest>

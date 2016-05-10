@@ -26,7 +26,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
         );
-
         stopServ.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -36,6 +35,5 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
         );
-
     }
 }
