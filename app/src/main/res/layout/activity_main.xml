@@ -13,7 +13,8 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="27dp"
-        android:text="start chat head service" />
+        android:text="start chat head service"
+        android:onClick="startService" />
 
     <Button
         android:id="@+id/stopService"

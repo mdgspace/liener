@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
         startServ.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
-                    public void onClick(View v) {
+                   public void onClick(View v) {
                         startService(new Intent(getBaseContext(),BubbleService.class));
                     }
                 }
@@ -36,12 +36,14 @@ public class MainActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        stopService(new Intent(getBaseContext(),BubbleService.class));
+                        stopService(new Intent(getBaseContext(), BubbleService.class));
 
                     }
                 }
         );
     }
+
+
 
 
 }

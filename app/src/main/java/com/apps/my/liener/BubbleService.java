@@ -2,6 +2,8 @@ package com.apps.my.liener;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -39,6 +41,7 @@ public class BubbleService extends Service{
 
     @Override
     public void onCreate() {
+        Toast.makeText(this, "Service created in onCreate", Toast.LENGTH_SHORT).show();
         super.onCreate();
         bubbleWindow = (WindowManager) getSystemService(WINDOW_SERVICE);
         Display display = bubbleWindow.getDefaultDisplay();
@@ -157,6 +160,18 @@ public class BubbleService extends Service{
             String url = intent.getStringExtra("url");
             browser.loadUrl(url);
         }
-        return START_STICKY;
+
+        String text = "By SDSMDG";
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
+        Notification notification = new Notification.Builder(this)
+                .setSmallIcon(R.mipmap.bubble)  // the status icon
+                .setTicker(text)  // the status text
+                .setWhen(System.currentTimeMillis())  // the time stamp
+                .setContentTitle("Liener is Running")  // the label
+                .setContentText(text)  // the contents of the entry
+                .setContentIntent(contentIntent)  // The intent to send when clicked
+                .build();
+        startForeground(1, notification);
+        return Service.START_STICKY;
     }
 }
