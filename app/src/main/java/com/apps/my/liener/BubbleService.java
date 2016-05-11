@@ -8,11 +8,13 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
+import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.Display;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -39,6 +41,11 @@ public class BubbleService extends Service{
     public void onCreate() {
         super.onCreate();
         bubbleWindow = (WindowManager) getSystemService(WINDOW_SERVICE);
+        Display display = bubbleWindow.getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        int height = size.y;
+        final int heightNew = (int)((height*100)/128);
 
         browser = new WebView(this);
         browser.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT));
@@ -57,18 +64,18 @@ public class BubbleService extends Service{
         paramBubble = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_PHONE,
+                WindowManager.LayoutParams.TYPE_TOAST,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT
         );
         paramBubble.gravity = Gravity.BOTTOM | Gravity.RIGHT;
         paramBubble.x = 0;
-        paramBubble.y = 1000;
+        paramBubble.y = heightNew;
 
         paramBrowser = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.FILL_PARENT,
-                1000,
-                WindowManager.LayoutParams.TYPE_PHONE,
+                heightNew,
+                WindowManager.LayoutParams.TYPE_TOAST,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT
         );
@@ -113,7 +120,7 @@ public class BubbleService extends Service{
                     paramx = paramBubble.x;
                     paramy = paramBubble.y;
                     paramBubble.x = 0;
-                    paramBubble.y = 1000;
+                    paramBubble.y = heightNew;
                     bubbleWindow.updateViewLayout(bubbleHead, paramBubble);
                     bubbleWindow.addView(browser, paramBrowser);
                     is_open = true;
@@ -143,9 +150,13 @@ public class BubbleService extends Service{
 
     @Override
     public int onStartCommand (Intent intent, int flags, int startId) {
-        String url = intent.getStringExtra("url");
-        browser.loadUrl(url);
-        return START_NOT_STICKY;
-    }
+        if(("[" + intent + "]").equals("[null]")){
 
+        }
+        else{
+            String url = intent.getStringExtra("url");
+            browser.loadUrl(url);
+        }
+        return START_STICKY;
+    }
 }

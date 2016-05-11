@@ -1,14 +1,21 @@
 package com.apps.my.liener;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
     Button startServ;
     Button stopServ;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -22,7 +29,6 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         startService(new Intent(getBaseContext(),BubbleService.class));
-
                     }
                 }
         );
@@ -36,4 +42,6 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
     }
+
+
 }

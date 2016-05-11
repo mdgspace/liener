@@ -21,6 +21,7 @@ public class ServiceCall extends AppCompatActivity {
             Intent urlIntent= new Intent(this, BubbleService.class);
             urlIntent.putExtra("url",data);
             startService(urlIntent);
+            finish();
         }
     }
 }
