@@ -15,6 +15,7 @@ import android.widget.Button;
 public class MainActivity extends AppCompatActivity {
     Button startServ;
     Button stopServ;
+    int c=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +29,10 @@ public class MainActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                    public void onClick(View v) {
-                        startService(new Intent(getBaseContext(),BubbleService.class));
+                        if(c==0){
+                            startService(new Intent(getBaseContext(),BubbleService.class));
+                            c=1;
+                        }
                     }
                 }
         );
@@ -36,14 +40,12 @@ public class MainActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        stopService(new Intent(getBaseContext(), BubbleService.class));
-
+                        if(c==1){
+                            stopService(new Intent(getBaseContext(), BubbleService.class));
+                            c=0;
+                        }
                     }
                 }
         );
     }
-
-
-
-
 }

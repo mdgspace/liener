@@ -34,35 +34,31 @@ import android.widget.Toast;
 public class BubbleService extends Service{
     WindowManager bubbleWindow;
     ImageView bubbleHead;
-    WebView browser;
+    Context context =this ;
     WindowManager.LayoutParams paramBubble,paramBrowser;
     boolean is_open = false;
-    int paramx = 0 ,paramy = 0;
+    int paramx = 0 ,paramy =0,count=1, current=0,bubbleWidth;
+    BrowserPage browserPageArray[] = new BrowserPage[20];
+
 
     @Override
     public void onCreate() {
-        Toast.makeText(this, "Service created in onCreate", Toast.LENGTH_SHORT).show();
+        current=0;
+        count=0;
         super.onCreate();
+
         bubbleWindow = (WindowManager) getSystemService(WINDOW_SERVICE);
+        context = this;
+
         Display display = bubbleWindow.getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
         int height = size.y;
         final int heightNew = (int)((height*100)/128);
 
-        browser = new WebView(this);
-        browser.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT));
-        browser.setBackgroundColor(Color.WHITE);
-        browser.getSettings().setJavaScriptEnabled(true);
-        browser.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
-        browser.setWebViewClient(new WebViewClient() {
-            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-            }
-        });
-        browser.loadUrl("http://www.google.com");
-
-        bubbleHead = new ImageView(this);
-        bubbleHead.setImageResource(R.mipmap.bubble); //set Bubble Icon
+        browserPageArray[0] = new BrowserPage();
+        browserPageArray[0].setBrowserPage(context);
+        browserPageArray[0].browser.loadUrl("http://google.co.in");
 
         paramBubble = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
@@ -84,7 +80,9 @@ public class BubbleService extends Service{
         );
         paramBrowser.gravity = Gravity.BOTTOM | Gravity.RIGHT;
 
-        bubbleHead.setOnTouchListener(new View.OnTouchListener() {
+        bubbleWindow.addView(browserPageArray[0].bubbleHead, paramBubble);
+
+        browserPageArray[0].bubbleHead.setOnTouchListener(new View.OnTouchListener() {
             int initialX;
             int initialY;
             float initialTouchX;
@@ -92,7 +90,7 @@ public class BubbleService extends Service{
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if(!is_open) {
+                if (!is_open) {
                     switch (event.getAction()) {
                         case MotionEvent.ACTION_DOWN:
                             initialX = paramBubble.x;
@@ -107,7 +105,7 @@ public class BubbleService extends Service{
                                     - (int) (event.getRawX() - initialTouchX);
                             paramBubble.y = initialY
                                     - (int) (event.getRawY() - initialTouchY);
-                            bubbleWindow.updateViewLayout(bubbleHead, paramBubble);
+                            bubbleWindow.updateViewLayout(browserPageArray[0].bubbleHead, paramBubble);
                             return false;
                     }
                 }
@@ -115,7 +113,8 @@ public class BubbleService extends Service{
             }
         });
 
-        bubbleHead.setOnClickListener(new View.OnClickListener() {
+
+        browserPageArray[0].bubbleHead.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!is_open) {
@@ -124,27 +123,78 @@ public class BubbleService extends Service{
                     paramy = paramBubble.y;
                     paramBubble.x = 0;
                     paramBubble.y = heightNew;
-                    bubbleWindow.updateViewLayout(bubbleHead, paramBubble);
-                    bubbleWindow.addView(browser, paramBrowser);
+                    if(current==0){
+                        browserPageArray[0].bubbleHead.setImageResource(R.mipmap.bubble);
+                    }
+                    bubbleWindow.updateViewLayout(browserPageArray[0].bubbleHead, paramBubble);
+                    bubbleWidth=browserPageArray[0].bubbleHead.getWidth();
+                    paramBubble.x = paramBubble.x + bubbleWidth;
+
+                    bubbleWindow.addView(browserPageArray[current].browser,paramBrowser);
+
+                    for (int i = 1; i < count; i++) {
+                        final int j = i;
+                        bubbleWindow.addView(browserPageArray[i].bubbleHead, paramBubble);
+                        browserPageArray[i].bubbleHead.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if(j!=current){
+                                    browserPageArray[current].bubbleHead.setImageResource(R.mipmap.bubblesmall);
+                                    browserPageArray[j].bubbleHead.setImageResource(R.mipmap.bubble);
+                                    bubbleWindow.addView(browserPageArray[j].browser, paramBrowser);
+                                    bubbleWindow.removeView(browserPageArray[current].browser);
+                                    current=j;
+                                }
+                                else{
+                                    for (int i = 1; i < count; i++) {
+                                        bubbleWindow.removeView(browserPageArray[i].bubbleHead);
+                                    }
+                                    paramBubble.x = paramx;
+                                    paramBubble.y = paramy;
+                                    bubbleWindow.removeView(browserPageArray[current].browser);
+                                    bubbleWindow.updateViewLayout(browserPageArray[0].bubbleHead, paramBubble);
+                                    is_open = false;
+                                }
+                            }
+                        });
+                        paramBubble.x = paramBubble.x + bubbleWidth;
+                    }
                     is_open = true;
-                } else {
-                    paramBubble.x = paramx;
-                    paramBubble.y = paramy;
-                    bubbleWindow.removeView(browser);
-                    bubbleWindow.updateViewLayout(bubbleHead, paramBubble);
-                    is_open = false;
+                }
+                else{
+                   if(current==0) {
+                        for (int i = 1; i < count; i++) {
+                            bubbleWindow.removeView(browserPageArray[i].bubbleHead);
+                        }
+                        paramBubble.x = paramx;
+                        paramBubble.y = paramy;
+                        browserPageArray[0].bubbleHead.setImageResource(R.mipmap.bubblesmall);
+                        bubbleWindow.removeView(browserPageArray[current].browser);
+                        bubbleWindow.updateViewLayout(browserPageArray[0].bubbleHead, paramBubble);
+                        is_open = false;
+                    }
+                    else{
+                        bubbleWindow.addView(browserPageArray[0].browser,paramBrowser);
+                        bubbleWindow.removeView(browserPageArray[current].browser);
+                        browserPageArray[0].bubbleHead.setImageResource(R.mipmap.bubble);
+                        browserPageArray[current].bubbleHead.setImageResource(R.mipmap.bubblesmall);
+                        current=0;
+                    }
                 }
             }
         });
-        bubbleWindow.addView(bubbleHead, paramBubble);
     }
 
     public void onDestroy() {
         super.onDestroy();
-        if (bubbleHead != null) {
-            bubbleWindow.removeView(bubbleHead);
+        if(is_open){
+            browserPageArray[0].bubbleHead.performClick();
+        }
+        if (browserPageArray[0].bubbleHead != null) {
+            bubbleWindow.removeView(browserPageArray[0].bubbleHead);
         }
     }
+
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -153,12 +203,16 @@ public class BubbleService extends Service{
 
     @Override
     public int onStartCommand (Intent intent, int flags, int startId) {
-        if(("[" + intent + "]").equals("[null]")){
-
-        }
+        if(("[" + intent + "]").equals("[null]")){}
         else{
-            String url = intent.getStringExtra("url");
-            browser.loadUrl(url);
+            if(count==0){}
+            else{
+                String url = intent.getStringExtra("url");
+                browserPageArray[count]=new BrowserPage();
+                browserPageArray[count].setBrowserPage(context);
+                browserPageArray[count].browser.loadUrl(url);
+            }
+            count++;
         }
 
         String text = "By SDSMDG";
