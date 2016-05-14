@@ -6,6 +6,7 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -14,12 +15,16 @@ import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.Display;
 import android.view.GestureDetector;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,25 +35,36 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
+import android.os.Bundle;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.View.OnKeyListener;
+import android.widget.EditText;
+import android.widget.Toast;
+import android.app.Activity;
 
-public class BubbleService extends Service{
+public class BubbleService extends Service implements OnKeyListener {
     WindowManager bubbleWindow;
-    ImageView bubbleHead;
     Context context =this ;
-    WindowManager.LayoutParams paramBubble,paramBrowser;
+    String TAG = "BUBBLETEST";
+    WindowManager.LayoutParams paramBubble , paramBrowser;
     boolean is_open = false;
     int paramx = 0 ,paramy =0,count=1, current=0,bubbleWidth;
     BrowserPage browserPageArray[] = new BrowserPage[20];
 
+    public boolean onKey(View v, int keyCode, KeyEvent event){
+        Log.d(TAG, "onKey() called with: " + "");
+        return true;
+    }
 
     @Override
     public void onCreate() {
         current=0;
         count=0;
         super.onCreate();
+        context = this;
 
         bubbleWindow = (WindowManager) getSystemService(WINDOW_SERVICE);
-        context = this;
 
         Display display = bubbleWindow.getDefaultDisplay();
         Point size = new Point();
@@ -75,12 +91,10 @@ public class BubbleService extends Service{
                 WindowManager.LayoutParams.FILL_PARENT,
                 heightNew,
                 WindowManager.LayoutParams.TYPE_TOAST,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
                 PixelFormat.TRANSLUCENT
         );
         paramBrowser.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-
-        bubbleWindow.addView(browserPageArray[0].bubbleHead, paramBubble);
 
         browserPageArray[0].bubbleHead.setOnTouchListener(new View.OnTouchListener() {
             int initialX;
@@ -113,10 +127,10 @@ public class BubbleService extends Service{
             }
         });
 
-
         browserPageArray[0].bubbleHead.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.d("TESTING","in click");
                 if (!is_open) {
                     paramBubble.gravity = Gravity.BOTTOM | Gravity.RIGHT;
                     paramx = paramBubble.x;
@@ -130,7 +144,27 @@ public class BubbleService extends Service{
                     bubbleWidth=browserPageArray[0].bubbleHead.getWidth();
                     paramBubble.x = paramBubble.x + bubbleWidth;
 
-                    bubbleWindow.addView(browserPageArray[current].browser,paramBrowser);
+                    browserPageArray[current].browser.setOnKeyListener(new OnKeyListener() {
+                        @Override
+                        public boolean onKey(View v, int keyCode, KeyEvent event) {
+                            Log.d(TAG, "onKey() called with: " + "v = [" + v + "], keyCode = [" + keyCode + "], event = [" + event + "]");
+                            //This is the filter
+                            if (event.getAction() != KeyEvent.ACTION_DOWN)
+                                return false;
+
+                            if (keyCode == KeyEvent.KEYCODE_BACK) {
+                                Log.d(TAG, "onKey() inside called with: " + "v = [" + v + "], keyCode = [" + keyCode + "], event = [" + event + "]");
+                                if(browserPageArray[current].browser.canGoBack()){
+                                    browserPageArray[current].browser.goBack();
+                                }
+                                else {
+                                    browserPageArray[current].bubbleHead.performClick();
+                                }
+                            }
+                            return false;
+                        }
+                    });
+                    bubbleWindow.addView(browserPageArray[current].browser, paramBrowser);
 
                     for (int i = 1; i < count; i++) {
                         final int j = i;
@@ -141,6 +175,26 @@ public class BubbleService extends Service{
                                 if(j!=current){
                                     browserPageArray[current].bubbleHead.setImageResource(R.mipmap.bubblesmall);
                                     browserPageArray[j].bubbleHead.setImageResource(R.mipmap.bubble);
+                                    browserPageArray[j].browser.setOnKeyListener(new OnKeyListener() {
+                                        @Override
+                                        public boolean onKey(View v, int keyCode, KeyEvent event) {
+                                            Log.d(TAG, "onKey() called with: " + "v = [" + v + "], keyCode = [" + keyCode + "], event = [" + event + "]");
+                                            //This is the filter
+                                            if (event.getAction() != KeyEvent.ACTION_DOWN)
+                                                return false;
+
+                                            if (keyCode == KeyEvent.KEYCODE_BACK) {
+                                                Log.d(TAG, "onKey() inside called with: " + "v = [" + v + "], keyCode = [" + keyCode + "], event = [" + event + "]");
+                                                if(browserPageArray[j].browser.canGoBack()){
+                                                    browserPageArray[j].browser.goBack();
+                                                }
+                                                else {
+                                                    browserPageArray[j].bubbleHead.performClick();
+                                                }
+                                            }
+                                            return false;
+                                        }
+                                    });
                                     bubbleWindow.addView(browserPageArray[j].browser, paramBrowser);
                                     bubbleWindow.removeView(browserPageArray[current].browser);
                                     current=j;
@@ -174,6 +228,24 @@ public class BubbleService extends Service{
                         is_open = false;
                     }
                     else{
+                       browserPageArray[0].browser.setOnKeyListener(new OnKeyListener() {
+                           @Override
+                           public boolean onKey(View v, int keyCode, KeyEvent event) {
+                               Log.d(TAG, "onKey() called with: " + "v = [" + v + "], keyCode = [" + keyCode + "], event = [" + event + "]");
+                               if (event.getAction() != KeyEvent.ACTION_DOWN)
+                                   return false;
+                               if (keyCode == KeyEvent.KEYCODE_BACK) {
+                                   Log.d(TAG, "onKey() inside called with: " + "v = [" + v + "], keyCode = [" + keyCode + "], event = [" + event + "]");
+                                   if(browserPageArray[0].browser.canGoBack()){
+                                       browserPageArray[0].browser.goBack();
+                                   }
+                                   else {
+                                       browserPageArray[0].bubbleHead.performClick();
+                                   }
+                               }
+                               return false;
+                           }
+                       });
                         bubbleWindow.addView(browserPageArray[0].browser,paramBrowser);
                         bubbleWindow.removeView(browserPageArray[current].browser);
                         browserPageArray[0].bubbleHead.setImageResource(R.mipmap.bubble);
@@ -183,6 +255,8 @@ public class BubbleService extends Service{
                 }
             }
         });
+
+        bubbleWindow.addView(browserPageArray[0].bubbleHead, paramBubble);
     }
 
     public void onDestroy() {
@@ -194,7 +268,6 @@ public class BubbleService extends Service{
             bubbleWindow.removeView(browserPageArray[0].bubbleHead);
         }
     }
-
 
     @Override
     public IBinder onBind(Intent intent) {

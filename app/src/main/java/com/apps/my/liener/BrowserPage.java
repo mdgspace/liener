@@ -12,9 +12,12 @@ import android.text.LoginFilter;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageView;
@@ -28,15 +31,12 @@ public class BrowserPage {
     ImageView bubbleHead;
 
     public void setBrowserPage(Context context) {
-
         browser = new WebView(context);
         browser.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT));
         browser.setBackgroundColor(Color.WHITE);
         browser.getSettings().setJavaScriptEnabled(true);
         browser.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
         browser.setWebViewClient(new WebViewClient() {
-            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-            }
         });
 
         bubbleHead = new ImageView(context);
