@@ -29,10 +29,11 @@ public class MainActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                    public void onClick(View v) {
-                        if(c==0){
-                            startService(new Intent(getBaseContext(),BubbleService.class));
+                            Intent urlIntent = new Intent(getBaseContext(), BubbleService.class);
+                            urlIntent.putExtra("url", "http://google.com/");
+                            startService(urlIntent);
                             c=1;
-                        }
+
                     }
                 }
         );
@@ -40,12 +41,10 @@ public class MainActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if(c==1){
                             stopService(new Intent(getBaseContext(), BubbleService.class));
                             c=0;
                         }
                     }
-                }
         );
     }
 }
