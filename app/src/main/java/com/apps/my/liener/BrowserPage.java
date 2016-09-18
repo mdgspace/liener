@@ -22,6 +22,8 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 /**
  * Created by RAHUL on 5/12/2016.
@@ -30,7 +32,7 @@ public class BrowserPage {
     WebView browser;
     ImageView bubbleHead;
 
-    public void setBrowserPage(Context context) {
+    public BrowserPage(Context context) {
         browser = new WebView(context);
         browser.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT));
         browser.setBackgroundColor(Color.WHITE);
@@ -41,5 +43,24 @@ public class BrowserPage {
 
         bubbleHead = new ImageView(context);
         bubbleHead.setImageResource(R.mipmap.bubblesmall);
+
+        final ProgressBar Pbar;
+        final TextView txtview = new TextView(context);
+        Pbar = new ProgressBar(context);
+
+        browser.setWebChromeClient(new WebChromeClient() {
+            public void onProgressChanged(WebView view, int progress) {
+                if(progress < 100 && Pbar.getVisibility() == ProgressBar.GONE){
+                    Pbar.setVisibility(ProgressBar.VISIBLE);
+                    txtview.setVisibility(View.VISIBLE);
+                }
+
+                Pbar.setProgress(progress);
+                if(progress == 100) {
+                    Pbar.setVisibility(ProgressBar.GONE);
+                    txtview.setVisibility(View.GONE);
+                }
+            }
+        });
     }
 }
