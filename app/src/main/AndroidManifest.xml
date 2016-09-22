@@ -3,7 +3,6 @@
     package="com.apps.my.liener" >
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-    <uses-permission android:name="android.permission.INTERNAL_SYSTEM_WINDOW" />
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -36,5 +35,6 @@
                     android:scheme="https" />
             </intent-filter>
         </activity>
+
     </application>
 </manifest>
