@@ -93,7 +93,7 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
     public void initParam(){
         paramBubble = new WindowManager.LayoutParams(   WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_PHONE,
+                WindowManager.LayoutParams.TYPE_TOAST,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT
         );
@@ -103,7 +103,7 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
 
         paramBrowser = new WindowManager.LayoutParams(  WindowManager.LayoutParams.FILL_PARENT,
                 heightNew,
-                WindowManager.LayoutParams.TYPE_PHONE,
+                WindowManager.LayoutParams.TYPE_TOAST,
                 WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL |  WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
                 PixelFormat.TRANSLUCENT
         );
@@ -113,7 +113,7 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
 
     public void initDelete(){
         paramDelete = new WindowManager.LayoutParams( WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_PHONE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT );
+                WindowManager.LayoutParams.TYPE_TOAST, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, PixelFormat.TRANSLUCENT );
         paramDelete.gravity = Gravity.BOTTOM | Gravity.CENTER;
 
         paramDelete.y = (int) (heightNew / 4);
@@ -157,7 +157,7 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
     public void addNewPage(String url){
         is_running = true;
         browserPageArray[arrIndex[count]]=new BrowserPage(context);
-        browserPageArray[arrIndex[count]].browser.loadUrl(url);
+        browserPageArray[arrIndex[count]].browserwv.loadUrl(url);
         if(count==0){
             setBubbleHead();
             Log.d("testing", "addview9");
@@ -316,8 +316,8 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
 
                 }
                 if (keyCode == KeyEvent.KEYCODE_BACK) {
-                    if (browserPageArray[arrIndex[index]].browser.canGoBack()) {
-                        browserPageArray[arrIndex[index]].browser.goBack();
+                    if (browserPageArray[arrIndex[index]].browserwv.canGoBack()) {
+                        browserPageArray[arrIndex[index]].browserwv.goBack();
                     } else {
                         browserPageArray[arrIndex[index]].bubbleHead.performClick();
                     }

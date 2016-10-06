@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -29,36 +30,74 @@ import android.widget.TextView;
  * Created by RAHUL on 5/12/2016.
  */
 public class BrowserPage {
-    WebView browser;
+    WebView browserwv;
     ImageView bubbleHead;
+    String TAG = "BrowserPage";
+    View browser;
+    String oldTitle;
+    TextView tv;
+
 
     public BrowserPage(Context context) {
-        browser = new WebView(context);
-        browser.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT));
-        browser.setBackgroundColor(Color.WHITE);
-        browser.getSettings().setJavaScriptEnabled(true);
-        browser.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
-        browser.setWebViewClient(new WebViewClient() {
+        oldTitle="";
+//        browserwv = new WebView(context);
+        LayoutInflater li = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        browser= li.inflate(R.layout.browser_page, null);
+        browserwv = (WebView) browser.findViewById(R.id.webview);
+        //browserwv.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT));
+        browserwv.setBackgroundColor(Color.WHITE);
+        browserwv.getSettings().setJavaScriptEnabled(true);
+        browserwv.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
+
+        //browser = new LinearLayout(context);
+        //browser.setOrientation(LinearLayout.VERTICAL);
+
+        //LinearLayout ll = new LinearLayout(context);
+        //ll.setOrientation(LinearLayout.HORIZONTAL);
+
+
+        //final TextView txtview = new TextView(context);
+        //txtview.setMaxWidth(ll.getWidth()/2);
+
+        //ll.addView(txtview);
+        //browser.addView(ll);
+        //browser.addView(browserwv);
+        tv=(TextView) browser.findViewById(R.id.txtview);
+        tv.setText("Loading ...");
+
+        browserwv.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                tv.setText(view.getTitle());
+                //Log.d(TAG, "textview set" + txtview.getText() + "]");
+            }
         });
 
         bubbleHead = new ImageView(context);
         bubbleHead.setImageResource(R.mipmap.bubblesmall);
 
-        final ProgressBar Pbar;
-        final TextView txtview = new TextView(context);
-        Pbar = new ProgressBar(context);
 
-        browser.setWebChromeClient(new WebChromeClient() {
+
+//        final ProgressBar Pbar;
+//        Pbar = new ProgressBar(context);
+
+        browserwv.setWebChromeClient(new WebChromeClient() {
             public void onProgressChanged(WebView view, int progress) {
-                if(progress < 100 && Pbar.getVisibility() == ProgressBar.GONE){
-                    Pbar.setVisibility(ProgressBar.VISIBLE);
-                    txtview.setVisibility(View.VISIBLE);
+//                if(progress < 100 && Pbar.getVisibility() == ProgressBar.GONE){
+//                    //Pbar.setVisibility(ProgressBar.VISIBLE);
+//                   // txtview.setVisibility(View.VISIBLE);
+//                }
+                if(progress <100){
+                    Log.d(TAG, "onProgressChanged() called with: " + "view = [" + view + "], progress = [" + progress + "]");
                 }
-
-                Pbar.setProgress(progress);
+                //Pbar.setProgress(progress);
                 if(progress == 100) {
-                    Pbar.setVisibility(ProgressBar.GONE);
-                    txtview.setVisibility(View.GONE);
+                    Log.d(TAG, "onProgressChanged() called with: " + "view = [" + view + "], progress = [" + progress + "]");
+                }
+                if(oldTitle != browserwv.getTitle()){//getTitle has the newer Title
+                    // get the Title
+                    oldTitle = browserwv.getTitle();
+                    tv.setText(oldTitle);
                 }
             }
         });

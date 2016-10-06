@@ -35,8 +35,8 @@ public class MainActivity extends AppCompatActivity {
         startServ.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
-                   public void onClick(View v) {
-                        getPermission(Manifest.permission.SYSTEM_ALERT_WINDOW);
+                   public void onClick(View v) {    startService();
+                        //getPermission(Manifest.permission.SYSTEM_ALERT_WINDOW);
                         Log.d(TAG, "onClick() permission called with: " + "v = [" + v + "]");
                             //
                             c=1;

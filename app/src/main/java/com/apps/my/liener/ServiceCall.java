@@ -31,7 +31,8 @@ public class ServiceCall extends Activity {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate() called with: " + "savedInstanceState = [" + savedInstanceState + "]");
         intent = getIntent();
-        getPermission(Manifest.permission.SYSTEM_ALERT_WINDOW);
+        //getPermission(Manifest.permission.SYSTEM_ALERT_WINDOW);
+        startService();
     }
 
 
