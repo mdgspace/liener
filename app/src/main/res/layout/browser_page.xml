@@ -34,6 +34,12 @@
                 android:layout_width="0dp"
                 android:layout_weight="10"
                 android:layout_height="match_parent"
+                android:background="@android:drawable/ic_menu_add"
+                android:id="@+id/add_bookmark"/>
+            <Button
+                android:layout_width="0dp"
+                android:layout_weight="10"
+                android:layout_height="match_parent"
                 android:background="@drawable/ic_share"/>
             <Button
                 android:layout_width="0dp"

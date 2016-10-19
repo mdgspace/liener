@@ -35,6 +35,6 @@
                     android:scheme="https" />
             </intent-filter>
         </activity>
-
+        <activity android:name=".DisplayContact"/>
     </application>
 </manifest>

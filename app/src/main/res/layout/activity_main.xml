@@ -20,9 +20,21 @@
         android:id="@+id/stopService"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/startService"
-        android:layout_below="@+id/startService"
         android:layout_marginTop="39dp"
-        android:text="stop chat head service"/>
+        android:text="stop chat head service"
+        android:layout_below="@+id/startService"
+        android:layout_centerHorizontal="true" />
+
+        <ListView
+            android:id="@+id/listView1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/stopService"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="68dp"
+            android:stackFromBottom="true"
+            android:transcriptMode="normal">
+        </ListView>
+
 
 </RelativeLayout>

@@ -6,6 +6,7 @@ import android.widget.ImageView;
 /**
  * Created by rahul on 18/9/16.
  */
+
 public class BubbleHead {
     ImageView bubbleHead;
     public BubbleHead(Context context){
