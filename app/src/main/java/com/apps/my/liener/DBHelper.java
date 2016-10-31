@@ -12,6 +12,7 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 public class DBHelper extends SQLiteOpenHelper {
 
@@ -21,6 +22,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String COLUMN_URL = "url";
     public static final String COLUMN_TIMESTAMP = "timestamp";
     private HashMap hp;
+    String TAG ="DBHelper";
 
     public DBHelper(Context context) {
         super(context, DATABASE_NAME , null, 1);
@@ -58,6 +60,7 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues.put(COLUMN_TITLE, title);
         contentValues.put(COLUMN_URL,url);
         contentValues.put(COLUMN_TIMESTAMP,timestamp);
+        Log.d(TAG, "insertContact() called with: " + "isHistory = [" + isHistory + "], title = [" + title + "], url = [" + url + "], timestamp = [" + timestamp + "]");
         if(isHistory){
             return db.insert("history", null, contentValues);
         }
@@ -80,6 +83,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public boolean updateContact (boolean isHistory,Integer id, String title, String url, String timestamp)
     {
+        Log.d(TAG, "updateContact() called with: " + "isHistory = [" + isHistory + "], id = [" + id + "], title = [" + title + "], url = [" + url + "], timestamp = [" + timestamp + "]");
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_TITLE, title);

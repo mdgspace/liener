@@ -43,52 +43,37 @@ public class BrowserPage {
     ImageView bubbleHead;
     String TAG = "BrowserPage";
     View browser;
-    String oldTitle;
+    String oldTitle =" ";
     TextView tv;
     DBHelper mydb;
     long id,ts;
-
+    WindowManager.LayoutParams layoutParamsBubble, layoutParamsBrowser;
 
     public BrowserPage(final Context context) {
+
         mydb = new DBHelper(context);
-        oldTitle="";
+
         LayoutInflater li = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         browser= li.inflate(R.layout.browser_page, null);
-        browserwv = (WebView) browser.findViewById(R.id.webview);
+
         //browserwv.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT));
-        browserwv.setBackgroundColor(Color.WHITE);
-        browserwv.getSettings().setJavaScriptEnabled(true);
-        browserwv.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
+
         tv=(TextView) browser.findViewById(R.id.txtview);
         tv.setText("Loading ...");
+
         browser.findViewById(R.id.add_bookmark).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String name=browserwv.getTitle();
-                Log.d(TAG, "addBookmark() called with: " + name + "");
-                if(name==""){
-                    name=browserwv.getUrl();
-                }
-                mydb.insertContact(false,name, browserwv.getUrl(), String.valueOf(System.currentTimeMillis()/1000));
+                addBookmark();
             }
         });
 
-        browserwv.setWebViewClient(new WebViewClient() {
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                tv.setText(view.getTitle());
-                //Log.d(TAG, "textview set" + txtview.getText() + "]");
-            }
-            public boolean shouldOverrideUrlLoading(WebView view, String url){
-                Log.d(TAG, "shouldOverrideUrlLoading() called with: " + "view = [" + view + "], url = [" + url + "]");
-                ts = System.currentTimeMillis()/1000;
-                id=mydb.insertContact(true,url, url, String.valueOf(ts));
-                return false;
-            }
-        });
+
 
         bubbleHead = new ImageView(context);
         bubbleHead.setImageResource(R.mipmap.bubblesmall);
+        browserwv = (WebView) browser.findViewById(R.id.webview);
+        setBrowser();
 //        Paint paint=new Paint();
 //        paint.setStyle(Paint.Style.FILL);
 //        paint.setColor(0x000000);
@@ -151,6 +136,27 @@ public class BrowserPage {
          */
 
 
+
+    }
+
+    public void setBrowser(){
+        browserwv.setBackgroundColor(Color.WHITE);
+        browserwv.getSettings().setJavaScriptEnabled(true);
+        browserwv.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
+
+        browserwv.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                tv.setText(view.getTitle());
+                //Log.d(TAG, "textview set" + txtview.getText() + "]");
+            }
+            public boolean shouldOverrideUrlLoading(WebView view, String url){
+                Log.d(TAG, "shouldOverrideUrlLoading() called with: " + "view = [" + view + "], url = [" + url + "]");
+                ts = System.currentTimeMillis()/1000;
+                id=mydb.insertContact(true,url, url, String.valueOf(ts));
+                return false;
+            }
+        });
         browserwv.setWebChromeClient(new WebChromeClient() {
             public void onProgressChanged(WebView view, int progress) {
 
@@ -168,16 +174,27 @@ public class BrowserPage {
                     //Log.d(TAG, "onProgressChanged() called with: " + "x = [" + x + "], progress = [" + mydb.getData((int)x) + "]");
 
                     oldTitle = browserwv.getTitle();
-                    mydb.updateContact(true,(int)id,oldTitle,browserwv.getUrl(), String.valueOf(ts));
+                    if (oldTitle != null && !oldTitle.isEmpty() && !oldTitle.equals("null")) mydb.updateContact(true,(int)id,oldTitle,browserwv.getUrl(), String.valueOf(ts));
                     tv.setText(oldTitle);
                 }
             }
         });
     }
 
+    public void addBookmark(){
+        String name=browserwv.getTitle();
+        Log.d(TAG, "addBookmark() called with: " + name + "");
+        if(name==""){
+            name=browserwv.getUrl();
+        }
+        Log.d(TAG, "onClick() called with: " + "name = [" + name + "]" + browserwv.getUrl()+"");
+        mydb.insertContact(false,name, browserwv.getUrl(), String.valueOf(System.currentTimeMillis()/1000));
+    }
+
     public void loadUrl(String url){
         browserwv.loadUrl(url);
         ts = System.currentTimeMillis()/1000;
+        Log.d(TAG, "loadUrl() called with: " + "url = [" + url + "]");
         id=mydb.insertContact(true,url, url, String.valueOf(ts));
     }
 }
