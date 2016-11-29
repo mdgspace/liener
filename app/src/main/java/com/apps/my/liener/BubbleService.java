@@ -141,7 +141,7 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
 
     public void addNewPage(String url){
         is_running = true;
-        browserPageArray[arrIndex[count]]=new BrowserPage(context);
+        browserPageArray[arrIndex[count]]=new BrowserPage(context,BubbleService.this);
         browserPageArray[arrIndex[count]].loadUrl(url);
         if(count==0){
             setBubbleHead();

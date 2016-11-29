@@ -1,5 +1,6 @@
 package com.apps.my.liener;
 
+import android.app.Activity;
 import android.app.Service;
 import android.app.VoiceInteractor;
 import android.content.Context;
@@ -47,9 +48,31 @@ public class BrowserPage {
     TextView tv;
     DBHelper mydb;
     long id,ts;
+    Canvas canvas;  RectF rectF;    Paint paint;
     WindowManager.LayoutParams layoutParamsBubble, layoutParamsBrowser;
+    Context context;
 
-    public BrowserPage(final Context context) {
+    int alphaColor = 100;
+    int aColor=Color.argb(alphaColor,160,160,160);
+    int bColor=Color.argb(alphaColor,150,150,150);
+    int cColor=Color.argb(alphaColor,140,140,140);
+    int dColor=Color.argb(alphaColor,130,130,130);
+    int eColor=Color.argb(alphaColor,120,120,120);
+    int fColor=Color.argb(alphaColor,110,110,110);
+    int gColor=Color.argb(alphaColor,100,100,100);
+    int hColor=Color.argb(alphaColor,90,90,90);
+    int iColor=Color.argb(alphaColor,80,80,80);
+    int jColor=Color.argb(alphaColor,70,70,70);
+    int kColor=Color.argb(alphaColor,60,60,60);
+    int lColor=Color.argb(alphaColor,50,50,50);
+
+    BubbleService BubbleServiceActivity;
+
+
+
+    public BrowserPage(final Context context,BubbleService bubbleService) {
+        this.context=context;
+        BubbleServiceActivity=bubbleService;
 
         mydb = new DBHelper(context);
 
@@ -65,6 +88,14 @@ public class BrowserPage {
             @Override
             public void onClick(View view) {
                 addBookmark();
+            }
+        });
+
+
+        browser.findViewById(R.id.share_url).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                shareText(browserwv.getTitle(),browserwv.getUrl());
             }
         });
 
@@ -88,52 +119,58 @@ public class BrowserPage {
 //        bubbleHead.setImageBitmap(bitmap);
 
        // bubbleHead = new MyCanvas(context,3);
-         /*bubbleHead = new ImageView(context);
+//         bubbleHead = new ImageView(context);
+//
+//
+//       Bitmap bitmap= Bitmap.createBitmap(100,100,Bitmap.Config.ARGB_8888);
+//        canvas = new Canvas(bitmap);
+//        Paint pbg = new Paint();
+//        pbg.setColor(Color.argb(255,255,255,255));
+//        pbg.setStrokeWidth(0);
+//        rectF = new RectF(0,0,120,120);
+//        canvas.drawOval(rectF,pbg);
+//        rectF = new RectF(5,5,115,115);
+//        bubbleHead.setImageBitmap(bitmap);
+//        paint=new Paint();
+//        paint.setStrokeWidth(10);
+//        paint.setStrokeWidth(10);
+//        paint.setStyle(Paint.Style.FILL);
+//        paint.setStrokeJoin(Paint.Join.ROUND);
+//        for(int i=0;i<12;i++){
+//            paint=new Paint();
+//            paint.setStrokeWidth(10);
+//            paint.setStrokeWidth(10);
+//            paint.setStyle(Paint.Style.FILL);
+//            paint.setStrokeJoin(Paint.Join.ROUND);
+//
+////            switch (i){
+////                case 0 :            paint.setColor(aColor); break;
+////                case 1 :             paint.setColor(bColor);  break;
+////                case 2 :            paint.setColor(cColor);     break;
+////                case 3 :            paint.setColor(dColor); break;
+////                case 4 :             paint.setColor(eColor);  break;
+////                case 5 :            paint.setColor(fColor);     break;
+////                case 6 :            paint.setColor(gColor); break;
+////                case 7 :             paint.setColor(hColor);  break;
+////                case 8 :            paint.setColor(iColor);     break;
+////                case 9 :            paint.setColor(jColor); break;
+////                case 10 :             paint.setColor(kColor);  break;
+////                case 11 :            paint.setColor(lColor);     break;
+////            }
+////            canvas.drawArc(rectF,270+30*i,27,true,paint);
+//
+//        }
+//        for(int i=0;i<12;i++){
+//            Paint paint=new Paint();
+//            paint.setStrokeWidth(10);
+//            paint.setStyle(Paint.Style.STROKE);
+//            paint.setStrokeJoin(Paint.Join.ROUND);
+//            paint.setColor(Color.GRAY);
+//            canvas.drawArc(rectF,270+30*i,30,true,paint);
+//
+//        }
 
 
-       Bitmap bitmap= Bitmap.createBitmap(100,100,Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        Paint pbg = new Paint();
-        pbg.setColor(Color.argb(255,255,255,255));
-        pbg.setStrokeWidth(0);
-        RectF rectF = new RectF(0,0,100,100);
-        canvas.drawOval(rectF,pbg);
-        bubbleHead.setImageBitmap(bitmap);
-        for(int i=0;i<12;i++){
-            Paint paint=new Paint();
-            paint.setStrokeWidth(10);
-            paint.setStrokeWidth(10);
-            paint.setStyle(Paint.Style.FILL);
-            paint.setStrokeJoin(Paint.Join.ROUND);
-
-            switch (i){
-                case 0 :            paint.setColor(Color.YELLOW); break;
-                case 1 :             paint.setColor(Color.RED);  break;
-                case 2 :            paint.setColor(Color.BLUE);     break;
-                case 3 :            paint.setColor(Color.GREEN); break;
-                case 4 :             paint.setColor(Color.MAGENTA);  break;
-                case 5 :            paint.setColor(Color.GRAY);     break;
-                case 6 :            paint.setColor(Color.YELLOW); break;
-                case 7 :             paint.setColor(Color.RED);  break;
-                case 8 :            paint.setColor(Color.BLUE);     break;
-                case 9 :            paint.setColor(Color.GREEN); break;
-                case 10 :             paint.setColor(Color.MAGENTA);  break;
-                case 11 :            paint.setColor(Color.GRAY);     break;
-            }
-            canvas.drawArc(rectF,270+30*i,30,true,paint);
-
-        }
-        for(int i=0;i<12;i++){
-            Paint paint=new Paint();
-            paint.setStrokeWidth(10);
-            paint.setStyle(Paint.Style.STROKE);
-            paint.setStrokeJoin(Paint.Join.ROUND);
-            paint.setColor(Color.WHITE);
-            canvas.drawArc(rectF,270+30*i,30,true,paint);
-
-        }
-
-         */
 
 
 
@@ -160,8 +197,51 @@ public class BrowserPage {
         browserwv.setWebChromeClient(new WebChromeClient() {
             public void onProgressChanged(WebView view, int progress) {
 
-                if(progress <100){
+                if(progress <100) {
                     Log.d(TAG, "onProgressChanged() called with: " + "view = [" + view + "], progress = [" + progress + "]");
+//                    int x = (int) (progress * 12 / 100);
+//                    Log.d(TAG, "onProgressChanged() called with: " + "x = [" + x + "], progress = [" + progress + "]");
+//                    for (int i = 0; i <= x; i++) {
+//                        switch (i) {
+//                            case 0:
+//                                paint.setColor(aColor);
+//                                break;
+//                            case 1:
+//                                paint.setColor(bColor);
+//                                break;
+//                            case 2:
+//                                paint.setColor(cColor);
+//                                break;
+//                            case 3:
+//                                paint.setColor(dColor);
+//                                break;
+//                            case 4:
+//                                paint.setColor(eColor);
+//                                break;
+//                            case 5:
+//                                paint.setColor(fColor);
+//                                break;
+//                            case 6:
+//                                paint.setColor(gColor);
+//                                break;
+//                            case 7:
+//                                paint.setColor(hColor);
+//                                break;
+//                            case 8:
+//                                paint.setColor(iColor);
+//                                break;
+//                            case 9:
+//                                paint.setColor(jColor);
+//                                break;
+//                            case 10:
+//                                paint.setColor(kColor);
+//                                break;
+//                            case 11:
+//                                paint.setColor(lColor);
+//                                break;
+//                        }
+//                        canvas.drawArc(rectF, 270 + 30 * i, 27, true, paint);
+//                    }
                 }
                 //Pbar.setProgress(progress);
                 if(progress == 100) {
@@ -196,5 +276,15 @@ public class BrowserPage {
         ts = System.currentTimeMillis()/1000;
         Log.d(TAG, "loadUrl() called with: " + "url = [" + url + "]");
         id=mydb.insertContact(true,url, url, String.valueOf(ts));
+    }
+
+    public void shareText(String title,String body) {
+        Intent intent = new Intent(android.content.Intent.ACTION_SEND);
+        intent.setType("text/plain");
+        intent.putExtra(android.content.Intent.EXTRA_SUBJECT, title);
+        intent.putExtra(android.content.Intent.EXTRA_TEXT, body);Intent chooser=Intent.createChooser(intent, "Choose sharing method");
+        chooser.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(chooser);
+        BubbleServiceActivity.minimizeBrowser(BubbleServiceActivity.current);
     }
 }

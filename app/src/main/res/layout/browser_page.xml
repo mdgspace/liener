@@ -40,7 +40,8 @@
                 android:layout_width="0dp"
                 android:layout_weight="10"
                 android:layout_height="match_parent"
-                android:background="@drawable/ic_share"/>
+                android:background="@drawable/ic_share"
+                android:id="@+id/share_url"/>
             <Button
                 android:layout_width="0dp"
                 android:layout_weight="10"
