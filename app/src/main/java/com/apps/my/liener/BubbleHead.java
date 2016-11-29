@@ -27,6 +27,8 @@ public class BubbleHead {
                                                         WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                                                         PixelFormat.TRANSLUCENT
         );
+        layoutParams.width = 100;
+        layoutParams.height = 100;
         layoutParams.gravity = Gravity.BOTTOM | Gravity.RIGHT;
         layoutParams.x = x;
         layoutParams.y = y;

@@ -16,6 +16,7 @@ import android.media.Image;
 import android.os.IBinder;
 import android.provider.ContactsContract;
 import android.provider.Settings;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.telecom.PhoneAccount;
 import android.text.LoginFilter;
@@ -41,7 +42,7 @@ import android.widget.TextView;
  */
 public class BrowserPage {
     WebView browserwv;
-    ImageView bubbleHead;
+    View bubbleHead;
     String TAG = "BrowserPage";
     View browser;
     String oldTitle =" ";
@@ -49,31 +50,29 @@ public class BrowserPage {
     DBHelper mydb;
     long id,ts;
     Canvas canvas;  RectF rectF;    Paint paint;
-    WindowManager.LayoutParams layoutParamsBubble, layoutParamsBrowser;
+    WindowManager.LayoutParams layoutParamsBubble;
     Context context;
 
-    int alphaColor = 100;
-    int aColor=Color.argb(alphaColor,160,160,160);
-    int bColor=Color.argb(alphaColor,150,150,150);
-    int cColor=Color.argb(alphaColor,140,140,140);
-    int dColor=Color.argb(alphaColor,130,130,130);
-    int eColor=Color.argb(alphaColor,120,120,120);
-    int fColor=Color.argb(alphaColor,110,110,110);
-    int gColor=Color.argb(alphaColor,100,100,100);
-    int hColor=Color.argb(alphaColor,90,90,90);
-    int iColor=Color.argb(alphaColor,80,80,80);
-    int jColor=Color.argb(alphaColor,70,70,70);
-    int kColor=Color.argb(alphaColor,60,60,60);
-    int lColor=Color.argb(alphaColor,50,50,50);
+//    int alphaColor = 100;
+//    int aColor=Color.argb(alphaColor,160,160,160);
+//    int bColor=Color.argb(alphaColor,150,150,150);
+//    int cColor=Color.argb(alphaColor,140,140,140);
+//    int dColor=Color.argb(alphaColor,130,130,130);
+//    int eColor=Color.argb(alphaColor,120,120,120);
+//    int fColor=Color.argb(alphaColor,110,110,110);
+//    int gColor=Color.argb(alphaColor,100,100,100);
+//    int hColor=Color.argb(alphaColor,90,90,90);
+//    int iColor=Color.argb(alphaColor,80,80,80);
+//    int jColor=Color.argb(alphaColor,70,70,70);
+//    int kColor=Color.argb(alphaColor,60,60,60);
+//    int lColor=Color.argb(alphaColor,50,50,50);
 
     BubbleService BubbleServiceActivity;
 
-
-
-    public BrowserPage(final Context context,BubbleService bubbleService) {
+    public BrowserPage(final Context context,BubbleService bubbleService,int x,int y) {
         this.context=context;
         BubbleServiceActivity=bubbleService;
-
+        initParams(x,y);
         mydb = new DBHelper(context);
 
         LayoutInflater li = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -99,10 +98,13 @@ public class BrowserPage {
             }
         });
 
+        bubbleHead=li.inflate(R.layout.browser_bubblehead,null);
+        bubbleHead.findViewById(R.id.progressBar).setVisibility(View.INVISIBLE);
 
+        //bubbleHead.setLayoutParams(new ActionBar.LayoutParams(150,150));
 
-        bubbleHead = new ImageView(context);
-        bubbleHead.setImageResource(R.mipmap.bubblesmall);
+//        bubbleHead = new ImageView(context);
+//        bubbleHead.setImageResource(R.mipmap.bubblesmall);
         browserwv = (WebView) browser.findViewById(R.id.webview);
         setBrowser();
 //        Paint paint=new Paint();
@@ -170,10 +172,6 @@ public class BrowserPage {
 //
 //        }
 
-
-
-
-
     }
 
     public void setBrowser(){
@@ -198,6 +196,7 @@ public class BrowserPage {
             public void onProgressChanged(WebView view, int progress) {
 
                 if(progress <100) {
+                    bubbleHead.findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
                     Log.d(TAG, "onProgressChanged() called with: " + "view = [" + view + "], progress = [" + progress + "]");
 //                    int x = (int) (progress * 12 / 100);
 //                    Log.d(TAG, "onProgressChanged() called with: " + "x = [" + x + "], progress = [" + progress + "]");
@@ -246,6 +245,8 @@ public class BrowserPage {
                 //Pbar.setProgress(progress);
                 if(progress == 100) {
                     Log.d(TAG, "onProgressChanged() called with: " + "view = [" + view + "], progress = [" + progress + "]");
+                    bubbleHead.findViewById(R.id.progressBar).setVisibility(View.INVISIBLE);
+
                 }
                 if(oldTitle != browserwv.getTitle()){//getTitle has the newer Title
                     // get the Title
@@ -279,12 +280,38 @@ public class BrowserPage {
     }
 
     public void shareText(String title,String body) {
-        Intent intent = new Intent(android.content.Intent.ACTION_SEND);
-        intent.setType("text/plain");
-        intent.putExtra(android.content.Intent.EXTRA_SUBJECT, title);
-        intent.putExtra(android.content.Intent.EXTRA_TEXT, body);Intent chooser=Intent.createChooser(intent, "Choose sharing method");
-        chooser.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(chooser);
+        Intent sendIntent = new Intent(android.content.Intent.ACTION_SEND);
+        sendIntent.setType("text/plain");
+        sendIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, title);
+        sendIntent.putExtra(android.content.Intent.EXTRA_TEXT, body);
+        Intent typechooser=Intent.createChooser(sendIntent, "Choose sharing method");
+        typechooser.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(typechooser);
         BubbleServiceActivity.minimizeBrowser(BubbleServiceActivity.current);
+    }
+
+    public void initParams(int x,int y){
+        layoutParamsBubble = new WindowManager.LayoutParams(
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.TYPE_TOAST,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                PixelFormat.TRANSLUCENT
+        );
+        layoutParamsBubble.width = 100;
+        layoutParamsBubble.height = 100;
+        layoutParamsBubble.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+        layoutParamsBubble.x = x;
+        layoutParamsBubble.y = y;
+    }
+
+    public void switchToSmall(){
+        layoutParamsBubble.width = Constant.BubbleSizeSmall;
+        layoutParamsBubble.height = Constant.BubbleSizeSmall;
+    }
+
+    public void switchToLarge(){
+        layoutParamsBubble.width = Constant.BubbleSizeLarge;
+        layoutParamsBubble.height = Constant.BubbleSizeLarge;
     }
 }
