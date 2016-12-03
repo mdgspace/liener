@@ -69,7 +69,7 @@ public class BrowserPage {
 
     BubbleService BubbleServiceActivity;
 
-    public BrowserPage(final Context context,BubbleService bubbleService,int x,int y) {
+    public BrowserPage(final Context context,BubbleService bubbleService,int x,int height,int widthMid) {
         this.context=context;
         BubbleServiceActivity=bubbleService;
         mydb = new DBHelper(context);
@@ -77,8 +77,8 @@ public class BrowserPage {
         LayoutInflater li = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         browser= li.inflate(R.layout.browser_page, null);
         //bubbleHead=li.inflate(R.layout.browser_bubblehead,null);
-        bubbleHead = new BubbleHead(context);
-        bubbleHead.initParams(x,y);
+        bubbleHead = new BubbleHead(context,height,widthMid,BubbleHead.HEAD_TYPE_TAB);
+        bubbleHead.initParams(x,height);
 
 
         tv=(TextView) browser.findViewById(R.id.txtview);
@@ -166,7 +166,7 @@ public class BrowserPage {
 //            paint.setColor(Color.GRAY);
 //            canvas.drawArc(rectF,270+30*i,30,true,paint);
 //
-//        }
+    //        }
 
     }
 
