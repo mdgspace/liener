@@ -7,6 +7,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:indeterminate="true"
+        android:visibility="invisible"
         app:cpb_color="#FFee44"
         app:cpb_rotation_speed="1.0"
         app:cpb_sweep_speed="1.0"
@@ -18,5 +19,6 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@mipmap/bubble"/>
+        android:src="@mipmap/bubble"
+        android:id="@+id/headimage"/>
 </RelativeLayout>

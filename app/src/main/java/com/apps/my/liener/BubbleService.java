@@ -52,7 +52,7 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
     String TAG = "BubbleService";
     WindowManager.LayoutParams paramBrowser;
     boolean is_open = false,is_running;
-    int paramx = 0 ,paramy =0,count=1, current=0,bubbleWidth , heightNew, widthMid ;
+    int paramx = 0 ,paramy =0,count=0, current=0,bubbleWidth , heightNew, widthMid ;
 
     BrowserPage browserPageArray[] = new BrowserPage[20];
     int arrIndex[] = new int[20];
@@ -67,13 +67,14 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
     public void onCreate() {
         super.onCreate();
         initVariables();
-        initDelete();
-        initParam();
+        initDeleteHead();
+        initParamBrowser();
         initHomeListener();
     }
 
     public void initVariables(){
-        current=0; count=0;
+        current=0;
+        count=0;
         context = this;
         for(int i=0; i<20 ; i++){
             arrIndex[i]= i;
@@ -81,16 +82,12 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
 
         bubbleWindow = (WindowManager) getSystemService(WINDOW_SERVICE);
 
-        Display display = bubbleWindow.getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        heightNew = (int)((size.y*100)/128);
-        widthMid = (int)(size.x/2);
-
-        bh = new BubbleHead(context,0,heightNew,R.mipmap.bubble);
+        loadDimensions();
+        bh = new BubbleHead(context);
+        bh.initParams(0,heightNew);
     }
 
-    public void initParam(){
+    public void initParamBrowser(){
         paramBrowser = new WindowManager.LayoutParams(  WindowManager.LayoutParams.FILL_PARENT,
                 heightNew,
                 WindowManager.LayoutParams.TYPE_TOAST,
@@ -101,9 +98,11 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
     }
 
 
-    public void initDelete(){
+    public void initDeleteHead(){
         Log.d("testing", "addview1");
-        deleteHead = new BubbleHead(context,0,(int)(heightNew/4),R.mipmap.delete);
+        deleteHead = new BubbleHead(context);
+        deleteHead.initParams(0,(int)(heightNew/4));
+        deleteHead.switchToDelete();
         deleteHead.layoutParams.gravity= Gravity.BOTTOM | Gravity.CENTER;
         deleteHead.layoutParams.width = 200;
     }
@@ -114,12 +113,11 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
         super.onDestroy();
         if(is_open){
             if(current>=0) {
-                browserPageArray[arrIndex[current]].bubbleHead.performClick();
+                browserPageArray[arrIndex[current]].bubbleHead.view.performClick();  // Minimizes before destroying
             }
-            //bubbleWindow.removeView(bh.imageView);
         }
         else{
-            bubbleWindow.removeView(bh.imageView);
+            bubbleWindow.removeView(bh.view);
         }
     }
 
@@ -130,13 +128,11 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
 
     @Override
     public int onStartCommand (Intent intent, int flags, int startId) {
-
-        if(("[" + intent + "]").equals("[null]")){}
-        else{
+        if(!("" + intent + "").equals("null")){
             String url = intent.getStringExtra("url");
             addNewPage(url);
         }
-        setNotification();
+        setNotification();      // Notification in notification panel to keep the activity running in background
         return Service.START_STICKY;
     }
 
@@ -145,13 +141,13 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
         browserPageArray[arrIndex[count]]=new BrowserPage(context,BubbleService.this,count*Constant.BubbleSizeLarge,heightNew);
         browserPageArray[arrIndex[count]].loadUrl(url);
         if(count==0){
-            setBubbleHead();
+            setBubbleHead();        // if first tab then sets main bubble head listeners
             Log.d("testing", "addview9");
-            bubbleWindow.addView(bh.imageView, bh.layoutParams);
+            bubbleWindow.addView(bh.view, bh.layoutParams);    // Adds main bubble head to the display
         }
         else{
             if(is_open){
-                browserPageArray[current].bubbleHead.performClick();
+                browserPageArray[current].bubbleHead.view.performClick();
             }
         }
         count++;
@@ -171,11 +167,10 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
         startForeground(1, notification);
     }
 
-
     public void setBubbleHead() {
-        bh.imageView.setOnTouchListener(new View.OnTouchListener() {
+        bh.view.setOnTouchListener(new View.OnTouchListener() {
             int initialX, initialY;
-            float initialTouchX, initialTouchY, y, x;
+            float initialTouchX, initialTouchY;
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (!is_open) {
@@ -183,7 +178,7 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
                         case MotionEvent.ACTION_DOWN:
                             initialX = bh.layoutParams.x;           initialY = bh.layoutParams.y;
                             initialTouchX = event.getRawX();    initialTouchY = event.getRawY();
-                            bubbleWindow.addView(deleteHead.imageView, deleteHead.layoutParams);
+                            bubbleWindow.addView(deleteHead.view, deleteHead.layoutParams);
                             return false;
                         case MotionEvent.ACTION_MOVE:
                             if(onRightSide){
@@ -193,20 +188,20 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
                                 bh.layoutParams.x = initialX + (int)(event.getRawX() - initialTouchX);
                             }
                             bh.layoutParams.y = initialY - (int)(event.getRawY() - initialTouchY);
-                            if (ondelete(deleteHead.imageView.getWidth())){
+                            if (ondelete(deleteHead.view.getWidth(),bh.layoutParams)){
                                 Log.d(TAG, "action_move inside () called with: " + "v = [" + v + "], event = [" + event + "], height = [" + heightNew + "], width = [" + widthMid + "]");
                                 Log.d("testing", "removeView3");
-                                bubbleWindow.removeView(deleteHead.imageView);            Log.d("testing", "update layout4");
-                                bubbleWindow.updateViewLayout(bh.imageView, deleteHead.layoutParams);       Log.d("testing", "addview2");
-                                bubbleWindow.addView(deleteHead.imageView, deleteHead.layoutParams);
+                                bubbleWindow.removeView(deleteHead.view);            Log.d("testing", "update layout4");
+                                bubbleWindow.updateViewLayout(bh.view, deleteHead.layoutParams);       Log.d("testing", "addview2");
+                                bubbleWindow.addView(deleteHead.view, deleteHead.layoutParams);
                             } else {
-                                bubbleWindow.updateViewLayout(bh.imageView, bh.layoutParams);
+                                bubbleWindow.updateViewLayout(bh.view, bh.layoutParams);
                             }
                             return false;
                         case MotionEvent.ACTION_UP:
                             Log.d("testing", "actionupfor0");
-                            bubbleWindow.removeView(deleteHead.imageView);
-                            if (ondelete(deleteHead.imageView.getWidth())) {
+                            bubbleWindow.removeView(deleteHead.view);
+                            if (ondelete(deleteHead.view.getWidth(),bh.layoutParams)) {
                                 is_running = false;
                                 Log.d(TAG, "stopself");
                                 stopSelf();
@@ -224,7 +219,7 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
                                     }
                                 }
                                 bh.layoutParams.x=0;
-                                bubbleWindow.updateViewLayout(bh.imageView, bh.layoutParams);
+                                bubbleWindow.updateViewLayout(bh.view, bh.layoutParams);
                                 Log.d(TAG, "else in action_up");
                             }
                             return false;
@@ -233,7 +228,7 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
                 return false;
             }
         });
-        bh.imageView.setOnClickListener(new View.OnClickListener() {
+        bh.view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (is_running) {
@@ -247,13 +242,13 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
                         bh.layoutParams.y = heightNew;
                         if (current == 0) {
                             browserPageArray[arrIndex[0]].switchToLarge();
-                            //bubbleWindow.updateViewLayout(browserPageArray[arrIndex[0]].bubbleHead,browserPageArray[arrIndex[0]].layoutParamsBubble);
+                            //bubbleWindow.updateViewLayout(browserPageArray[arrIndex[0]].bubbleHead.view,browserPageArray[arrIndex[0]].bubbleHead.layoutParams);
 
-                            //browserPageArray[arrIndex[0]].bubbleHead.setImageResource(R.mipmap.bubble);
+                            //browserPageArray[arrIndex[0]].bubbleHead.view.setImageResource(R.mipmap.bubble);
                         }
                         Log.d("testing", "update layout2");
-                        bubbleWindow.removeView(bh.imageView);
-                        bubbleWidth = bh.imageView.getWidth();
+                        bubbleWindow.removeView(bh.view);
+                        bubbleWidth = bh.view.getWidth();
                         Log.d(TAG, " " + "bubblewidth = [" + bubbleWidth + "]");
                         addBrowser(current);
                         for (int i = 0; i < count; i++) {
@@ -264,7 +259,7 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
                                 bh.layoutParams.x = bh.layoutParams.x + bubbleWidth;
                                 Log.d("testing", "addview3");
                             }
-                            bubbleWindow.addView(browserPageArray[arrIndex[i]].bubbleHead, browserPageArray[arrIndex[i]].layoutParamsBubble);
+                            bubbleWindow.addView(browserPageArray[arrIndex[i]].bubbleHead.view, browserPageArray[arrIndex[i]].bubbleHead.layoutParams);
                         }
                         is_open = true;
                     } else {
@@ -309,7 +304,7 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
                     if (browserPageArray[arrIndex[index]].browserwv.canGoBack()) {
                         browserPageArray[arrIndex[index]].browserwv.goBack();
                     } else {
-                        browserPageArray[arrIndex[index]].bubbleHead.performClick();
+                        browserPageArray[arrIndex[index]].bubbleHead.view.performClick();
                     }
                 }
                 return false;
@@ -320,9 +315,9 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
     public void addBubble(final int index){
         Log.d(TAG, "addBubble() called with: index = [" + index + "]");
 
-        browserPageArray[arrIndex[index]].bubbleHead.setOnTouchListener(new View.OnTouchListener() {
+        browserPageArray[arrIndex[index]].bubbleHead.view.setOnTouchListener(new View.OnTouchListener() {
             int initialX;
-            int initialY,y,x,z;
+            int initialY,y,x;
             float initialTouchX;
             float initialTouchY;
 
@@ -332,27 +327,26 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                         Log.d(TAG, "in Action_down");
-                        z=bh.layoutParams.x;
                         initialX = index*bubbleWidth;
                         Log.d(TAG, "ontouch action down: " + "index = [" + index + "], initialX = [" + initialX + "]");
                         initialY= heightNew;
                         initialTouchX = event.getRawX();
                         initialTouchY = event.getRawY();
-                        bubbleWindow.addView(deleteHead.imageView, deleteHead.layoutParams);
+                        bubbleWindow.addView(deleteHead.view, deleteHead.layoutParams);
                         bubbleWindow.removeView(browserPageArray[arrIndex[current]].browser);
                         return false;
 
                     case MotionEvent.ACTION_MOVE:
-                        bh.layoutParams.x = initialX - (int) (event.getRawX() - initialTouchX);
-                        bh.layoutParams.y = initialY - (int) (event.getRawY() - initialTouchY);
+                        browserPageArray[arrIndex[index]].bubbleHead.layoutParams.x = initialX - (int) (event.getRawX() - initialTouchX);
+                        browserPageArray[arrIndex[index]].bubbleHead.layoutParams.y = initialY - (int) (event.getRawY() - initialTouchY);
                         Log.d(TAG, "action_move () called with: " + "v = [" + v + "], height = [" + heightNew + "], width = [" + widthMid + "], x = [" + x + "], y = [" + y + "], event = [" + event + "]");
-                        if (ondelete(deleteHead.imageView.getWidth())) {
-                            bubbleWindow.removeView(deleteHead.imageView);
-                            bubbleWindow.updateViewLayout(browserPageArray[arrIndex[index]].bubbleHead, deleteHead.layoutParams);
-                            bubbleWindow.addView(deleteHead.imageView, deleteHead.layoutParams);
+                        if (ondelete(deleteHead.view.getWidth(), browserPageArray[arrIndex[index]].bubbleHead.layoutParams)) {
+                            bubbleWindow.removeView(deleteHead.view);
+                            bubbleWindow.updateViewLayout(browserPageArray[arrIndex[index]].bubbleHead.view, deleteHead.layoutParams);
+                            bubbleWindow.addView(deleteHead.view, deleteHead.layoutParams);
                         } else {
-                            bh.layoutParams.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-                            bubbleWindow.updateViewLayout(browserPageArray[arrIndex[index]].bubbleHead, browserPageArray[arrIndex[index]].layoutParamsBubble);
+                            browserPageArray[arrIndex[index]].bubbleHead.layoutParams.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+                            bubbleWindow.updateViewLayout(browserPageArray[arrIndex[index]].bubbleHead.view, browserPageArray[arrIndex[index]].bubbleHead.layoutParams);
                         }
                         return false;
 
@@ -360,19 +354,17 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
                         return false;
 
                     case MotionEvent.ACTION_UP:
-                        bubbleWindow.removeView(deleteHead.imageView);
-//                        y = (bh.layoutParams.y - deleteHead.layoutParams.y);
-//                        x = (bh.layoutParams.x - deleteHead.layoutParams.x);
-                        if (ondelete(deleteHead.imageView.getWidth())) {
+                        bubbleWindow.removeView(deleteHead.view);
+                        if (ondelete(deleteHead.view.getWidth(), browserPageArray[arrIndex[index]].bubbleHead.layoutParams)) {
                             Log.d(TAG, "delete page called");
                             deletePage(index);
                         }
                         else {
-                            bh.layoutParams.gravity =Gravity.BOTTOM | Gravity.RIGHT;
-                            bh.layoutParams.x = initialX;
-                            bh.layoutParams.y = heightNew;
+                            browserPageArray[arrIndex[index]].bubbleHead.layoutParams.gravity =Gravity.BOTTOM | Gravity.RIGHT;
+                            browserPageArray[arrIndex[index]].bubbleHead.layoutParams.x = initialX;
+                            browserPageArray[arrIndex[index]].bubbleHead.layoutParams.y = heightNew;
                             Log.d(TAG, "arrayindex: "+ current);
-                            bubbleWindow.updateViewLayout(browserPageArray[arrIndex[index]].bubbleHead, browserPageArray[arrIndex[index]].layoutParamsBubble);
+                            bubbleWindow.updateViewLayout(browserPageArray[arrIndex[index]].bubbleHead.view, browserPageArray[arrIndex[index]].bubbleHead.layoutParams);
                             Log.d(TAG, "onTouch() action up called with: " + "v = [" + v + "], event = [" + event + "]");
                             Log.d("testing","addview6"); bubbleWindow.addView(browserPageArray[arrIndex[current]].browser, paramBrowser);
                         }
@@ -384,7 +376,7 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
             }
         });
 
-        browserPageArray[arrIndex[index]].bubbleHead.setOnClickListener(new View.OnClickListener() {
+        browserPageArray[arrIndex[index]].bubbleHead.view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "min " + "index = [" + index + "]");
@@ -397,7 +389,7 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
         if(current==index) {
             for (int i = 0; i < count; i++) {
                 Log.d("TESTING", "for loop removeView in minimize");
-                Log.d("testing", "removeView4"); bubbleWindow.removeView(browserPageArray[arrIndex[i]].bubbleHead);
+                Log.d("testing", "removeView4"); bubbleWindow.removeView(browserPageArray[arrIndex[i]].bubbleHead.view);
             }
             bh.layoutParams.x = paramx;
             bh.layoutParams.y = paramy;
@@ -407,10 +399,10 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
             else {
                 bh.layoutParams.gravity = Gravity.BOTTOM | Gravity.LEFT;
             }
-            //browserPageArray[arrIndex[0]].bubbleHead.setImageResource(R.mipmap.bubblesmall);
+            //browserPageArray[arrIndex[0]].bubbleHead.view.setImageResource(R.mipmap.bubblesmall);
 
             Log.d("testing", "removeView5" + " current = [" + current + "]"); bubbleWindow.removeView(browserPageArray[arrIndex[current]].browser);
-            Log.d("testing", "update layout6"); bubbleWindow.addView(bh.imageView, bh.layoutParams);
+            Log.d("testing", "update layout6"); bubbleWindow.addView(bh.view, bh.layoutParams);
             //addListenerBubble();
             is_open = false;
             mHomeWatcher.stopWatch();
@@ -421,12 +413,10 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
             addBrowser(index);
             Log.d("testing", "removeView6"); bubbleWindow.removeView(browserPageArray[arrIndex[current]].browser);
             browserPageArray[arrIndex[index]].switchToLarge();
-            bubbleWindow.updateViewLayout(browserPageArray[arrIndex[index]].bubbleHead,browserPageArray[arrIndex[index]].layoutParamsBubble);
+            bubbleWindow.updateViewLayout(browserPageArray[arrIndex[index]].bubbleHead.view,browserPageArray[arrIndex[index]].bubbleHead.layoutParams);
 
             browserPageArray[arrIndex[current]].switchToSmall();
-            bubbleWindow.updateViewLayout(browserPageArray[arrIndex[current]].bubbleHead,browserPageArray[arrIndex[current]].layoutParamsBubble);
-           //browserPageArray[arrIndex[index]].bubbleHead.setImageResource(R.mipmap.bubble);
-           //browserPageArray[arrIndex[current]].bubbleHead.setImageResource(R.mipmap.bubblesmall);
+            bubbleWindow.updateViewLayout(browserPageArray[arrIndex[current]].bubbleHead.view,browserPageArray[arrIndex[current]].bubbleHead.layoutParams);
             current=index;
         }
     }
@@ -442,22 +432,20 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
         count--;
 
         Log.d("testing", "removeView7" + "arrindex =");
-        bubbleWindow.removeView(browserPageArray[arrIndex[count]].bubbleHead);
-       //browserPageArray[arrIndex[current]].bubbleHead.setImageResource(R.mipmap.bubble);
+        bubbleWindow.removeView(browserPageArray[arrIndex[count]].bubbleHead.view);
         browserPageArray[arrIndex[current]].switchToLarge();
-        bubbleWindow.updateViewLayout(browserPageArray[arrIndex[current]].bubbleHead,browserPageArray[arrIndex[current]].layoutParamsBubble);
+        bubbleWindow.updateViewLayout(browserPageArray[arrIndex[current]].bubbleHead.view,browserPageArray[arrIndex[current]].bubbleHead.layoutParams);
         if (current >= count) {
             current--;
-           //browserPageArray[arrIndex[0]].bubbleHead.setImageResource(R.mipmap.bubble);
             browserPageArray[arrIndex[0]].switchToLarge();
-            bubbleWindow.updateViewLayout(browserPageArray[arrIndex[0]].bubbleHead,browserPageArray[arrIndex[0]].layoutParamsBubble);
+            bubbleWindow.updateViewLayout(browserPageArray[arrIndex[0]].bubbleHead.view,browserPageArray[arrIndex[0]].bubbleHead.layoutParams);
         }
         bh.layoutParams.x = index * bubbleWidth;
         bh.layoutParams.y = heightNew;
         for (int i = index; i < count; i++) {
             addBubble(i);
             Log.d("testing", "update layout7");
-            bubbleWindow.updateViewLayout(browserPageArray[arrIndex[i]].bubbleHead, browserPageArray[arrIndex[i]].layoutParamsBubble);
+            bubbleWindow.updateViewLayout(browserPageArray[arrIndex[i]].bubbleHead.view, browserPageArray[arrIndex[i]].bubbleHead.layoutParams);
             bh.layoutParams.x = bh.layoutParams.x + bubbleWidth;
         }
 
@@ -466,6 +454,7 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
             bubbleWindow.addView(browserPageArray[arrIndex[current]].browser, paramBrowser);
         }
         else{
+            mHomeWatcher.stopWatch();
             stopSelf();
         }
     }
@@ -474,10 +463,10 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
 
 
 
-    public boolean ondelete(int deletewidth){
-        int y = (bh.layoutParams.y - heightNew/4);
-        int x = (bh.layoutParams.x - widthMid + deletewidth/2);
-        Log.d(TAG, "ondelete() called with:" + "x : " + x + "y : " + y + " deletewidth = [" + deletewidth + "]" + " bh.layoutParamsx "+bh.layoutParams.x + " bh.layoutParamsy "+bh.layoutParams.y + " pheightnew "+heightNew +" widthmid "+widthMid);
+    public boolean ondelete(int deletewidth, WindowManager.LayoutParams layoutParams){
+        int y = (layoutParams.y - heightNew/4);
+        int x = (layoutParams.x - widthMid + deletewidth/2);
+        Log.d(TAG, "ondelete() called with:" + "x : " + x + "y : " + y + " deletewidth = [" + deletewidth + "]" + " layoutParamsx "+layoutParams.x + " layoutParamsy "+layoutParams.y + " pheightnew "+heightNew +" widthmid "+widthMid);
         if ((x > -100 && x < 100) && (y > -100 && y < 100)) {
             Log.d("TESTING", "deleted");
             return true;
@@ -497,6 +486,14 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
     @Override
     public void onFocusChange(View view, boolean b) {
         Log.d(TAG, "onFocusChange() called with: " + "view = [" + view + "], b = [" + b + "]");
+    }
+
+    public void loadDimensions(){
+        Display display = bubbleWindow.getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        heightNew = (int)((size.y*100)/128);
+        widthMid = (int)(size.x/2);
     }
 
 }

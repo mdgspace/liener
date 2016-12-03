@@ -42,7 +42,7 @@ import android.widget.TextView;
  */
 public class BrowserPage {
     WebView browserwv;
-    View bubbleHead;
+    BubbleHead bubbleHead;
     String TAG = "BrowserPage";
     View browser;
     String oldTitle =" ";
@@ -50,7 +50,7 @@ public class BrowserPage {
     DBHelper mydb;
     long id,ts;
     Canvas canvas;  RectF rectF;    Paint paint;
-    WindowManager.LayoutParams layoutParamsBubble;
+
     Context context;
 
 //    int alphaColor = 100;
@@ -72,13 +72,14 @@ public class BrowserPage {
     public BrowserPage(final Context context,BubbleService bubbleService,int x,int y) {
         this.context=context;
         BubbleServiceActivity=bubbleService;
-        initParams(x,y);
         mydb = new DBHelper(context);
 
         LayoutInflater li = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         browser= li.inflate(R.layout.browser_page, null);
+        //bubbleHead=li.inflate(R.layout.browser_bubblehead,null);
+        bubbleHead = new BubbleHead(context);
+        bubbleHead.initParams(x,y);
 
-        //browserwv.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT));
 
         tv=(TextView) browser.findViewById(R.id.txtview);
         tv.setText("Loading ...");
@@ -98,13 +99,8 @@ public class BrowserPage {
             }
         });
 
-        bubbleHead=li.inflate(R.layout.browser_bubblehead,null);
-        bubbleHead.findViewById(R.id.progressBar).setVisibility(View.INVISIBLE);
+//        bubbleHead.findViewById(R.id.progressBar).setVisibility(View.INVISIBLE);
 
-        //bubbleHead.setLayoutParams(new ActionBar.LayoutParams(150,150));
-
-//        bubbleHead = new ImageView(context);
-//        bubbleHead.setImageResource(R.mipmap.bubblesmall);
         browserwv = (WebView) browser.findViewById(R.id.webview);
         setBrowser();
 //        Paint paint=new Paint();
@@ -183,7 +179,6 @@ public class BrowserPage {
             @Override
             public void onPageFinished(WebView view, String url) {
                 tv.setText(view.getTitle());
-                //Log.d(TAG, "textview set" + txtview.getText() + "]");
             }
             public boolean shouldOverrideUrlLoading(WebView view, String url){
                 Log.d(TAG, "shouldOverrideUrlLoading() called with: " + "view = [" + view + "], url = [" + url + "]");
@@ -196,7 +191,7 @@ public class BrowserPage {
             public void onProgressChanged(WebView view, int progress) {
 
                 if(progress <100) {
-                    bubbleHead.findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
+                    bubbleHead.setProgressVisibility(View.VISIBLE);
                     Log.d(TAG, "onProgressChanged() called with: " + "view = [" + view + "], progress = [" + progress + "]");
 //                    int x = (int) (progress * 12 / 100);
 //                    Log.d(TAG, "onProgressChanged() called with: " + "x = [" + x + "], progress = [" + progress + "]");
@@ -245,7 +240,8 @@ public class BrowserPage {
                 //Pbar.setProgress(progress);
                 if(progress == 100) {
                     Log.d(TAG, "onProgressChanged() called with: " + "view = [" + view + "], progress = [" + progress + "]");
-                    bubbleHead.findViewById(R.id.progressBar).setVisibility(View.INVISIBLE);
+                    bubbleHead.setProgressVisibility(View.INVISIBLE);
+ //                   bubbleHead.findViewById(R.id.progressBar).setVisibility(View.INVISIBLE);
 
                 }
                 if(oldTitle != browserwv.getTitle()){//getTitle has the newer Title
@@ -290,28 +286,12 @@ public class BrowserPage {
         BubbleServiceActivity.minimizeBrowser(BubbleServiceActivity.current);
     }
 
-    public void initParams(int x,int y){
-        layoutParamsBubble = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_TOAST,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                PixelFormat.TRANSLUCENT
-        );
-        layoutParamsBubble.width = 100;
-        layoutParamsBubble.height = 100;
-        layoutParamsBubble.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-        layoutParamsBubble.x = x;
-        layoutParamsBubble.y = y;
-    }
+
 
     public void switchToSmall(){
-        layoutParamsBubble.width = Constant.BubbleSizeSmall;
-        layoutParamsBubble.height = Constant.BubbleSizeSmall;
+        bubbleHead.switchToSmall();
     }
 
     public void switchToLarge(){
-        layoutParamsBubble.width = Constant.BubbleSizeLarge;
-        layoutParamsBubble.height = Constant.BubbleSizeLarge;
-    }
+        bubbleHead.switchToLarge();    }
 }
