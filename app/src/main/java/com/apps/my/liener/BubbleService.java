@@ -45,7 +45,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 import android.app.Activity;
 
-public class BubbleService extends Service implements OnKeyListener,View.OnTouchListener,View.OnFocusChangeListener {
+public class BubbleService extends Service implements OnKeyListener,View.OnTouchListener,View.OnFocusChangeListener,BubbleListener {
     WindowManager bubbleWindow;
     Context context =this ;
     boolean onRightSide =true;
@@ -83,8 +83,9 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
         bubbleWindow = (WindowManager) getSystemService(WINDOW_SERVICE);
 
         loadDimensions();
-        bh = new BubbleHead(context,heightNew,widthMid, BubbleHead.HEAD_TYPE_MAIN);
+        bh = new BubbleHead(context,heightNew,widthMid, BubbleHead.HEAD_TYPE_MAIN,-2);
         bh.initParams(0,heightNew);
+        bh.setListener(this);
     }
 
     public void initParamBrowser(){
@@ -100,8 +101,8 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
 
     public void initDeleteHead(){
         Log.d("testing", "addview1");
-        deleteHead = new BubbleHead(context,heightNew,widthMid, BubbleHead.HEAD_TYPE_DELETE);
-        initListener();
+        deleteHead = new BubbleHead(context,heightNew,widthMid, BubbleHead.HEAD_TYPE_DELETE,-1);
+        deleteHead.setListener(this);
         deleteHead.initParams(0,(int)(heightNew/4));
         deleteHead.switchToDelete();
         deleteHead.layoutParams.gravity= Gravity.BOTTOM | Gravity.CENTER;
@@ -139,7 +140,8 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
 
     public void addNewPage(String url){
         is_running = true;
-        browserPageArray[arrIndex[count]]=new BrowserPage(context,BubbleService.this,count*Constant.BubbleSizeLarge,heightNew,widthMid);
+        browserPageArray[arrIndex[count]]=new BrowserPage(context,BubbleService.this,count*Constant.BubbleSizeLarge,heightNew,widthMid,arrIndex[count]);
+        browserPageArray[arrIndex[count]].bubbleHead.setListener(this);
         browserPageArray[arrIndex[count]].loadUrl(url);
         if(count==0){
             setBubbleHead();        // if first tab then sets main bubble head listeners
@@ -291,7 +293,8 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
     public void addBrowser(final int index){
         browserPageArray[arrIndex[index]].browser.setOnTouchListener(this);
         browserPageArray[arrIndex[index]].browser.setOnFocusChangeListener(this);
-        Log.d("testing", "addview4"); bubbleWindow.addView(browserPageArray[arrIndex[index]].browser, paramBrowser);
+        Log.d("testing", "addview4");
+        bubbleWindow.addView(browserPageArray[arrIndex[index]].browser, paramBrowser);
         browserPageArray[arrIndex[index]].browserwv.setOnKeyListener(new OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -412,7 +415,8 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
             bh.layoutParams.x = index*bubbleWidth;
             bh.layoutParams.y = heightNew;
             addBrowser(index);
-            Log.d("testing", "removeView6"); bubbleWindow.removeView(browserPageArray[arrIndex[current]].browser);
+            Log.d("testing", "removeView6");
+            bubbleWindow.removeView(browserPageArray[arrIndex[current]].browser);
             browserPageArray[arrIndex[index]].switchToLarge();
             bubbleWindow.updateViewLayout(browserPageArray[arrIndex[index]].bubbleHead.view,browserPageArray[arrIndex[index]].bubbleHead.layoutParams);
 
@@ -497,17 +501,73 @@ public class BubbleService extends Service implements OnKeyListener,View.OnTouch
         widthMid = (int)(size.x/2);
     }
 
-    public void initListener(){
-        deleteHead.setListener(new BubbleListener() {
-            @Override
-            public void onComplete(String item) {
-                Log.d(TAG, "Listener onComplete() called with: item = [" + item + "]");
-            }
+    @Override
+    public void onEvent(@EVENT_TYPE int event_type, @BubbleHead.HEAD_TYPE int head_type, int BId) {
+        Log.d(TAG, "Listener onEvent() called with: type = [" + event_type + "]");
+        switch (event_type){
+            case EVENT_TYPE_ADD_DELETE :
+                bubbleWindow.addView(deleteHead.view,deleteHead.layoutParams);
+                break;
+            case EVENT_TYPE_DELETE:
+                switch (head_type){
+                    case BubbleHead.HEAD_TYPE_MAIN:
+                        is_running = false;
+                        stopSelf();
+                        break;
+                    case BubbleHead.HEAD_TYPE_TAB:
+                        deletePage(getIndex(BId));
+                        break;
+                }
+                break;
+            case EVENT_TYPE_MOVE_DELETE :
+                switch (head_type){
+                    case BubbleHead.HEAD_TYPE_MAIN:
+                        bubbleWindow.removeView(deleteHead.view);
+                        bubbleWindow.updateViewLayout(bh.view,deleteHead.layoutParams);
+                        bubbleWindow.addView(deleteHead.view,deleteHead.layoutParams);
+                        break;
+                    case BubbleHead.HEAD_TYPE_TAB:
+                        bubbleWindow.removeView(deleteHead.view);
+                        bubbleWindow.updateViewLayout(browserPageArray[BId].bubbleHead.view,deleteHead.layoutParams);
+                        bubbleWindow.addView(deleteHead.view,deleteHead.layoutParams);
+                        break;
+                }
+                break;
+            case EVENT_TYPE_REMOVE_DELETE :
+                bubbleWindow.removeView(deleteHead.view);
+                break;
+            case EVENT_TYPE_UPDATE :
+                switch (head_type){
+                    case BubbleHead.HEAD_TYPE_MAIN:
+                        bubbleWindow.updateViewLayout(bh.view,bh.layoutParams);
+                        break;
+                    case BubbleHead.HEAD_TYPE_TAB:
+                        bubbleWindow.updateViewLayout(browserPageArray[BId].bubbleHead.view,browserPageArray[BId].bubbleHead.layoutParams);
+                        break;
+                }
+                break;
+            case EVENT_TYPE_REMOVE_BROWSER :
+                bubbleWindow.removeView(browserPageArray[arrIndex[current]].browser);
+                break;
+            case EVENT_TYPE_ADD_BROWSER :
+                bubbleWindow.addView(browserPageArray[BId].browser,paramBrowser);
+                break;
+        }
+    }
 
-            @Override
-            public void onError(Throwable error) {
+    @Override
+    public void onError(Throwable error) {
 
+    }
+
+    public int getIndex(int BId){
+        for(int i=0;i<count;i++){
+            if(arrIndex[i]==BId){
+                return i;
             }
-        });
+        }
+        Log.d(TAG, "getIndex() Error called with: BId = [" + BId + "]");
+        return -1;
+
     }
 }

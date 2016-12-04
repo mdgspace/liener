@@ -32,9 +32,12 @@ public class BubbleHead implements View.OnTouchListener{
     public static final int HEAD_TYPE_DELETE = 1;
     public static final int HEAD_TYPE_TAB = 2;
 
+    int BId;
+
     int defaultType;
 
-    public BubbleHead(Context context,int height, int widthMid,@HEAD_TYPE int head_type){
+    public BubbleHead(Context context,int height, int widthMid,@HEAD_TYPE int head_type,int BId){
+        this.BId=BId;
         defaultType=head_type;
         this.widthMid=widthMid;
         this.height=height;
@@ -86,17 +89,10 @@ public class BubbleHead implements View.OnTouchListener{
         delete.setImageResource(R.mipmap.delete);
         layoutParams.width = Constant.BubbleSizeDelete;
         layoutParams.height = Constant.BubbleSizeDelete;
-        doInBackground();
     }
 
 
     BubbleListener fetchListener = null;
-
-    private void doInBackground() {
-        Log.d(TAG, "doInBackground() called");
-        if (this.fetchListener != null)
-            this.fetchListener.onComplete("result");
-    }
 
     public void setListener(BubbleListener listener) {
         this.fetchListener = listener;
@@ -104,23 +100,46 @@ public class BubbleHead implements View.OnTouchListener{
 
     public void addDeleteView(){
         Log.d(TAG, "addDeleteView() called");
+        if (this.fetchListener != null)
+            this.fetchListener.onEvent(BubbleListener.EVENT_TYPE_ADD_DELETE,defaultType,BId);
     }
 
     public void removeDeleteView(){
         Log.d(TAG, "removeDeleteView() called");
+        if (this.fetchListener != null)
+            this.fetchListener.onEvent(BubbleListener.EVENT_TYPE_REMOVE_DELETE,defaultType,BId);
     }
 
     public void moveToDelete(){
         Log.d(TAG, "moveToDelete() called");
+        if (this.fetchListener != null)
+            this.fetchListener.onEvent(BubbleListener.EVENT_TYPE_MOVE_DELETE,defaultType,BId);
     }
 
     public void updateView(){
         Log.d(TAG, "updateView() called");
+        if (this.fetchListener != null)
+            this.fetchListener.onEvent(BubbleListener.EVENT_TYPE_UPDATE,defaultType,BId);
     }
 
     public void deleteFunction(){
         Log.d(TAG, "deleteFunction() called");
+        if (this.fetchListener != null)
+            this.fetchListener.onEvent(BubbleListener.EVENT_TYPE_DELETE,defaultType,BId);
     }
+
+    public void removeBrowser(){
+        Log.d(TAG, "removeBrowser() called");
+        if (this.fetchListener != null)
+            this.fetchListener.onEvent(BubbleListener.EVENT_TYPE_REMOVE_BROWSER,defaultType,BId);
+    }
+
+    public void addBrowser(){
+        Log.d(TAG, "addBrowser() called");
+        if (this.fetchListener != null)
+            this.fetchListener.onEvent(BubbleListener.EVENT_TYPE_ADD_BROWSER,defaultType,BId);
+    }
+
 
     boolean onRightSide =true;
 
@@ -135,6 +154,8 @@ public class BubbleHead implements View.OnTouchListener{
                             initialX = layoutParams.x;           initialY = layoutParams.y;
                             initialTouchX = event.getRawX();    initialTouchY = event.getRawY();
                             addDeleteView();
+                            if(defaultType==HEAD_TYPE_TAB)
+                                removeBrowser();
                             return false;
                         case MotionEvent.ACTION_MOVE:
                             if(!onRightSide&&defaultType==HEAD_TYPE_MAIN){
@@ -145,9 +166,9 @@ public class BubbleHead implements View.OnTouchListener{
                             }
                             layoutParams.y = initialY - (int)(event.getRawY() - initialTouchY);
                             if (onDeleteCheck()){
-                                removeDeleteView();
+                                //removeDeleteView();
                                 moveToDelete();
-                                addDeleteView();
+                                //addDeleteView();
                             } else {
                                 updateView();
                             }
@@ -167,6 +188,7 @@ public class BubbleHead implements View.OnTouchListener{
                                         break;
                                     case HEAD_TYPE_TAB:
                                         moveBubbleToOldPosition(initialX,initialY);
+                                        addBrowser();
                                         break;
                                 }
                                 updateView();

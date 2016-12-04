@@ -50,7 +50,7 @@ public class BrowserPage {
     DBHelper mydb;
     long id,ts;
     Canvas canvas;  RectF rectF;    Paint paint;
-
+    int BId;
     Context context;
 
 //    int alphaColor = 100;
@@ -69,7 +69,8 @@ public class BrowserPage {
 
     BubbleService BubbleServiceActivity;
 
-    public BrowserPage(final Context context,BubbleService bubbleService,int x,int height,int widthMid) {
+    public BrowserPage(final Context context,BubbleService bubbleService,int x,int height,int widthMid,int BId) {
+        this.BId=BId;
         this.context=context;
         BubbleServiceActivity=bubbleService;
         mydb = new DBHelper(context);
@@ -77,7 +78,7 @@ public class BrowserPage {
         LayoutInflater li = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         browser= li.inflate(R.layout.browser_page, null);
         //bubbleHead=li.inflate(R.layout.browser_bubblehead,null);
-        bubbleHead = new BubbleHead(context,height,widthMid,BubbleHead.HEAD_TYPE_TAB);
+        bubbleHead = new BubbleHead(context,height,widthMid,BubbleHead.HEAD_TYPE_TAB,BId);
         bubbleHead.initParams(x,height);
 
 
