@@ -12,6 +12,7 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 
 import java.lang.annotation.Retention;
+import java.security.PublicKey;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
@@ -98,46 +99,16 @@ public class BubbleHead implements View.OnTouchListener{
         this.fetchListener = listener;
     }
 
-    public void addDeleteView(){
-        Log.d(TAG, "addDeleteView() called");
+    public void sendTouchEvent(@BubbleListener.TOUCH_EVENT_TYPE int event_type){
+        Log.d(TAG, "sendTouchEvent() called with: event_type = [" + event_type + "]");
         if (this.fetchListener != null)
-            this.fetchListener.onEvent(BubbleListener.EVENT_TYPE_ADD_DELETE,defaultType,BId);
+            this.fetchListener.onTouchEvent(event_type,defaultType,BId);
     }
 
-    public void removeDeleteView(){
-        Log.d(TAG, "removeDeleteView() called");
+    public void sendClickEvent(@BubbleListener.CLICK_EVENT_TYPE int event_type){
+        Log.d(TAG, "sendClickEvent() called with: event_type = [" + event_type + "]");
         if (this.fetchListener != null)
-            this.fetchListener.onEvent(BubbleListener.EVENT_TYPE_REMOVE_DELETE,defaultType,BId);
-    }
-
-    public void moveToDelete(){
-        Log.d(TAG, "moveToDelete() called");
-        if (this.fetchListener != null)
-            this.fetchListener.onEvent(BubbleListener.EVENT_TYPE_MOVE_DELETE,defaultType,BId);
-    }
-
-    public void updateView(){
-        Log.d(TAG, "updateView() called");
-        if (this.fetchListener != null)
-            this.fetchListener.onEvent(BubbleListener.EVENT_TYPE_UPDATE,defaultType,BId);
-    }
-
-    public void deleteFunction(){
-        Log.d(TAG, "deleteFunction() called");
-        if (this.fetchListener != null)
-            this.fetchListener.onEvent(BubbleListener.EVENT_TYPE_DELETE,defaultType,BId);
-    }
-
-    public void removeBrowser(){
-        Log.d(TAG, "removeBrowser() called");
-        if (this.fetchListener != null)
-            this.fetchListener.onEvent(BubbleListener.EVENT_TYPE_REMOVE_BROWSER,defaultType,BId);
-    }
-
-    public void addBrowser(){
-        Log.d(TAG, "addBrowser() called");
-        if (this.fetchListener != null)
-            this.fetchListener.onEvent(BubbleListener.EVENT_TYPE_ADD_BROWSER,defaultType,BId);
+            this.fetchListener.onClickEvent(event_type,defaultType,BId);
     }
 
 
@@ -153,12 +124,12 @@ public class BubbleHead implements View.OnTouchListener{
                         case MotionEvent.ACTION_DOWN:
                             initialX = layoutParams.x;           initialY = layoutParams.y;
                             initialTouchX = event.getRawX();    initialTouchY = event.getRawY();
-                            addDeleteView();
+                            sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_ADD_DELETE);
                             if(defaultType==HEAD_TYPE_TAB)
-                                removeBrowser();
+                                sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_REMOVE_BROWSER);
                             return false;
                         case MotionEvent.ACTION_MOVE:
-                            if(!onRightSide&&defaultType==HEAD_TYPE_MAIN){
+                            if((!onRightSide)&&defaultType==HEAD_TYPE_MAIN){
                                 layoutParams.x = initialX + (int)(event.getRawX() - initialTouchX);
                             }
                             else{
@@ -167,16 +138,16 @@ public class BubbleHead implements View.OnTouchListener{
                             layoutParams.y = initialY - (int)(event.getRawY() - initialTouchY);
                             if (onDeleteCheck()){
                                 //removeDeleteView();
-                                moveToDelete();
+                                sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_MOVE_DELETE);
                                 //addDeleteView();
                             } else {
-                                updateView();
+                                sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_UPDATE);
                             }
                             return false;
                         case MotionEvent.ACTION_UP:
-                            removeDeleteView();
+                            sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_REMOVE_DELETE);
                             if (onDeleteCheck()) {
-                                deleteFunction();
+                                sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_DELETE);
                                 return true;
                             }
                             else  {
@@ -188,15 +159,32 @@ public class BubbleHead implements View.OnTouchListener{
                                         break;
                                     case HEAD_TYPE_TAB:
                                         moveBubbleToOldPosition(initialX,initialY);
-                                        addBrowser();
+                                        sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_UPDATE);
+                                        sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_ADD_BROWSER);
                                         break;
                                 }
-                                updateView();
+                                sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_UPDATE);
                                 Log.d(TAG, "else in action_up");
                             }
                             return false;
                     }
                 return false;
+            }
+        });
+
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (defaultType){
+                    case HEAD_TYPE_DELETE:
+                        break;
+                    case HEAD_TYPE_MAIN:
+                        sendClickEvent(BubbleListener.CLICK_EVENT_TYPE_EXPAND);
+                        break;
+                    case HEAD_TYPE_TAB:
+                        sendClickEvent(BubbleListener.CLICK_EVENT_TYPE_MINIMIZE);
+                        break;
+                }
             }
         });
     }
