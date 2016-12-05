@@ -11,27 +11,28 @@ import android.view.View;
  * Created by rahul on 13/10/16.
  */
 public class MyCanvas extends View {
-    int curr_progress=2;
+    int curr_progress = 2;
+    private static final String TAG = MyCanvas.class.getSimpleName();
 
-    public MyCanvas(Context context,int x){
+    public MyCanvas(Context context, int x) {
         super(context);
-        curr_progress=x;
+        curr_progress = x;
     }
 
     @Override
-    protected void onDraw(Canvas canvas){
+    protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         Paint pbg = new Paint();
-        pbg.setColor(Color.argb(255,245,245,245));
+        pbg.setColor(Color.argb(255, 245, 245, 245));
         pbg.setStrokeWidth(20);
-        RectF rectF = new RectF(0,0,100,100);
-        canvas.drawOval(rectF,pbg);
-        for(int i=0;i<curr_progress;i++){
-            Paint paint=new Paint();
+        RectF rectF = new RectF(0, 0, 100, 100);
+        canvas.drawOval(rectF, pbg);
+        for (int i = 0; i < curr_progress; i++) {
+            Paint paint = new Paint();
 //        paint.setStyle(Paint.Style.FILL);
-            rectF = new RectF(0,0,90,90);
+            rectF = new RectF(0, 0, 90, 90);
             paint.setColor(Color.YELLOW);
-            canvas.drawArc(rectF,270+70*i,60,true,paint);
+            canvas.drawArc(rectF, 270 + 70 * i, 60, true, paint);
 
         }
 //        RectF rectF = new RectF(20,20,40,70);

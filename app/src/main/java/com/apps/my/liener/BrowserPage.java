@@ -43,13 +43,15 @@ import android.widget.TextView;
 public class BrowserPage {
     WebView browserwv;
     BubbleHead bubbleHead;
-    String TAG = "BrowserPage";
+    private static final String TAG = BrowserPage.class.getSimpleName();
     View browser;
-    String oldTitle =" ";
+    String oldTitle = " ";
     TextView tv;
     DBHelper mydb;
-    long id,ts;
-    Canvas canvas;  RectF rectF;    Paint paint;
+    long id, ts;
+    Canvas canvas;
+    RectF rectF;
+    Paint paint;
     int BId;
     Context context;
 
@@ -69,19 +71,19 @@ public class BrowserPage {
 
     BubbleService BubbleServiceActivity;
 
-    public BrowserPage(final Context context,BubbleService bubbleService,int x,int height,int widthMid,int BId) {
-        this.BId=BId;
-        this.context=context;
-        BubbleServiceActivity=bubbleService;
+    public BrowserPage(final Context context, BubbleService bubbleService, int x, int height, int widthMid, int BId) {
+        this.BId = BId;
+        this.context = context;
+        BubbleServiceActivity = bubbleService;
         mydb = new DBHelper(context);
 
         LayoutInflater li = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        browser= li.inflate(R.layout.browser_page, null);
-        bubbleHead = new BubbleHead(context,height,widthMid,BubbleHead.HEAD_TYPE_TAB,BId);
-        bubbleHead.initParams(x,height);
+        browser = li.inflate(R.layout.browser_page, null);
+        bubbleHead = new BubbleHead(context, height, widthMid, BubbleHead.HEAD_TYPE_TAB, BId);
+        bubbleHead.initParams(x, height);
 
 
-        tv=(TextView) browser.findViewById(R.id.txtview);
+        tv = (TextView) browser.findViewById(R.id.txtview);
         tv.setText("Loading ...");
 
         browser.findViewById(R.id.add_bookmark).setOnClickListener(new View.OnClickListener() {
@@ -95,7 +97,7 @@ public class BrowserPage {
         browser.findViewById(R.id.share_url).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                shareText(browserwv.getTitle(),browserwv.getUrl());
+                shareText(browserwv.getTitle(), browserwv.getUrl());
             }
         });
 
@@ -106,7 +108,7 @@ public class BrowserPage {
 
     }
 
-    public void setBrowser(){
+    public void setBrowser() {
         browserwv.setBackgroundColor(Color.WHITE);
         browserwv.getSettings().setJavaScriptEnabled(true);
         browserwv.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
@@ -116,73 +118,75 @@ public class BrowserPage {
             public void onPageFinished(WebView view, String url) {
                 tv.setText(view.getTitle());
             }
-            public boolean shouldOverrideUrlLoading(WebView view, String url){
+
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 Log.d(TAG, "shouldOverrideUrlLoading() called with: " + "view = [" + view + "], url = [" + url + "]");
-                ts = System.currentTimeMillis()/1000;
-                id=mydb.insertContact(true,url, url, String.valueOf(ts));
+                ts = System.currentTimeMillis() / 1000;
+                id = mydb.insertContact(true, url, url, String.valueOf(ts));
                 return false;
             }
         });
         browserwv.setWebChromeClient(new WebChromeClient() {
             public void onProgressChanged(WebView view, int progress) {
 
-                if(progress <100) {
+                if (progress < 100) {
 
                     bubbleHead.setProgressVisibility(View.VISIBLE);
                     Log.d(TAG, "onProgressChanged() called with: " + "view = [" + view + "], progress = [" + progress + "]");
 
                 }
-                if(progress == 100) {
+                if (progress == 100) {
                     Log.d(TAG, "onProgressChanged() called with: " + "view = [" + view + "], progress = [" + progress + "]");
                     bubbleHead.setProgressVisibility(View.INVISIBLE);
                 }
-                if(oldTitle != browserwv.getTitle()){
+                if (oldTitle != browserwv.getTitle()) {
                     oldTitle = browserwv.getTitle();
-                    if (oldTitle != null && !oldTitle.isEmpty() && !oldTitle.equals("null")) mydb.updateContact(true,(int)id,oldTitle,browserwv.getUrl(), String.valueOf(ts));
+                    if (oldTitle != null && !oldTitle.isEmpty() && !oldTitle.equals("null"))
+                        mydb.updateContact(true, (int) id, oldTitle, browserwv.getUrl(), String.valueOf(ts));
                     tv.setText(oldTitle);
                 }
             }
         });
     }
 
-    public void addBookmark(){
-        String name=browserwv.getTitle();
+    public void addBookmark() {
+        String name = browserwv.getTitle();
         Log.d(TAG, "addBookmark() called with: " + name + "");
-        if(name==""){
-            name=browserwv.getUrl();
+        if (name == "") {
+            name = browserwv.getUrl();
         }
-        Log.d(TAG, "onClick() called with: " + "name = [" + name + "]" + browserwv.getUrl()+"");
-        mydb.insertContact(false,name, browserwv.getUrl(), String.valueOf(System.currentTimeMillis()/1000));
+        Log.d(TAG, "onClick() called with: " + "name = [" + name + "]" + browserwv.getUrl() + "");
+        mydb.insertContact(false, name, browserwv.getUrl(), String.valueOf(System.currentTimeMillis() / 1000));
     }
 
-    public void loadUrl(String url){
+    public void loadUrl(String url) {
         browserwv.loadUrl(url);
-        ts = System.currentTimeMillis()/1000;
+        ts = System.currentTimeMillis() / 1000;
         Log.d(TAG, "loadUrl() called with: " + "url = [" + url + "]");
-        id=mydb.insertContact(true,url, url, String.valueOf(ts));
+        id = mydb.insertContact(true, url, url, String.valueOf(ts));
     }
 
-    public void shareText(String title,String body) {
+    public void shareText(String title, String body) {
         Intent sendIntent = new Intent(android.content.Intent.ACTION_SEND);
         sendIntent.setType("text/plain");
         sendIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, title);
         sendIntent.putExtra(android.content.Intent.EXTRA_TEXT, body);
-        Intent typechooser=Intent.createChooser(sendIntent, "Choose sharing method");
+        Intent typechooser = Intent.createChooser(sendIntent, "Choose sharing method");
         typechooser.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(typechooser);
         BubbleServiceActivity.minimizeBrowser(BubbleServiceActivity.current);
     }
 
 
-
-    public void switchToSmall(){
+    public void switchToSmall() {
         bubbleHead.switchToSmall();
     }
 
-    public void switchToLarge(){
-        bubbleHead.switchToLarge();    }
+    public void switchToLarge() {
+        bubbleHead.switchToLarge();
+    }
 
-    public void createIcon(){
+    public void createIcon() {
         //        Paint paint=new Paint();
 //        paint.setStyle(Paint.Style.FILL);
 //        paint.setColor(0x000000);

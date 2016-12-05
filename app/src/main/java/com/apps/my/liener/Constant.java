@@ -2,8 +2,6 @@ package com.apps.my.liener;
 
 /**
  * Created by rahul on 29/11/16.
- *
- *
  */
 public class Constant {
     static int BubbleSizeLarge = 150;

@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="bottom"
+    android:orientation="vertical"
     android:weightSum="100">
-    <include layout="@layout/title_bar"/>
-   <WebView
-       android:layout_width="match_parent"
-       android:layout_weight="90"
-       android:layout_height="0dp"
-       android:id="@+id/webview"/>
+
+    <include layout="@layout/title_bar" />
+
+    <WebView
+        android:id="@+id/webview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="90" />
 </LinearLayout>

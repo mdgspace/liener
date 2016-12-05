@@ -3,9 +3,11 @@ package com.apps.my.liener;
 /**
  * Created by rahul on 10/10/16.
  */
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -22,10 +24,10 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String COLUMN_URL = "url";
     public static final String COLUMN_TIMESTAMP = "timestamp";
     private HashMap hp;
-    String TAG ="DBHelper";
+    private static final String TAG = DBHelper.class.getSimpleName();
 
     public DBHelper(Context context) {
-        super(context, DATABASE_NAME , null, 1);
+        super(context, DATABASE_NAME, null, 1);
     }
 
     @Override
@@ -35,8 +37,6 @@ public class DBHelper extends SQLiteOpenHelper {
                 "create table history" +
                         "(id integer primary key, title text,url text, timestamp text)"
         );
-
-
 
 
         db.execSQL(
@@ -53,25 +53,23 @@ public class DBHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public long insertContact  (boolean isHistory,String title, String url, String timestamp)
-    {
+    public long insertContact(boolean isHistory, String title, String url, String timestamp) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_TITLE, title);
-        contentValues.put(COLUMN_URL,url);
-        contentValues.put(COLUMN_TIMESTAMP,timestamp);
+        contentValues.put(COLUMN_URL, url);
+        contentValues.put(COLUMN_TIMESTAMP, timestamp);
         Log.d(TAG, "insertContact() called with: " + "isHistory = [" + isHistory + "], title = [" + title + "], url = [" + url + "], timestamp = [" + timestamp + "]");
-        if(isHistory){
+        if (isHistory) {
             return db.insert("history", null, contentValues);
-        }
-        else {
+        } else {
             return db.insert("bookmarks", null, contentValues);
         }
     }
 
-    public Cursor getData(int id){
+    public Cursor getData(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res =  db.rawQuery( "select * from history where id="+id+"", null );
+        Cursor res = db.rawQuery("select * from history where id=" + id + "", null);
         return res;
     }
 
@@ -81,56 +79,50 @@ public class DBHelper extends SQLiteOpenHelper {
 //        return numRows;
 //    }
 
-    public boolean updateContact (boolean isHistory,Integer id, String title, String url, String timestamp)
-    {
+    public boolean updateContact(boolean isHistory, Integer id, String title, String url, String timestamp) {
         Log.d(TAG, "updateContact() called with: " + "isHistory = [" + isHistory + "], id = [" + id + "], title = [" + title + "], url = [" + url + "], timestamp = [" + timestamp + "]");
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_TITLE, title);
-        contentValues.put(COLUMN_URL,url);
-        contentValues.put(COLUMN_TIMESTAMP,timestamp);
-        if(isHistory){
-            db.update("history", contentValues, "id = ? ", new String[] { Integer.toString(id) } );
-        }
-        else{
-            db.update("bookmarks", contentValues, "id = ? ", new String[] { Integer.toString(id) } );
+        contentValues.put(COLUMN_URL, url);
+        contentValues.put(COLUMN_TIMESTAMP, timestamp);
+        if (isHistory) {
+            db.update("history", contentValues, "id = ? ", new String[]{Integer.toString(id)});
+        } else {
+            db.update("bookmarks", contentValues, "id = ? ", new String[]{Integer.toString(id)});
         }
         return true;
     }
 
-    public Integer deleteContact (boolean isHistory,Integer id)
-    {
+    public Integer deleteContact(boolean isHistory, Integer id) {
         SQLiteDatabase db = this.getWritableDatabase();
-        if(isHistory){
+        if (isHistory) {
             return db.delete("history",
                     "id = ? ",
-                    new String[] { Integer.toString(id) });
-        }
-        else{
+                    new String[]{Integer.toString(id)});
+        } else {
             return db.delete("bookmarks",
                     "id = ? ",
-                    new String[] { Integer.toString(id) });
+                    new String[]{Integer.toString(id)});
         }
 
     }
 
-    public ArrayList<String> getAllData(boolean isHistory)
-    {
+    public ArrayList<String> getAllData(boolean isHistory) {
         ArrayList<String> array_list = new ArrayList<String>();
 
         //hp = new HashMap();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor res;
-        if(isHistory){
-            res =  db.rawQuery( "select * from history", null );
+        if (isHistory) {
+            res = db.rawQuery("select * from history", null);
 
-        }
-        else {
-           res =  db.rawQuery( "select * from bookmarks", null );
+        } else {
+            res = db.rawQuery("select * from bookmarks", null);
         }
         res.moveToFirst();
 
-        while(res.isAfterLast() == false){
+        while (res.isAfterLast() == false) {
             array_list.add(res.getString(res.getColumnIndex(COLUMN_TITLE)));
             res.moveToNext();
         }
