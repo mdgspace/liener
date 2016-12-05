@@ -73,6 +73,9 @@ public class BubbleHead implements View.OnTouchListener{
         layoutParams.gravity = Gravity.BOTTOM | Gravity.RIGHT;
         layoutParams.x = x;
         layoutParams.y = y;
+        if(defaultType==HEAD_TYPE_DELETE){
+            switchToDelete();
+        }
     }
 
     public void switchToSmall(){
