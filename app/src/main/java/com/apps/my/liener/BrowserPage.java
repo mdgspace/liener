@@ -42,15 +42,17 @@ import android.widget.TextView;
  */
 public class BrowserPage {
     WebView browserwv;
-    View bubbleHead;
-    String TAG = "BrowserPage";
+    BubbleHead bubbleHead;
+    private static final String TAG = BrowserPage.class.getSimpleName();
     View browser;
-    String oldTitle =" ";
+    String oldTitle = " ";
     TextView tv;
     DBHelper mydb;
-    long id,ts;
-    Canvas canvas;  RectF rectF;    Paint paint;
-    WindowManager.LayoutParams layoutParamsBubble;
+    long id, ts;
+    Canvas canvas;
+    RectF rectF;
+    Paint paint;
+    int BId;
     Context context;
 
 //    int alphaColor = 100;
@@ -69,18 +71,19 @@ public class BrowserPage {
 
     BubbleService BubbleServiceActivity;
 
-    public BrowserPage(final Context context,BubbleService bubbleService,int x,int y) {
-        this.context=context;
-        BubbleServiceActivity=bubbleService;
-        initParams(x,y);
+    public BrowserPage(final Context context, BubbleService bubbleService, int x, int height, int widthMid, int BId) {
+        this.BId = BId;
+        this.context = context;
+        BubbleServiceActivity = bubbleService;
         mydb = new DBHelper(context);
 
         LayoutInflater li = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        browser= li.inflate(R.layout.browser_page, null);
+        browser = li.inflate(R.layout.browser_page, null);
+        bubbleHead = new BubbleHead(context, height, widthMid, BubbleHead.HEAD_TYPE_TAB, BId);
+        bubbleHead.initParams(x, height);
 
-        //browserwv.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.FILL_PARENT));
 
-        tv=(TextView) browser.findViewById(R.id.txtview);
+        tv = (TextView) browser.findViewById(R.id.txtview);
         tv.setText("Loading ...");
 
         browser.findViewById(R.id.add_bookmark).setOnClickListener(new View.OnClickListener() {
@@ -94,20 +97,97 @@ public class BrowserPage {
         browser.findViewById(R.id.share_url).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                shareText(browserwv.getTitle(),browserwv.getUrl());
+                shareText(browserwv.getTitle(), browserwv.getUrl());
             }
         });
 
-        bubbleHead=li.inflate(R.layout.browser_bubblehead,null);
-        bubbleHead.findViewById(R.id.progressBar).setVisibility(View.INVISIBLE);
 
-        //bubbleHead.setLayoutParams(new ActionBar.LayoutParams(150,150));
-
-//        bubbleHead = new ImageView(context);
-//        bubbleHead.setImageResource(R.mipmap.bubblesmall);
         browserwv = (WebView) browser.findViewById(R.id.webview);
         setBrowser();
-//        Paint paint=new Paint();
+
+
+    }
+
+    public void setBrowser() {
+        browserwv.setBackgroundColor(Color.WHITE);
+        browserwv.getSettings().setJavaScriptEnabled(true);
+        browserwv.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
+
+        browserwv.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                tv.setText(view.getTitle());
+            }
+
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                Log.d(TAG, "shouldOverrideUrlLoading() called with: " + "view = [" + view + "], url = [" + url + "]");
+                ts = System.currentTimeMillis() / 1000;
+                id = mydb.insertContact(true, url, url, String.valueOf(ts));
+                return false;
+            }
+        });
+        browserwv.setWebChromeClient(new WebChromeClient() {
+            public void onProgressChanged(WebView view, int progress) {
+
+                if (progress < 100) {
+
+                    bubbleHead.setProgressVisibility(View.VISIBLE);
+                    Log.d(TAG, "onProgressChanged() called with: " + "view = [" + view + "], progress = [" + progress + "]");
+
+                }
+                if (progress == 100) {
+                    Log.d(TAG, "onProgressChanged() called with: " + "view = [" + view + "], progress = [" + progress + "]");
+                    bubbleHead.setProgressVisibility(View.INVISIBLE);
+                }
+                if (oldTitle != browserwv.getTitle()) {
+                    oldTitle = browserwv.getTitle();
+                    if (oldTitle != null && !oldTitle.isEmpty() && !oldTitle.equals("null"))
+                        mydb.updateContact(true, (int) id, oldTitle, browserwv.getUrl(), String.valueOf(ts));
+                    tv.setText(oldTitle);
+                }
+            }
+        });
+    }
+
+    public void addBookmark() {
+        String name = browserwv.getTitle();
+        Log.d(TAG, "addBookmark() called with: " + name + "");
+        if (name == "") {
+            name = browserwv.getUrl();
+        }
+        Log.d(TAG, "onClick() called with: " + "name = [" + name + "]" + browserwv.getUrl() + "");
+        mydb.insertContact(false, name, browserwv.getUrl(), String.valueOf(System.currentTimeMillis() / 1000));
+    }
+
+    public void loadUrl(String url) {
+        browserwv.loadUrl(url);
+        ts = System.currentTimeMillis() / 1000;
+        Log.d(TAG, "loadUrl() called with: " + "url = [" + url + "]");
+        id = mydb.insertContact(true, url, url, String.valueOf(ts));
+    }
+
+    public void shareText(String title, String body) {
+        Intent sendIntent = new Intent(android.content.Intent.ACTION_SEND);
+        sendIntent.setType("text/plain");
+        sendIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, title);
+        sendIntent.putExtra(android.content.Intent.EXTRA_TEXT, body);
+        Intent typechooser = Intent.createChooser(sendIntent, "Choose sharing method");
+        typechooser.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(typechooser);
+        BubbleServiceActivity.minimizeBrowser(BubbleServiceActivity.current);
+    }
+
+
+    public void switchToSmall() {
+        bubbleHead.switchToSmall();
+    }
+
+    public void switchToLarge() {
+        bubbleHead.switchToLarge();
+    }
+
+    public void createIcon() {
+        //        Paint paint=new Paint();
 //        paint.setStyle(Paint.Style.FILL);
 //        paint.setColor(0x000000);
 //        paint.setStrokeWidth(10);
@@ -120,11 +200,11 @@ public class BrowserPage {
 //        //bubbleHead.draw(canvas);
 //        bubbleHead.setImageBitmap(bitmap);
 
-       // bubbleHead = new MyCanvas(context,3);
-//         bubbleHead = new ImageView(context);
+        // bubbleHead = new MyCanvas(context,3);
+//        bubbleHead = new ImageView(context);
 //
 //
-//       Bitmap bitmap= Bitmap.createBitmap(100,100,Bitmap.Config.ARGB_8888);
+//        Bitmap bitmap= Bitmap.createBitmap(100,100,Bitmap.Config.ARGB_8888);
 //        canvas = new Canvas(bitmap);
 //        Paint pbg = new Paint();
 //        pbg.setColor(Color.argb(255,255,255,255));
@@ -162,43 +242,10 @@ public class BrowserPage {
 ////            canvas.drawArc(rectF,270+30*i,27,true,paint);
 //
 //        }
-//        for(int i=0;i<12;i++){
-//            Paint paint=new Paint();
-//            paint.setStrokeWidth(10);
-//            paint.setStyle(Paint.Style.STROKE);
-//            paint.setStrokeJoin(Paint.Join.ROUND);
-//            paint.setColor(Color.GRAY);
-//            canvas.drawArc(rectF,270+30*i,30,true,paint);
-//
-//        }
-
     }
 
-    public void setBrowser(){
-        browserwv.setBackgroundColor(Color.WHITE);
-        browserwv.getSettings().setJavaScriptEnabled(true);
-        browserwv.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
-
-        browserwv.setWebViewClient(new WebViewClient() {
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                tv.setText(view.getTitle());
-                //Log.d(TAG, "textview set" + txtview.getText() + "]");
-            }
-            public boolean shouldOverrideUrlLoading(WebView view, String url){
-                Log.d(TAG, "shouldOverrideUrlLoading() called with: " + "view = [" + view + "], url = [" + url + "]");
-                ts = System.currentTimeMillis()/1000;
-                id=mydb.insertContact(true,url, url, String.valueOf(ts));
-                return false;
-            }
-        });
-        browserwv.setWebChromeClient(new WebChromeClient() {
-            public void onProgressChanged(WebView view, int progress) {
-
-                if(progress <100) {
-                    bubbleHead.findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
-                    Log.d(TAG, "onProgressChanged() called with: " + "view = [" + view + "], progress = [" + progress + "]");
-//                    int x = (int) (progress * 12 / 100);
+//    public void changeIconProgress(int progress){
+//                            int x = (int) (progress * 12 / 100);
 //                    Log.d(TAG, "onProgressChanged() called with: " + "x = [" + x + "], progress = [" + progress + "]");
 //                    for (int i = 0; i <= x; i++) {
 //                        switch (i) {
@@ -241,77 +288,5 @@ public class BrowserPage {
 //                        }
 //                        canvas.drawArc(rectF, 270 + 30 * i, 27, true, paint);
 //                    }
-                }
-                //Pbar.setProgress(progress);
-                if(progress == 100) {
-                    Log.d(TAG, "onProgressChanged() called with: " + "view = [" + view + "], progress = [" + progress + "]");
-                    bubbleHead.findViewById(R.id.progressBar).setVisibility(View.INVISIBLE);
-
-                }
-                if(oldTitle != browserwv.getTitle()){//getTitle has the newer Title
-                    // get the Title
-
-
-                    //Log.d(TAG, "onProgressChanged() called with: " + "x = [" + x + "], progress = [" + mydb.getData((int)x) + "]");
-
-                    oldTitle = browserwv.getTitle();
-                    if (oldTitle != null && !oldTitle.isEmpty() && !oldTitle.equals("null")) mydb.updateContact(true,(int)id,oldTitle,browserwv.getUrl(), String.valueOf(ts));
-                    tv.setText(oldTitle);
-                }
-            }
-        });
-    }
-
-    public void addBookmark(){
-        String name=browserwv.getTitle();
-        Log.d(TAG, "addBookmark() called with: " + name + "");
-        if(name==""){
-            name=browserwv.getUrl();
-        }
-        Log.d(TAG, "onClick() called with: " + "name = [" + name + "]" + browserwv.getUrl()+"");
-        mydb.insertContact(false,name, browserwv.getUrl(), String.valueOf(System.currentTimeMillis()/1000));
-    }
-
-    public void loadUrl(String url){
-        browserwv.loadUrl(url);
-        ts = System.currentTimeMillis()/1000;
-        Log.d(TAG, "loadUrl() called with: " + "url = [" + url + "]");
-        id=mydb.insertContact(true,url, url, String.valueOf(ts));
-    }
-
-    public void shareText(String title,String body) {
-        Intent sendIntent = new Intent(android.content.Intent.ACTION_SEND);
-        sendIntent.setType("text/plain");
-        sendIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, title);
-        sendIntent.putExtra(android.content.Intent.EXTRA_TEXT, body);
-        Intent typechooser=Intent.createChooser(sendIntent, "Choose sharing method");
-        typechooser.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(typechooser);
-        BubbleServiceActivity.minimizeBrowser(BubbleServiceActivity.current);
-    }
-
-    public void initParams(int x,int y){
-        layoutParamsBubble = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_TOAST,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                PixelFormat.TRANSLUCENT
-        );
-        layoutParamsBubble.width = 100;
-        layoutParamsBubble.height = 100;
-        layoutParamsBubble.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-        layoutParamsBubble.x = x;
-        layoutParamsBubble.y = y;
-    }
-
-    public void switchToSmall(){
-        layoutParamsBubble.width = Constant.BubbleSizeSmall;
-        layoutParamsBubble.height = Constant.BubbleSizeSmall;
-    }
-
-    public void switchToLarge(){
-        layoutParamsBubble.width = Constant.BubbleSizeLarge;
-        layoutParamsBubble.height = Constant.BubbleSizeLarge;
-    }
+//    }
 }

@@ -28,8 +28,8 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
     Button startServ;
     Button stopServ;
-    String TAG="MainActivity";
-    int c=0;
+    private static final String TAG = MainActivity.class.getSimpleName();
+    int c = 0;
 
     public final static String EXTRA_MESSAGE = "MESSAGE";
     private ListView obj;
@@ -40,17 +40,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        startServ= (Button) findViewById(R.id.startService);
-        stopServ= (Button) findViewById(R.id.stopService);
+        startServ = (Button) findViewById(R.id.startService);
+        stopServ = (Button) findViewById(R.id.stopService);
 
         startServ.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
-                   public void onClick(View v) {    startService();
+                    public void onClick(View v) {
+                        startService();
                         //getPermission(Manifest.permission.SYSTEM_ALERT_WINDOW);
                         Log.d(TAG, "onClick() permission called with: " + "v = [" + v + "]");
-                            //
-                            c=1;
+                        //
+                        c = 1;
 
                     }
                 }
@@ -59,18 +60,18 @@ public class MainActivity extends AppCompatActivity {
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                            stopService(new Intent(getBaseContext(), BubbleService.class));
-                            c=0;
-                        }
+                        stopService(new Intent(getBaseContext(), BubbleService.class));
+                        c = 0;
                     }
+                }
         );
 
 
         mydb = new DBHelper(this);
         ArrayList array_list = mydb.getAllData(true);
-        ArrayAdapter arrayAdapter=new ArrayAdapter(this,android.R.layout.simple_list_item_1, array_list);
+        ArrayAdapter arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, array_list);
 
-        obj = (ListView)findViewById(R.id.listView1);
+        obj = (ListView) findViewById(R.id.listView1);
         obj.setAdapter(arrayAdapter);
 //        obj.setOnItemClickListener(new AdapterView.OnItemClickListener(){
 //            @Override
@@ -117,21 +118,20 @@ public class MainActivity extends AppCompatActivity {
 //        }
 //    }
 
-    public void startService(){
+    public void startService() {
         Intent urlIntent = new Intent(getBaseContext(), BubbleService.class);
         urlIntent.putExtra("url", "http://google.com/");
         startService(urlIntent);
     }
 
-    private void getPermission(String permission){
-        if(isPermissionAllowed(permission)){
+    private void getPermission(String permission) {
+        if (isPermissionAllowed(permission)) {
             //If permission is already having then showing the toast
             startService();
             //Toast.makeText(MainActivity.this,"You already have the permission",Toast.LENGTH_LONG).show();
             Log.d(TAG, "getPermission() called with: " + "permission = [" + permission + "]");
             //Existing the method with retur
-        }
-        else {
+        } else {
             Log.d(TAG, "else getPermission() called with: " + "permission = [" + permission + "]");
             //If the app has not the permission then asking for the permission
             requestPermission(permission);
@@ -152,9 +152,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //Requesting permission
-    private void requestPermission(String permission){
+    private void requestPermission(String permission) {
 
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this,permission)){
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
             //If the user has denied the permission previously your code will come to this block
             //Here you can explain why you need this permission
             //Explain here why you need this permission
@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
         }
         Log.d(TAG, "requestPermission() called with: " + "permission = [" + permission + "]");
         //And finally ask for the permission
-        ActivityCompat.requestPermissions(this,new String[]{permission},123);
+        ActivityCompat.requestPermissions(this, new String[]{permission}, 123);
     }
 
     //This method will be called when the user will tap on allow or deny
@@ -171,15 +171,15 @@ public class MainActivity extends AppCompatActivity {
 
         //Checking the request code of our request
         Log.d(TAG, "onRequestPermissionsResult() called with: " + "requestCode = [" + requestCode + "], permissions = [" + permissions + "], grantResults = [" + grantResults[0] + "]");
-        if(requestCode == 123){
+        if (requestCode == 123) {
             Log.d(TAG, "onRequestPermissionsResult() called with: " + "requestCode = [" + requestCode + "], permissions = [" + permissions + "], grantResults = [" + grantResults.length + "]");
             //If permission is granted
-            if(grantResults.length >0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                 //Displaying a toast
                 startService();
                 //Toast.makeText(this,"Permission granted",Toast.LENGTH_LONG).show();
-            }else{
+            } else {
                 //Displaying another toast if permission is not granted
                 //Toast.makeText(this,"Oops you just denied the permission",Toast.LENGTH_LONG).show();
             }

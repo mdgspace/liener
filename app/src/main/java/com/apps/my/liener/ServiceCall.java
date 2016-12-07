@@ -1,6 +1,7 @@
 package com.apps.my.liener;
 
 import android.Manifest;
+import android.app.Service;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -23,9 +24,10 @@ import android.app.Activity;
 
 public class ServiceCall extends Activity {
     TextView test;
-    String TAG="tester";
-    int PERMISSION_CODE=123;
+    private static final String TAG = ServiceCall.class.getSimpleName();
+    int PERMISSION_CODE = 123;
     Intent intent;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,7 +38,7 @@ public class ServiceCall extends Activity {
     }
 
 
-    private void startService(){
+    private void startService() {
         String action = intent.getAction();
         String data = intent.getDataString();
         Log.d(TAG, "onNewIntent() called with: " + "intent = [" + intent + "]");
@@ -48,14 +50,13 @@ public class ServiceCall extends Activity {
         }
     }
 
-    private void getPermission(String permission){
-        if(isPermissionAllowed(permission)){
+    private void getPermission(String permission) {
+        if (isPermissionAllowed(permission)) {
             //If permission is already having then showing the toast
             startService();
             //Toast.makeText(ServiceCall.this,"You already have the permission",Toast.LENGTH_LONG).show();
             //Existing the method with retur
-        }
-        else {
+        } else {
 
             //If the app has not the permission then asking for the permission
             requestPermission(permission);
@@ -76,16 +77,16 @@ public class ServiceCall extends Activity {
     }
 
     //Requesting permission
-    private void requestPermission(String permission){
+    private void requestPermission(String permission) {
 
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this,permission)){
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
             //If the user has denied the permission previously your code will come to this block
             //Here you can explain why you need this permission
             //Explain here why you need this permission
         }
 
         //And finally ask for the permission
-        ActivityCompat.requestPermissions(this,new String[]{permission},PERMISSION_CODE);
+        ActivityCompat.requestPermissions(this, new String[]{permission}, PERMISSION_CODE);
     }
 
     //This method will be called when the user will tap on allow or deny
@@ -93,15 +94,15 @@ public class ServiceCall extends Activity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
         //Checking the request code of our request
-        if(requestCode == PERMISSION_CODE){
+        if (requestCode == PERMISSION_CODE) {
 
             //If permission is granted
-            if(grantResults.length >0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                 //Displaying a toast
                 startService();
                 //Toast.makeText(this,"Permission granted",Toast.LENGTH_LONG).show();
-            }else{
+            } else {
                 //Displaying another toast if permission is not granted
                 //Toast.makeText(this,"Oops you just denied the permission",Toast.LENGTH_LONG).show();
             }
