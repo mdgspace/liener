@@ -5,40 +5,31 @@
     android:id="@+id/content_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.apps.my.liener.MainActivity"
     tools:showIn="@layout/app_bar_main">
 
-    <Button
-        android:id="@+id/startService"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="27dp"
-        android:onClick="startService"
-        android:text="Open Google" />
-
-    <Button
-        android:id="@+id/stopService"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/startService"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="39dp"
-        android:text="stop chat head service" />
-
-    <ListView
-        android:id="@+id/listView1"
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_below="@+id/stopService"
-        android:layout_marginTop="68dp"
-        android:stackFromBottom="true"
-        android:transcriptMode="normal" />
+        android:layout_marginBottom="56dp" />
+
+    <eu.long1.spacetablayout.SpaceTabLayout
+        android:id="@+id/spaceTabLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:button_color="@color/colorAccent"
+        app:layout_behavior="eu.long1.spacetablayout.SpaceTabLayoutBehavior"
+        app:number_of_tabs="three"
+        app:starting_position="two"
+        app:text_one="Saved"
+        app:text_two="Home"
+        app:text_three="Recent"
+        app:tab_color="@color/colorPrimary"
+        app:text_color="#61FFFFFF"
+        app:icon_one="@drawable/ic_bookmark"
+        app:icon_two="@drawable/ic_home"
+        app:icon_three="@drawable/ic_recent"/>
 </RelativeLayout>

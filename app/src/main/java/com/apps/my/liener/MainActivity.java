@@ -6,8 +6,10 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -15,15 +17,17 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import eu.long1.spacetablayout.SpaceTabLayout;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener{
+    SpaceTabLayout tabLayout;
     Button startServ;
     Button stopServ;
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -51,60 +55,56 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
 
-        startServ = (Button) findViewById(R.id.startService);
-        stopServ = (Button) findViewById(R.id.stopService);
-
-        startServ.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        startService();
-                        //getPermission(Manifest.permission.SYSTEM_ALERT_WINDOW);
-                        Log.d(TAG, "onClick() permission called with: " + "v = [" + v + "]");
-                        //
-                        c = 1;
-
-                    }
-                }
-        );
-        stopServ.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        stopService(new Intent(getBaseContext(), BubbleService.class));
-                        c = 0;
-                    }
-                }
-        );
-
-
-        mydb = new DBHelper(this);
-        ArrayList array_list = mydb.getAllData(true);
-        ArrayAdapter arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, array_list);
-
-        obj = (ListView) findViewById(R.id.listView1);
-        obj.setAdapter(arrayAdapter);
-//        obj.setOnItemClickListener(new AdapterView.OnItemClickListener(){
-//            @Override
-//            public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-//                // TODO Auto-generated method stub
-//                int id_To_Search = arg2 + 1;
+////        startServ = (Button) findViewById(R.id.startService);
+////        stopServ = (Button) findViewById(R.id.stopService);
 //
-//                Bundle dataBundle = new Bundle();
-//                dataBundle.putInt("id", id_To_Search);
+//        startServ.setOnClickListener(
+//                new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        startService();
+//                        //getPermission(Manifest.permission.SYSTEM_ALERT_WINDOW);
+//                        Log.d(TAG, "onClick() permission called with: " + "v = [" + v + "]");
+//                        //
+//                        c = 1;
 //
-//                Intent intent = new Intent(getApplicationContext(),DisplayContact.class);
+//                    }
+//                }
+//        );
+//        stopServ.setOnClickListener(
+//                new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        stopService(new Intent(getBaseContext(), BubbleService.class));
+//                        c = 0;
+//                    }
+//                }
+//        );
 //
-//                intent.putExtras(dataBundle);
-//                startActivity(intent);
-//            }
-//        });
+//
+//        mydb = new DBHelper(this);
+//        ArrayList array_list = mydb.getAllData(true);
+//        ArrayAdapter arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, array_list);
+//
+//   //     obj = (ListView) findViewById(R.id.listView1);
+//        obj.setAdapter(arrayAdapter);
 
+
+
+        //add the fragments you want to display in a List
+        List<Fragment> fragmentList = new ArrayList<>();
+        fragmentList.add(new FragmentBookmark());
+        fragmentList.add(new FragmentMain());
+        fragmentList.add(new FragmentRecent());
+
+        ViewPager viewPager = (ViewPager) findViewById(R.id.viewPager);
+        tabLayout = (SpaceTabLayout) findViewById(R.id.spaceTabLayout);
+
+        //we need the savedInstanceState to retrieve the position
+        tabLayout.initialize(viewPager, getSupportFragmentManager(), fragmentList, savedInstanceState);
 
     }
 
-//
-//
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -114,9 +114,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
@@ -145,24 +142,6 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item){
-//        super.onOptionsItemSelected(item);
-//
-//        switch(item.getItemId())
-//        {
-//            case R.id.item1:Bundle dataBundle = new Bundle();
-//                dataBundle.putInt("id", 0);
-//
-//                Intent intent = new Intent(getApplicationContext(),DisplayContact.class);
-//                intent.putExtras(dataBundle);
-//
-//                startActivity(intent);
-//                return true;
-//            default:
-//                return super.onOptionsItemSelected(item);
-//        }
-//    }
 
     public void startService() {
         Intent urlIntent = new Intent(getBaseContext(), BubbleService.class);
@@ -240,6 +219,12 @@ public class MainActivity extends AppCompatActivity
         } else {
             super.onBackPressed();
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        tabLayout.saveState(outState);
+        super.onSaveInstanceState(outState);
     }
 
 }
