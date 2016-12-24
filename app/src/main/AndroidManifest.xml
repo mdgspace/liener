@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.apps.my.liener" >
+    package="com.apps.my.liener">
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -9,21 +9,26 @@
         android:allowBackup="true"
         android:icon="@mipmap/bubble"
         android:label="@string/app_name"
-        android:supportsRtl="true"
-         >
-        <activity android:name=".MainActivity" android:theme="@style/AppTheme" >
+        android:supportsRtl="true">
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <service android:name=".BubbleService" >
-        </service>
+        <service android:name=".BubbleService"></service>
 
-        <activity android:name=".ServiceCall"  android:theme="@style/Theme.Transparent">
+        <activity
+            android:name=".ServiceCall"
+            android:theme="@style/Theme.Transparent">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
