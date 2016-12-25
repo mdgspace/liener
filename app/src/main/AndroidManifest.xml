@@ -21,7 +21,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".BubbleService"></service>
+        <service android:name=".BubbleService" />
 
         <activity
             android:name=".ServiceCall"
@@ -40,5 +40,12 @@
                     android:scheme="https" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".AboutUsActivity"
+            android:label="About Us"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
+
 </manifest>
