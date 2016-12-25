@@ -4,5 +4,40 @@
     android:layout_height="match_parent"
     tools:context="com.apps.my.liener.Fragment.FragmentMain">
 
+    <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/main_card_view"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="6dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        card_view:cardCornerRadius="4dp"
+        card_view:cardElevation="10dp">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/main_heading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:text="@string/app_name"
+                android:textAlignment="center"
+                android:textSize="30sp" />
+
+            <TextView
+                android:id="@+id/main_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="5dp"
+                android:padding="6dp"
+                android:text="Description goes here..."
+                android:textSize="18sp" />
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
 </RelativeLayout>
