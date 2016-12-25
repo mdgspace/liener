@@ -20,6 +20,10 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.ListView;
 
+import com.apps.my.liener.Fragment.FragmentBookmark;
+import com.apps.my.liener.Fragment.FragmentMain;
+import com.apps.my.liener.Fragment.FragmentRecent;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +40,7 @@ public class MainActivity extends AppCompatActivity
     public final static String EXTRA_MESSAGE = "MESSAGE";
     private ListView obj;
     DBHelper mydb;
+    public static ArrayList arrayList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +95,8 @@ public class MainActivity extends AppCompatActivity
 //        obj.setAdapter(arrayAdapter);
 
 
+        mydb = new DBHelper(this);
+        arrayList = mydb.getAllData(true);
 
         //add the fragments you want to display in a List
         List<Fragment> fragmentList = new ArrayList<>();
