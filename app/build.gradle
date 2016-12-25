@@ -5,6 +5,7 @@ android {
     buildToolsVersion "25.0.1"
 
     defaultConfig {
+        vectorDrawables.useSupportLibrary = true
         applicationId "com.apps.my.liener"
         minSdkVersion 19
         targetSdkVersion 25
