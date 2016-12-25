@@ -116,9 +116,10 @@ public class MainActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_clear_all) {
             return true;
+        }else if (id == R.id.action_about_us){
+            startActivity(new Intent(getApplicationContext(), AboutUsActivity.class));
         }
 
         return super.onOptionsItemSelected(item);
