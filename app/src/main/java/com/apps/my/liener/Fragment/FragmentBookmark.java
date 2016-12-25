@@ -13,6 +13,8 @@ import com.apps.my.liener.R;
  */
 
 public class FragmentBookmark extends Fragment {
+
+    //TODO Implement bookmarks list here
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_bookmark, container, false);

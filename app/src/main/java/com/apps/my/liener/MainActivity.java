@@ -124,6 +124,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.action_clear_all) {
+            //TODO Clear all recent searches
             return true;
         }else if (id == R.id.action_about_us){
             startActivity(new Intent(getApplicationContext(), AboutUsActivity.class));
@@ -138,6 +139,7 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
+        //TODO Complete this method
         if (id == R.id.nav_invite_friends) {
 
         } else if (id == R.id.nav_how_to) {

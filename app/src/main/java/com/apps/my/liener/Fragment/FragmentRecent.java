@@ -22,7 +22,7 @@ import java.util.ArrayList;
 public class FragmentRecent extends Fragment {
     View recyclerView;
 
-
+    //TODO Show list in reverse order
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
