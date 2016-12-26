@@ -24,7 +24,7 @@ public class BubbleHead implements View.OnTouchListener {
     private static final String TAG = BubbleHead.class.getSimpleName();
     public View view;
     public int height, widthMid;
-    WindowManager.LayoutParams layoutParams;
+    LayoutParams layoutParams;
 
     @Retention(SOURCE)
     @IntDef({HEAD_TYPE_DELETE, HEAD_TYPE_MAIN, HEAD_TYPE_TAB})
@@ -64,16 +64,17 @@ public class BubbleHead implements View.OnTouchListener {
     }
 
     public void initParams(int x, int y) {
-        layoutParams = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_TOAST,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                PixelFormat.TRANSLUCENT
-        );
-        layoutParams.width = 100;
-        layoutParams.height = 100;
-        layoutParams.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+//        layoutParams = new WindowManager.LayoutParams(
+//                WindowManager.LayoutParams.WRAP_CONTENT,
+//                WindowManager.LayoutParams.WRAP_CONTENT,
+//                WindowManager.LayoutParams.TYPE_TOAST,
+//                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+//                PixelFormat.TRANSLUCENT
+//        );
+//        layoutParams.width = 100;
+//        layoutParams.height = 100;
+//        layoutParams.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+        layoutParams = new LayoutParams();
         layoutParams.x = x;
         layoutParams.y = y;
         if (defaultType == HEAD_TYPE_DELETE) {
@@ -96,6 +97,8 @@ public class BubbleHead implements View.OnTouchListener {
         delete.setImageResource(R.mipmap.delete);
         layoutParams.width = Constant.BubbleSizeDelete;
         layoutParams.height = Constant.BubbleSizeDelete;
+        layoutParams.gravity = Constant.BubbleSizeDelete;
+        view.setVisibility(View.INVISIBLE);
     }
 
 
@@ -119,59 +122,84 @@ public class BubbleHead implements View.OnTouchListener {
 
 
     boolean onRightSide = true;
+    boolean isMoveEnabled = false;
+    boolean isOnDelete = false;
 
     public void setListener() {
         view.setOnTouchListener(new View.OnTouchListener() {
             int initialX, initialY;
             float initialTouchX, initialTouchY;
-
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                Log.d(TAG, "onTouch() called with: Type = [" + defaultType + "], event = [" + event + "]");
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                         initialX = layoutParams.x;
                         initialY = layoutParams.y;
                         initialTouchX = event.getRawX();
                         initialTouchY = event.getRawY();
-                        sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_ADD_DELETE);
-                        if (defaultType == HEAD_TYPE_TAB)
-                            sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_REMOVE_BROWSER);
+                        Log.d(TAG, "onTouch() called with: v = [" + v + "], event = [" + event + "]");
                         return false;
                     case MotionEvent.ACTION_MOVE:
-                        if ((!onRightSide) && defaultType == HEAD_TYPE_MAIN) {
-                            layoutParams.x = initialX + (int) (event.getRawX() - initialTouchX);
+                        if (isMoveEnabled) {
+                            Log.d(TAG, "onTouch() move enabled called with: v = [" + v + "], event = [" + event + "]");
+                            if ((!onRightSide) && defaultType == HEAD_TYPE_MAIN) {
+                                layoutParams.x = initialX + (int) (event.getRawX() - initialTouchX);
+                            } else {
+                                layoutParams.x = initialX - (int) (event.getRawX() - initialTouchX);
+                            }
+                            layoutParams.y = initialY - (int) (event.getRawY() - initialTouchY);
+                            if(isOnDelete){
+                                if(!onDeleteCheck()){
+                                    isOnDelete = false;
+                                    sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_OFF_DELETE);
+                                }
+                            }
+                            else {
+                                sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_UPDATE);
+                                if (onDeleteCheck()) {
+                                    Log.d(TAG, "in ondelete() called with: v = [" + v + "], event = [" + event + "]");
+                                    isOnDelete = true;
+                                    sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_ON_DELETE);
+                                }
+                            }
+
                         } else {
-                            layoutParams.x = initialX - (int) (event.getRawX() - initialTouchX);
-                        }
-                        layoutParams.y = initialY - (int) (event.getRawY() - initialTouchY);
-                        if (onDeleteCheck()) {
-                            //removeDeleteView();
-                            sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_MOVE_DELETE);
-                            //addDeleteView();
-                        } else {
-                            sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_UPDATE);
+                            Log.d(TAG, "onTouch() else called with: v = [" + v + "], event = [" + event + "]");
+                            int x = (int) (event.getRawX() - initialTouchX);
+                            int y = (int) (event.getRawY() - initialTouchY);
+                            if ((x < -Constant.ENABLE_MOVE || x > Constant.ENABLE_MOVE) || (y < -Constant.ENABLE_MOVE || y > Constant.ENABLE_MOVE)){
+                                Log.d(TAG, "onTouch() inside if called with: v = [" + v + "], event = [" + event + "]");
+                                isMoveEnabled = true;
+                                sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_ADD_DELETE);
+                                if (defaultType == HEAD_TYPE_TAB)
+                                    sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_REMOVE_BROWSER);
+                            }
                         }
                         return false;
                     case MotionEvent.ACTION_UP:
-                        sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_REMOVE_DELETE);
-                        if (onDeleteCheck()) {
-                            sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_DELETE);
-                            return true;
-                        } else {
-                            switch (defaultType) {
-                                case HEAD_TYPE_DELETE:
-                                    break;
-                                case HEAD_TYPE_MAIN:
-                                    moveBubbleToSide();
-                                    break;
-                                case HEAD_TYPE_TAB:
-                                    moveBubbleToOldPosition(initialX, initialY);
-                                    sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_UPDATE);
-                                    sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_ADD_BROWSER);
-                                    break;
+                        if (isMoveEnabled) {
+                            sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_REMOVE_DELETE);
+                            if (onDeleteCheck()) {
+                                sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_DELETE);
+                                return true;
+                            } else {
+                                switch (defaultType) {
+                                    case HEAD_TYPE_DELETE:
+                                        break;
+                                    case HEAD_TYPE_MAIN:
+                                        moveBubbleToSide();
+                                        break;
+                                    case HEAD_TYPE_TAB:
+                                        moveBubbleToOldPosition(initialX, initialY);
+                                        sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_UPDATE);
+                                        sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_ADD_BROWSER);
+                                        break;
+                                }
+                                sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_UPDATE);
+                                Log.d(TAG, "else in action_up");
                             }
-                            sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_UPDATE);
-                            Log.d(TAG, "else in action_up");
+                            isMoveEnabled = false;
                         }
                         return false;
                 }

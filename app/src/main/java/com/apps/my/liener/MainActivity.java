@@ -1,4 +1,4 @@
-package com.apps.my.liener;
+    package com.apps.my.liener;
 
 import android.Manifest;
 import android.app.Activity;
@@ -43,13 +43,15 @@ public class MainActivity extends AppCompatActivity {
         startServ = (Button) findViewById(R.id.startService);
         stopServ = (Button) findViewById(R.id.stopService);
 
-        startServ.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        startService();
+        startServ.setOnClickListener(new View.OnClickListener() {
+                                         @Override
+                                         public void onClick(View v) {
+                startService();
                         //getPermission(Manifest.permission.SYSTEM_ALERT_WINDOW);
-                        Log.d(TAG, "onClick() permission called with: " + "v = [" + v + "]");
+                        Log.d(TAG, "\n" +
+                                "                new View.OnClickListener() {\n" +
+                                "                    @Override\n" +
+                                "                    public void onClick(View v) {onClick() permission called with: " + "v = [" + v + "]");
                         //
                         c = 1;
 
