@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import java.lang.annotation.Retention;
 import java.security.PublicKey;
 
+import static com.apps.my.liener.Constant.BubbleSizeDelete;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 /**
@@ -76,7 +77,7 @@ public class BubbleHead implements View.OnTouchListener {
 //        layoutParams.gravity = Gravity.BOTTOM | Gravity.RIGHT;
         layoutParams = new LayoutParams();
         layoutParams.x = x;
-        layoutParams.y = y;
+        layoutParams.y = y - BubbleSizeDelete;
         if (defaultType == HEAD_TYPE_DELETE) {
             switchToDelete();
         }
@@ -95,9 +96,9 @@ public class BubbleHead implements View.OnTouchListener {
     public void switchToDelete() {
         ImageView delete = (ImageView) view.findViewById(R.id.headimage);
         delete.setImageResource(R.mipmap.delete);
-        layoutParams.width = Constant.BubbleSizeDelete;
-        layoutParams.height = Constant.BubbleSizeDelete;
-        layoutParams.gravity = Constant.BubbleSizeDelete;
+        layoutParams.width = BubbleSizeDelete;
+        layoutParams.height = BubbleSizeDelete;
+        layoutParams.gravity = BubbleSizeDelete;
         view.setVisibility(View.INVISIBLE);
     }
 
@@ -226,7 +227,7 @@ public class BubbleHead implements View.OnTouchListener {
 
     public boolean onDeleteCheck() {
         int y = (layoutParams.y - height / 4);
-        int x = (layoutParams.x - widthMid + Constant.BubbleSizeDelete / 2);
+        int x = (layoutParams.x - widthMid + BubbleSizeDelete / 2);
         Log.d(TAG, "onDeleteCheck() called " + " height: " + height + " widthmid: " + widthMid + " x: " + x + " y: " + y);
         if ((x > -100 && x < 100) && (y > -100 && y < 100)) {
             Log.d("TESTING", "deleted");

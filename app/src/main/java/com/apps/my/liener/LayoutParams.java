@@ -4,6 +4,8 @@ import android.graphics.PixelFormat;
 import android.view.Gravity;
 import android.view.WindowManager;
 
+import static com.apps.my.liener.Constant.BubbleInDelete;
+import static com.apps.my.liener.Constant.BubbleSizeDeleteLarge;
 import static com.apps.my.liener.Constant.BubbleSizeLarge;
 import static com.apps.my.liener.Constant.BubbleSizeSmall;
 
@@ -24,6 +26,7 @@ public class LayoutParams extends WindowManager.LayoutParams {
     }
 
     public void setSize(int size){
+        this.y = this.y + (width - size)/2;
         this.width = size;
         this.height = size;
     }
