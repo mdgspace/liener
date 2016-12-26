@@ -67,7 +67,7 @@ public class BrowserPage {
 //    int iColor=Color.argb(alphaColor,80,80,80);
 //    int jColor=Color.argb(alphaColor,70,70,70);
 //    int kColor=Color.argb(alphaColor,60,60,60);
-//    int lColor=Color.argb(alphaColor,50,50,50);
+//    int lColor=Color.argb(alphaColor,50,50,50)
 
     BubbleService BubbleServiceActivity;
 

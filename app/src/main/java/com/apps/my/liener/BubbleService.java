@@ -45,6 +45,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 import android.app.Activity;
 
+import java.util.logging.LogManager;
+
 public class BubbleService extends Service implements OnKeyListener, View.OnTouchListener, View.OnFocusChangeListener, BubbleListener {
     WindowManager bubbleWindow;
     Context context = this;
@@ -104,6 +106,8 @@ public class BubbleService extends Service implements OnKeyListener, View.OnTouc
         deleteHead = new BubbleHead(context, heightNew, widthMid, BubbleHead.HEAD_TYPE_DELETE, -1);
         deleteHead.initParams(0, (int) (heightNew / 4));
         deleteHead.layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER;
+        bubbleWindow.addView(deleteHead.view, deleteHead.layoutParams);
+        Log.d(TAG, "DeleteHead added");
     }
 
 
@@ -176,7 +180,7 @@ public class BubbleService extends Service implements OnKeyListener, View.OnTouc
                 Log.d("testing", "update layout2");
                 bubbleWindow.removeView(bh.view);
                 bubbleWidth = bh.view.getWidth();
-                Log.d(TAG, " " + "bubblewidth = [" + bubbleWidth + "]");
+                Log.d(TAG, "" + "bubblewidth = [" + bubbleWidth + "]");
                 addBrowser(current);
                 for (int i = 0; i < count; i++) {
                     bubbleWindow.addView(browserPageArray[arrIndex[i]].bubbleHead.view, browserPageArray[arrIndex[i]].bubbleHead.layoutParams);
@@ -211,6 +215,7 @@ public class BubbleService extends Service implements OnKeyListener, View.OnTouc
         browserPageArray[arrIndex[index]].browser.setOnFocusChangeListener(this);
         Log.d("testing", "addview4");
         bubbleWindow.addView(browserPageArray[arrIndex[index]].browser, paramBrowser);
+        Log.d("testing", "addview4b");
         browserPageArray[arrIndex[index]].browserwv.setOnKeyListener(new OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -251,6 +256,7 @@ public class BubbleService extends Service implements OnKeyListener, View.OnTouc
             addBrowser(index);
             Log.d("testing", "removeView6");
             bubbleWindow.removeView(browserPageArray[arrIndex[current]].browser);
+            Log.d("testing", "removeView9");
             browserPageArray[arrIndex[index]].switchToLarge();
             bubbleWindow.updateViewLayout(browserPageArray[arrIndex[index]].bubbleHead.view, browserPageArray[arrIndex[index]].bubbleHead.layoutParams);
 
@@ -329,7 +335,7 @@ public class BubbleService extends Service implements OnKeyListener, View.OnTouc
         Log.d(TAG, "Listener onEvent() called with: type = [" + event_type + "]");
         switch (event_type) {
             case TOUCH_EVENT_TYPE_ADD_DELETE:
-                bubbleWindow.addView(deleteHead.view, deleteHead.layoutParams);
+                deleteHead.view.setVisibility(View.VISIBLE);
                 break;
             case TOUCH_EVENT_TYPE_DELETE:
                 switch (head_type) {
@@ -342,22 +348,30 @@ public class BubbleService extends Service implements OnKeyListener, View.OnTouc
                         break;
                 }
                 break;
-            case TOUCH_EVENT_TYPE_MOVE_DELETE:
+            case TOUCH_EVENT_TYPE_ON_DELETE:
                 switch (head_type) {
                     case BubbleHead.HEAD_TYPE_MAIN:
-                        bubbleWindow.removeView(deleteHead.view);
+                        deleteHead.layoutParams.setSize(Constant.BubbleSizeDeleteLarge);
+                        bubbleWindow.updateViewLayout(deleteHead.view,deleteHead.layoutParams);
+                        deleteHead.layoutParams.setSize(Constant.BubbleInDelete);
                         bubbleWindow.updateViewLayout(bh.view, deleteHead.layoutParams);
-                        bubbleWindow.addView(deleteHead.view, deleteHead.layoutParams);
                         break;
                     case BubbleHead.HEAD_TYPE_TAB:
-                        bubbleWindow.removeView(deleteHead.view);
+                        deleteHead.layoutParams.setSize(Constant.BubbleSizeDeleteLarge);
+                        bubbleWindow.updateViewLayout(deleteHead.view,deleteHead.layoutParams);
+                        deleteHead.layoutParams.setSize(Constant.BubbleInDelete);
                         bubbleWindow.updateViewLayout(browserPageArray[BId].bubbleHead.view, deleteHead.layoutParams);
-                        bubbleWindow.addView(deleteHead.view, deleteHead.layoutParams);
                         break;
                 }
+                deleteHead.layoutParams.setSize(Constant.BubbleSizeDelete);
+                break;
+
+            case TOUCH_EVENT_TYPE_OFF_DELETE:
+                deleteHead.layoutParams.setSize(Constant.BubbleSizeDelete);
+                bubbleWindow.updateViewLayout(deleteHead.view,deleteHead.layoutParams);
                 break;
             case TOUCH_EVENT_TYPE_REMOVE_DELETE:
-                bubbleWindow.removeView(deleteHead.view);
+                deleteHead.view.setVisibility(View.INVISIBLE);
                 break;
             case TOUCH_EVENT_TYPE_UPDATE:
                 switch (head_type) {
@@ -371,6 +385,7 @@ public class BubbleService extends Service implements OnKeyListener, View.OnTouc
                 break;
             case TOUCH_EVENT_TYPE_REMOVE_BROWSER:
                 bubbleWindow.removeView(browserPageArray[arrIndex[current]].browser);
+                Log.d(TAG, "removeview8");
                 break;
             case TOUCH_EVENT_TYPE_ADD_BROWSER:
                 bubbleWindow.addView(browserPageArray[arrIndex[current]].browser, paramBrowser);
