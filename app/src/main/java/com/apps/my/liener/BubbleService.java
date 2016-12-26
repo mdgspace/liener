@@ -47,6 +47,8 @@ import android.app.Activity;
 
 import java.util.logging.LogManager;
 
+import static com.apps.my.liener.Constant.BubbleSizeDelete;
+
 public class BubbleService extends Service implements OnKeyListener, View.OnTouchListener, View.OnFocusChangeListener, BubbleListener {
     WindowManager bubbleWindow;
     Context context = this;
@@ -104,7 +106,7 @@ public class BubbleService extends Service implements OnKeyListener, View.OnTouc
     public void initDeleteHead() {
         Log.d("testing", "addview1");
         deleteHead = new BubbleHead(context, heightNew, widthMid, BubbleHead.HEAD_TYPE_DELETE, -1);
-        deleteHead.initParams(0, (int) (heightNew / 4));
+        deleteHead.initParams(0, (int) (heightNew / 4 - BubbleSizeDelete / 2));
         deleteHead.layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER;
         bubbleWindow.addView(deleteHead.view, deleteHead.layoutParams);
         Log.d(TAG, "DeleteHead added");
@@ -352,23 +354,23 @@ public class BubbleService extends Service implements OnKeyListener, View.OnTouc
                 switch (head_type) {
                     case BubbleHead.HEAD_TYPE_MAIN:
                         deleteHead.layoutParams.setSize(Constant.BubbleSizeDeleteLarge);
-                        bubbleWindow.updateViewLayout(deleteHead.view,deleteHead.layoutParams);
+                        bubbleWindow.updateViewLayout(deleteHead.view, deleteHead.layoutParams);
                         deleteHead.layoutParams.setSize(Constant.BubbleInDelete);
                         bubbleWindow.updateViewLayout(bh.view, deleteHead.layoutParams);
                         break;
                     case BubbleHead.HEAD_TYPE_TAB:
                         deleteHead.layoutParams.setSize(Constant.BubbleSizeDeleteLarge);
-                        bubbleWindow.updateViewLayout(deleteHead.view,deleteHead.layoutParams);
+                        bubbleWindow.updateViewLayout(deleteHead.view, deleteHead.layoutParams);
                         deleteHead.layoutParams.setSize(Constant.BubbleInDelete);
                         bubbleWindow.updateViewLayout(browserPageArray[BId].bubbleHead.view, deleteHead.layoutParams);
                         break;
                 }
-                deleteHead.layoutParams.setSize(Constant.BubbleSizeDelete);
+                deleteHead.layoutParams.setSize(BubbleSizeDelete);
                 break;
 
             case TOUCH_EVENT_TYPE_OFF_DELETE:
-                deleteHead.layoutParams.setSize(Constant.BubbleSizeDelete);
-                bubbleWindow.updateViewLayout(deleteHead.view,deleteHead.layoutParams);
+                deleteHead.layoutParams.setSize(BubbleSizeDelete);
+                bubbleWindow.updateViewLayout(deleteHead.view, deleteHead.layoutParams);
                 break;
             case TOUCH_EVENT_TYPE_REMOVE_DELETE:
                 deleteHead.view.setVisibility(View.INVISIBLE);
