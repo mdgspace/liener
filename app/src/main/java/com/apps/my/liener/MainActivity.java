@@ -25,6 +25,7 @@ import com.apps.my.liener.Fragment.FragmentMain;
 import com.apps.my.liener.Fragment.FragmentRecent;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import eu.long1.spacetablayout.SpaceTabLayout;
@@ -97,6 +98,7 @@ public class MainActivity extends AppCompatActivity
 
         mydb = new DBHelper(this);
         arrayList = mydb.getAllData(true);
+        Collections.reverse(arrayList);
 
         //add the fragments you want to display in a List
         List<Fragment> fragmentList = new ArrayList<>();
