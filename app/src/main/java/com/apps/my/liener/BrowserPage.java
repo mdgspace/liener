@@ -1,41 +1,23 @@
 package com.apps.my.liener;
 
-import android.app.Activity;
-import android.app.Service;
-import android.app.VoiceInteractor;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.PixelFormat;
-import android.graphics.Point;
 import android.graphics.RectF;
-import android.media.Image;
-import android.os.IBinder;
-import android.provider.ContactsContract;
-import android.provider.Settings;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.telecom.PhoneAccount;
-import android.text.LoginFilter;
+import android.support.v7.widget.PopupMenu;
 import android.util.Log;
-import android.view.Display;
-import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
+import android.view.MenuInflater;
 import android.view.View;
-import android.view.WindowManager;
 import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import static java.security.AccessController.getContext;
+
 
 /**
  * Created by RAHUL on 5/12/2016.
@@ -75,13 +57,12 @@ public class BrowserPage {
         this.BId = BId;
         this.context = context;
         BubbleServiceActivity = bubbleService;
-        mydb = new DBHelper(context);
+        mydb = DBHelper.init(context);
 
         LayoutInflater li = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         browser = li.inflate(R.layout.browser_page, null);
         bubbleHead = new BubbleHead(context, height, widthMid, BubbleHead.HEAD_TYPE_TAB, BId);
         bubbleHead.initParams(x, height);
-
 
         tv = (TextView) browser.findViewById(R.id.txtview);
         tv.setText("Loading ...");
@@ -93,7 +74,7 @@ public class BrowserPage {
             }
         });
 
-
+        //TODO Implement action_overflow touch listener
         browser.findViewById(R.id.share_url).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -101,6 +82,17 @@ public class BrowserPage {
             }
         });
 
+
+//        final PopupMenu popup = new PopupMenu(context,browser.findViewById(R.id.overflow_menu));
+//        MenuInflater inflater = popup.getMenuInflater();
+//        inflater.inflate(R.menu.browser_menu, popup.getMenu());
+//
+//        browser.findViewById(R.id.overflow_menu).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                popup.show();
+//            }
+//        });
 
         browserwv = (WebView) browser.findViewById(R.id.webview);
         setBrowser();
@@ -157,6 +149,7 @@ public class BrowserPage {
         }
         Log.d(TAG, "onClick() called with: " + "name = [" + name + "]" + browserwv.getUrl() + "");
         mydb.insertContact(false, name, browserwv.getUrl(), String.valueOf(System.currentTimeMillis() / 1000));
+
     }
 
     public void loadUrl(String url) {
@@ -176,7 +169,6 @@ public class BrowserPage {
         context.startActivity(typechooser);
         BubbleServiceActivity.minimizeBrowser(BubbleServiceActivity.current);
     }
-
 
     public void switchToSmall() {
         bubbleHead.switchToSmall();

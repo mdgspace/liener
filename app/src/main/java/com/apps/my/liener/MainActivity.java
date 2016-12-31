@@ -26,6 +26,7 @@ import com.apps.my.liener.Fragment.FragmentMain;
 import com.apps.my.liener.Fragment.FragmentRecent;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import eu.long1.spacetablayout.SpaceTabLayout;
@@ -40,13 +41,13 @@ public class MainActivity extends AppCompatActivity
 
     public final static String EXTRA_MESSAGE = "MESSAGE";
     private ListView obj;
-    DBHelper mydb;
-    public static ArrayList arrayList;
+    public static DBHelper mydb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -60,44 +61,7 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-
-////        startServ = (Button) findViewById(R.id.startService);
-////        stopServ = (Button) findViewById(R.id.stopService);
-//
-//        startServ.setOnClickListener(
-//                new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                        startService();
-//                        //getPermission(Manifest.permission.SYSTEM_ALERT_WINDOW);
-//                        Log.d(TAG, "onClick() permission called with: " + "v = [" + v + "]");
-//                        //
-//                        c = 1;
-//
-//                    }
-//                }
-//        );
-//        stopServ.setOnClickListener(
-//                new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                        stopService(new Intent(getBaseContext(), BubbleService.class));
-//                        c = 0;
-//                    }
-//                }
-//        );
-//
-//
-//        mydb = new DBHelper(this);
-//        ArrayList array_list = mydb.getAllData(true);
-//        ArrayAdapter arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, array_list);
-//
-//   //     obj = (ListView) findViewById(R.id.listView1);
-//        obj.setAdapter(arrayAdapter);
-
-
-        mydb = new DBHelper(this);
-        arrayList = mydb.getAllData(true);
+        mydb = DBHelper.init(this);
 
         //add the fragments you want to display in a List
         List<Fragment> fragmentList = new ArrayList<>();
@@ -125,6 +89,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.action_clear_all) {
+            mydb.deleteAllHistory();
             return true;
         }else if (id == R.id.action_about_us){
             startActivity(new Intent(getApplicationContext(), AboutUsActivity.class));
@@ -139,6 +104,7 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
+        //TODO Complete this method
         if (id == R.id.nav_invite_friends) {
 
         } else if (id == R.id.nav_how_to) {

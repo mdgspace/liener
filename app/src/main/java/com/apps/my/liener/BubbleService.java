@@ -18,6 +18,7 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.PopupMenu;
 import android.text.Layout;
 import android.util.Log;
 import android.view.Display;
@@ -74,6 +75,7 @@ public class BubbleService extends Service implements OnKeyListener, View.OnTouc
         initDeleteHead();
         initParamBrowser();
         initHomeListener();
+
     }
 
     public void initVariables() {

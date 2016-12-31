@@ -17,5 +17,6 @@
     <string name="no">No</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="app_description">Don\'t worry Liener is up now to handle all your url links.</string>
 
 </resources>
