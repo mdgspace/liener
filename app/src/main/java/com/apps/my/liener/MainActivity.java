@@ -17,6 +17,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 
@@ -29,6 +30,7 @@ import java.util.Collections;
 import java.util.List;
 
 import eu.long1.spacetablayout.SpaceTabLayout;
+import rx.Observer;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener{
@@ -40,13 +42,15 @@ public class MainActivity extends AppCompatActivity
 
     public final static String EXTRA_MESSAGE = "MESSAGE";
     private ListView obj;
-    DBHelper mydb;
-    public static ArrayList arrayList;
+    public static DBHelper mydb;
+    public static DbListener dbListener = null;
+    public static Observer<String> observer = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -96,9 +100,45 @@ public class MainActivity extends AppCompatActivity
 //        obj.setAdapter(arrayAdapter);
 
 
-        mydb = new DBHelper(this);
-        arrayList = mydb.getAllData(true);
-        Collections.reverse(arrayList);
+        mydb = DBHelper.init(this);
+
+//        arrayList = mydb.getAllData(true);
+//        Collections.reverse(arrayList);
+//
+//        final FragmentRecent fragmentRecent = new FragmentRecent();
+//
+//        mydb.onHistoryChangedListener(new DbListener() {
+//            @Override
+//            public void onDataChanged() {
+//                arrayList = mydb.getAllData(true);
+//                Collections.reverse(arrayList);
+//                Log.d(TAG, "onDataChanged() dblistener called");
+//            }
+//
+//            @Override
+//            public void onError(Throwable error) {
+//
+//            }
+//        });
+
+//        observer = new Observer<String>() {
+//            @Override
+//            public void onCompleted() {
+//                Log.d(TAG, "observer onCompleted() called");
+//            }
+//
+//            @Override
+//            public void onError(Throwable e) {
+//
+//            }
+//
+//            @Override
+//            public void onNext(String s) {
+//                Log.d(TAG, "onNext() called with: s = [" + s + "]");
+//            }
+//        };
+
+
 
         //add the fragments you want to display in a List
         List<Fragment> fragmentList = new ArrayList<>();
@@ -126,6 +166,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.action_clear_all) {
+            mydb.deleteAllHistory();
             //TODO Clear all recent searches
             return true;
         }else if (id == R.id.action_about_us){

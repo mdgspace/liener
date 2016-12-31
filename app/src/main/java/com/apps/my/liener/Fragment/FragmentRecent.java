@@ -5,15 +5,18 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.apps.my.liener.DbListener;
 import com.apps.my.liener.MainActivity;
 import com.apps.my.liener.R;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Created by rahul on 25/12/16.
@@ -21,10 +24,33 @@ import java.util.ArrayList;
 
 public class FragmentRecent extends Fragment {
     View recyclerView;
-
+    String TAG = this.getClass().getSimpleName();
+    ArrayList<String> arrayList;
+    MyAdapter myAdapter;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        arrayList = MainActivity.mydb.getAllData(true);
+        Collections.reverse(arrayList);
+
+        myAdapter = new MyAdapter(arrayList);
+
+        final FragmentRecent fragmentRecent = new FragmentRecent();
+
+        MainActivity.mydb.onHistoryChangedListener(new DbListener() {
+            @Override
+            public void onDataChanged() {
+                arrayList = MainActivity.mydb.getAllData(true);
+                Collections.reverse(arrayList);
+                Log.d(TAG, "onDataChanged() dblistener called");
+                myAdapter.swap(arrayList);
+            }
+
+            @Override
+            public void onError(Throwable error) {
+
+            }
+        });
     }
 
     @Override
@@ -38,7 +64,7 @@ public class FragmentRecent extends Fragment {
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
-        recyclerView.setAdapter(new MyAdapter(MainActivity.arrayList));
+        recyclerView.setAdapter(myAdapter);
     }
 
     public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
@@ -69,12 +95,17 @@ public class FragmentRecent extends Fragment {
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
             holder.mTextView.setText(mDataset.get(position).toString());
-
         }
 
         @Override
         public int getItemCount() {
             return mDataset.size();
+        }
+
+        public void swap(ArrayList<String> datas){
+            mDataset.clear();
+            mDataset.addAll(datas);
+            notifyDataSetChanged();
         }
     }
 

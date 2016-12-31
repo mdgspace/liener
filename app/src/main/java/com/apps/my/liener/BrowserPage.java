@@ -14,6 +14,8 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.TextView;
 
+import rx.subjects.PublishSubject;
+
 /**
  * Created by RAHUL on 5/12/2016.
  */
@@ -31,6 +33,7 @@ public class BrowserPage {
     Paint paint;
     int BId;
     Context context;
+    PublishSubject<String> subject = PublishSubject.create();
 
 //    int alphaColor = 100;
 //    int aColor=Color.argb(alphaColor,160,160,160);
@@ -52,13 +55,12 @@ public class BrowserPage {
         this.BId = BId;
         this.context = context;
         BubbleServiceActivity = bubbleService;
-        mydb = new DBHelper(context);
+        mydb = DBHelper.init(context);
 
         LayoutInflater li = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         browser = li.inflate(R.layout.browser_page, null);
         bubbleHead = new BubbleHead(context, height, widthMid, BubbleHead.HEAD_TYPE_TAB, BId);
         bubbleHead.initParams(x, height);
-
 
         tv = (TextView) browser.findViewById(R.id.txtview);
         tv.setText("Loading ...");
@@ -100,6 +102,7 @@ public class BrowserPage {
                 Log.d(TAG, "shouldOverrideUrlLoading() called with: " + "view = [" + view + "], url = [" + url + "]");
                 ts = System.currentTimeMillis() / 1000;
                 id = mydb.insertContact(true, url, url, String.valueOf(ts));
+                dataChanged();
                 return false;
             }
         });
@@ -134,6 +137,7 @@ public class BrowserPage {
         }
         Log.d(TAG, "onClick() called with: " + "name = [" + name + "]" + browserwv.getUrl() + "");
         mydb.insertContact(false, name, browserwv.getUrl(), String.valueOf(System.currentTimeMillis() / 1000));
+
     }
 
     public void loadUrl(String url) {
@@ -141,6 +145,7 @@ public class BrowserPage {
         ts = System.currentTimeMillis() / 1000;
         Log.d(TAG, "loadUrl() called with: " + "url = [" + url + "]");
         id = mydb.insertContact(true, url, url, String.valueOf(ts));
+        dataChanged();
     }
 
     public void shareText(String title, String body) {
@@ -154,6 +159,24 @@ public class BrowserPage {
         BubbleServiceActivity.minimizeBrowser(BubbleServiceActivity.current);
     }
 
+    private void dataChanged(){
+        if(MainActivity.dbListener!=null){
+            Log.d(TAG, "dblist is not null");
+            MainActivity.dbListener.onDataChanged();
+        }
+        else {
+            Log.d(TAG, "dblist is null");
+        }
+        if(MainActivity.observer!=null){
+            Log.d(TAG, "observer is not null");
+            subject.subscribe(MainActivity.observer);
+            subject.onNext("one");
+        }
+        else {
+            Log.d(TAG, "observer is null");
+        }
+
+    }
 
     public void switchToSmall() {
         bubbleHead.switchToSmall();
