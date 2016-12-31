@@ -5,12 +5,14 @@ import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PixelFormat;
 import android.graphics.RectF;
 import android.support.v7.widget.PopupMenu;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -36,6 +38,7 @@ public class BrowserPage {
     Paint paint;
     int BId;
     Context context;
+    View action_overflow_view;
 
 //    int alphaColor = 100;
 //    int aColor=Color.argb(alphaColor,160,160,160);
@@ -82,6 +85,14 @@ public class BrowserPage {
             }
         });
 
+        browser.findViewById(R.id.overflow_menu).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+            sendEvent(BubbleListener.EVENT_TYPE_ACTION_OVERFLOW);
+            }
+        });
+
+        action_overflow_view = li.inflate(R.layout.browser_overflow_menu, null);
 
 //        final PopupMenu popup = new PopupMenu(context,browser.findViewById(R.id.overflow_menu));
 //        MenuInflater inflater = popup.getMenuInflater();
@@ -176,6 +187,18 @@ public class BrowserPage {
 
     public void switchToLarge() {
         bubbleHead.switchToLarge();
+    }
+
+    BubbleListener fetchListener = null;
+
+    public void setListener(BubbleListener listener) {
+        this.fetchListener = listener;
+    }
+
+    public void sendEvent(@BubbleListener.EVENT_TYPE int event_type) {
+        Log.d(TAG, "sendEvent() called with: event_type = [" + event_type + "]");
+        if (this.fetchListener != null)
+            this.fetchListener.onEvent(event_type);
     }
 
     public void createIcon() {
@@ -281,4 +304,6 @@ public class BrowserPage {
 //                        canvas.drawArc(rectF, 270 + 30 * i, 27, true, paint);
 //                    }
 //    }
+
+
 }
