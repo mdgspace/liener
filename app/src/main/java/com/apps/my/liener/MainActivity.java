@@ -90,7 +90,6 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.action_clear_all) {
             mydb.deleteAllHistory();
-            //TODO Clear all recent searches
             return true;
         }else if (id == R.id.action_about_us){
             startActivity(new Intent(getApplicationContext(), AboutUsActivity.class));

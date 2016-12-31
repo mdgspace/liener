@@ -6,13 +6,17 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.support.v7.widget.PopupMenu;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.TextView;
+
+import static java.security.AccessController.getContext;
 
 
 /**
@@ -78,6 +82,17 @@ public class BrowserPage {
             }
         });
 
+
+//        final PopupMenu popup = new PopupMenu(context,browser.findViewById(R.id.overflow_menu));
+//        MenuInflater inflater = popup.getMenuInflater();
+//        inflater.inflate(R.menu.browser_menu, popup.getMenu());
+//
+//        browser.findViewById(R.id.overflow_menu).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                popup.show();
+//            }
+//        });
 
         browserwv = (WebView) browser.findViewById(R.id.webview);
         setBrowser();

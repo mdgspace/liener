@@ -177,4 +177,9 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         Log.d(TAG, "onHistoryChangedListener() called with: hl = [" + hl + "]");
     }
+
+    public void onBookmarkChangedListener(DbListener bl){
+        this.bl = bl;
+        Log.d(TAG, "onHistoryChangedListener() called with: bl = [" + bl + "]");
+    }
 }
