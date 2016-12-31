@@ -30,7 +30,6 @@ import java.util.Collections;
 import java.util.List;
 
 import eu.long1.spacetablayout.SpaceTabLayout;
-import rx.Observer;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener{
@@ -43,8 +42,6 @@ public class MainActivity extends AppCompatActivity
     public final static String EXTRA_MESSAGE = "MESSAGE";
     private ListView obj;
     public static DBHelper mydb;
-    public static DbListener dbListener = null;
-    public static Observer<String> observer = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,81 +61,7 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-
-////        startServ = (Button) findViewById(R.id.startService);
-////        stopServ = (Button) findViewById(R.id.stopService);
-//
-//        startServ.setOnClickListener(
-//                new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                        startService();
-//                        //getPermission(Manifest.permission.SYSTEM_ALERT_WINDOW);
-//                        Log.d(TAG, "onClick() permission called with: " + "v = [" + v + "]");
-//                        //
-//                        c = 1;
-//
-//                    }
-//                }
-//        );
-//        stopServ.setOnClickListener(
-//                new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                        stopService(new Intent(getBaseContext(), BubbleService.class));
-//                        c = 0;
-//                    }
-//                }
-//        );
-//
-//
-//        mydb = new DBHelper(this);
-//        ArrayList array_list = mydb.getAllData(true);
-//        ArrayAdapter arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, array_list);
-//
-//   //     obj = (ListView) findViewById(R.id.listView1);
-//        obj.setAdapter(arrayAdapter);
-
-
         mydb = DBHelper.init(this);
-
-//        arrayList = mydb.getAllData(true);
-//        Collections.reverse(arrayList);
-//
-//        final FragmentRecent fragmentRecent = new FragmentRecent();
-//
-//        mydb.onHistoryChangedListener(new DbListener() {
-//            @Override
-//            public void onDataChanged() {
-//                arrayList = mydb.getAllData(true);
-//                Collections.reverse(arrayList);
-//                Log.d(TAG, "onDataChanged() dblistener called");
-//            }
-//
-//            @Override
-//            public void onError(Throwable error) {
-//
-//            }
-//        });
-
-//        observer = new Observer<String>() {
-//            @Override
-//            public void onCompleted() {
-//                Log.d(TAG, "observer onCompleted() called");
-//            }
-//
-//            @Override
-//            public void onError(Throwable e) {
-//
-//            }
-//
-//            @Override
-//            public void onNext(String s) {
-//                Log.d(TAG, "onNext() called with: s = [" + s + "]");
-//            }
-//        };
-
-
 
         //add the fragments you want to display in a List
         List<Fragment> fragmentList = new ArrayList<>();

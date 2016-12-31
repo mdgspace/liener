@@ -14,7 +14,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.TextView;
 
-import rx.subjects.PublishSubject;
 
 /**
  * Created by RAHUL on 5/12/2016.
@@ -33,7 +32,6 @@ public class BrowserPage {
     Paint paint;
     int BId;
     Context context;
-    PublishSubject<String> subject = PublishSubject.create();
 
 //    int alphaColor = 100;
 //    int aColor=Color.argb(alphaColor,160,160,160);
@@ -102,7 +100,6 @@ public class BrowserPage {
                 Log.d(TAG, "shouldOverrideUrlLoading() called with: " + "view = [" + view + "], url = [" + url + "]");
                 ts = System.currentTimeMillis() / 1000;
                 id = mydb.insertContact(true, url, url, String.valueOf(ts));
-                dataChanged();
                 return false;
             }
         });
@@ -145,7 +142,6 @@ public class BrowserPage {
         ts = System.currentTimeMillis() / 1000;
         Log.d(TAG, "loadUrl() called with: " + "url = [" + url + "]");
         id = mydb.insertContact(true, url, url, String.valueOf(ts));
-        dataChanged();
     }
 
     public void shareText(String title, String body) {
@@ -157,25 +153,6 @@ public class BrowserPage {
         typechooser.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(typechooser);
         BubbleServiceActivity.minimizeBrowser(BubbleServiceActivity.current);
-    }
-
-    private void dataChanged(){
-        if(MainActivity.dbListener!=null){
-            Log.d(TAG, "dblist is not null");
-            MainActivity.dbListener.onDataChanged();
-        }
-        else {
-            Log.d(TAG, "dblist is null");
-        }
-        if(MainActivity.observer!=null){
-            Log.d(TAG, "observer is not null");
-            subject.subscribe(MainActivity.observer);
-            subject.onNext("one");
-        }
-        else {
-            Log.d(TAG, "observer is null");
-        }
-
     }
 
     public void switchToSmall() {

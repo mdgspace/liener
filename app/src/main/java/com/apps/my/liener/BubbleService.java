@@ -45,7 +45,6 @@ import android.widget.EditText;
 import android.widget.Toast;
 import android.app.Activity;
 
-import rx.subjects.PublishSubject;
 
 public class BubbleService extends Service implements OnKeyListener, View.OnTouchListener, View.OnFocusChangeListener, BubbleListener {
     WindowManager bubbleWindow;
