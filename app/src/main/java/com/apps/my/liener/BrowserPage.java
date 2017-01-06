@@ -5,20 +5,14 @@ import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.PixelFormat;
 import android.graphics.RectF;
-import android.support.v7.widget.PopupMenu;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
 import android.view.View;
-import android.view.WindowManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.TextView;
-
-import static java.security.AccessController.getContext;
 
 
 /**
@@ -78,6 +72,7 @@ public class BrowserPage {
         });
 
         //TODO Implement action_overflow touch listener
+
         browser.findViewById(R.id.share_url).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -88,7 +83,7 @@ public class BrowserPage {
         browser.findViewById(R.id.overflow_menu).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-            sendEvent(BubbleListener.EVENT_TYPE_ACTION_OVERFLOW);
+                sendEvent(BubbleListener.EVENT_TYPE_ACTION_OVERFLOW);
             }
         });
 
