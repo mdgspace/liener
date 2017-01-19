@@ -341,7 +341,7 @@ public class BubbleService extends Service implements OnKeyListener, View.OnTouc
         Log.d("testing", "removeView7" + "arrindex =");
 
         if (current >= count) {
-            current--;
+            current=0;
             browserPageArray[arrIndex[0]].switchToLarge();
             bubbleWindow.updateViewLayout(browserPageArray[arrIndex[0]].bubbleHead.view, browserPageArray[arrIndex[0]].bubbleHead.layoutParams);
         } else if (arrIndex[count] == current_BId) {
