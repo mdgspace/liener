@@ -32,6 +32,7 @@ public class BrowserPage {
     Paint paint;
     int BId;
     Context context;
+    Page page;
     View action_overflow_view;
 
 //    int alphaColor = 100;
@@ -120,7 +121,10 @@ public class BrowserPage {
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 Log.d(TAG, "shouldOverrideUrlLoading() called with: " + "view = [" + view + "], url = [" + url + "]");
                 ts = System.currentTimeMillis() / 1000;
-                id = mydb.insertContact(true, url, url, String.valueOf(ts));
+                if(page==null){
+                    page = new Page(url, url, String.valueOf(ts), "logo");
+                }
+                id = mydb.insertPage(true, page);
                 return false;
             }
         });
@@ -139,8 +143,12 @@ public class BrowserPage {
                 }
                 if (oldTitle != browserwv.getTitle()) {
                     oldTitle = browserwv.getTitle();
-                    if (oldTitle != null && !oldTitle.isEmpty() && !oldTitle.equals("null"))
-                        mydb.updateContact(true, (int) id, oldTitle, browserwv.getUrl(), String.valueOf(ts));
+                    if (oldTitle != null && !oldTitle.isEmpty() && !oldTitle.equals("null")){
+                        page.setTitle(oldTitle);
+                        page.setUrl( browserwv.getUrl());
+                        page.setTs(String.valueOf(ts));
+                    }
+                        mydb.updateContact(true, (int) id, page);
                     tv.setText(oldTitle);
                 }
             }
@@ -154,15 +162,30 @@ public class BrowserPage {
             name = browserwv.getUrl();
         }
         Log.d(TAG, "onClick() called with: " + "name = [" + name + "]" + browserwv.getUrl() + "");
-        mydb.insertContact(false, name, browserwv.getUrl(), String.valueOf(System.currentTimeMillis() / 1000));
-
+        if(page==null){
+            page = new Page(name, browserwv.getUrl(), String.valueOf(System.currentTimeMillis() / 1000), "logo");
+        }else {
+            page.setTitle(name);
+            page.setUrl(browserwv.getUrl());
+            page.setTs(String.valueOf(System.currentTimeMillis() / 1000));
+        }
+        mydb.insertPage(false, page);
     }
 
     public void loadUrl(String url) {
         browserwv.loadUrl(url);
         ts = System.currentTimeMillis() / 1000;
         Log.d(TAG, "loadUrl() called with: " + "url = [" + url + "]");
-        id = mydb.insertContact(true, url, url, String.valueOf(ts));
+        if(page==null){
+            page = new Page(url, url, String.valueOf(ts), "logo");
+        }
+        else{
+            page.setTitle(url);
+            page.setUrl(url);
+            page.setTs(String.valueOf(ts));
+            page.setLogo("logo");
+        }
+        id = mydb.insertPage(true, page);
     }
 
     public void shareText(String title, String body) {

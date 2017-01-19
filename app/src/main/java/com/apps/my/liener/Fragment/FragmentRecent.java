@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.apps.my.liener.DbListener;
 import com.apps.my.liener.MainActivity;
+import com.apps.my.liener.Page;
 import com.apps.my.liener.R;
 
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ import java.util.Collections;
 public class FragmentRecent extends Fragment {
     View recyclerView;
     String TAG = this.getClass().getSimpleName();
-    ArrayList<String> arrayList;
+    ArrayList<Page> arrayList;
     MyAdapter myAdapter;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -102,7 +103,7 @@ public class FragmentRecent extends Fragment {
             return mDataset.size();
         }
 
-        public void swap(ArrayList<String> datas){
+        public void swap(ArrayList<Page> datas){
             mDataset.clear();
             mDataset.addAll(datas);
             notifyDataSetChanged();
@@ -110,6 +111,5 @@ public class FragmentRecent extends Fragment {
     }
 
 }
-
 
 

@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.apps.my.liener.DbListener;
 import com.apps.my.liener.MainActivity;
+import com.apps.my.liener.Page;
 import com.apps.my.liener.R;
 
 import java.util.ArrayList;
@@ -25,12 +26,13 @@ import java.util.Collections;
 public class FragmentBookmark extends Fragment {
     View recyclerView;
     String TAG = this.getClass().getSimpleName();
-    ArrayList<String> arrayList;
+    ArrayList<Page> arrayList;
     MyAdapter myAdapter;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         arrayList = MainActivity.mydb.getAllData(false);
+
         Collections.reverse(arrayList);
 
         myAdapter = new MyAdapter(arrayList);
@@ -102,7 +104,7 @@ public class FragmentBookmark extends Fragment {
             return mDataset.size();
         }
 
-        public void swap(ArrayList<String> datas){
+        public void swap(ArrayList<Page> datas){
             mDataset.clear();
             mDataset.addAll(datas);
             notifyDataSetChanged();
