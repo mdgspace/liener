@@ -21,7 +21,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 
-import com.apps.my.liener.Fragment.FragmentBookmark;
 import com.apps.my.liener.Fragment.FragmentMain;
 import com.apps.my.liener.Fragment.FragmentRecent;
 
@@ -34,8 +33,6 @@ import eu.long1.spacetablayout.SpaceTabLayout;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener{
     SpaceTabLayout tabLayout;
-    Button startServ;
-    Button stopServ;
     private static final String TAG = MainActivity.class.getSimpleName();
     int c = 0;
 
@@ -64,10 +61,20 @@ public class MainActivity extends AppCompatActivity
         mydb = DBHelper.init(this);
 
         //add the fragments you want to display in a List
+        Bundle bdlRecents = new Bundle(2);
+        bdlRecents.putBoolean("isHistory",true);
+        FragmentRecent recents = new FragmentRecent();
+        recents.setArguments(bdlRecents);
+
+        Bundle bdlBookmarks = new Bundle(2);
+        FragmentRecent bookmarks = new FragmentRecent();
+        bdlBookmarks.putBoolean("isHistory",false);
+        bookmarks.setArguments(bdlBookmarks);
+
         List<Fragment> fragmentList = new ArrayList<>();
-        fragmentList.add(new FragmentBookmark());
+        fragmentList.add(bookmarks);
         fragmentList.add(new FragmentMain());
-        fragmentList.add(new FragmentRecent());
+        fragmentList.add(recents);
 
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewPager);
         tabLayout = (SpaceTabLayout) findViewById(R.id.spaceTabLayout);

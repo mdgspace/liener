@@ -33,30 +33,38 @@ public class FragmentRecent extends Fragment {
     String TAG = this.getClass().getSimpleName();
     ArrayList<Page> arrayList;
     MyAdapter myAdapter;
+    boolean isHistory;
+
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        arrayList = MainActivity.mydb.getAllData(true);
+        isHistory = getArguments().getBoolean("isHistory");
+        arrayList = MainActivity.mydb.getAllData(isHistory);
         Collections.reverse(arrayList);
 
         myAdapter = new MyAdapter(arrayList);
 
         final FragmentRecent fragmentRecent = new FragmentRecent();
-
-        MainActivity.mydb.onHistoryChangedListener(new DbListener() {
+        DbListener dbListener = new DbListener() {
             @Override
             public void onDataChanged() {
-                arrayList = MainActivity.mydb.getAllData(true);
-                Collections.reverse(arrayList);
-                Log.d(TAG, "onDataChanged() dblistener called");
-                myAdapter.swap(arrayList);
+                sqlDataChanged();
+                Log.d(TAG, "onDataChanged() "+ isHistory +"called");
             }
 
             @Override
             public void onError(Throwable error) {
 
             }
-        });
+        };
+        if(isHistory){
+            MainActivity.mydb.onHistoryChangedListener(dbListener);
+        }
+        else {
+            MainActivity.mydb.onBookmarkChangedListener(dbListener);
+        }
+
     }
 
     @Override
@@ -136,6 +144,12 @@ public class FragmentRecent extends Fragment {
         return  sdf.format(currenTimeZone);
     }
 
+    private void sqlDataChanged(){
+        arrayList = MainActivity.mydb.getAllData(isHistory);
+        Collections.reverse(arrayList);
+        Log.d(TAG, "onDataChanged() dblistener called");
+        myAdapter.swap(arrayList);
+    }
 }
 
 

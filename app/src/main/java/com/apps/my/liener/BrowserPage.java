@@ -2,6 +2,7 @@ package com.apps.my.liener;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -118,13 +119,27 @@ public class BrowserPage {
                 tv.setText(view.getTitle());
             }
 
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                Log.d(TAG, "shouldOverrideUrlLoading() called with: " + "view = [" + view + "], url = [" + url + "]");
+            public void  onPageStarted (WebView view,
+                                        String url,
+                                        Bitmap favicon){
+                Log.d(TAG, "onPageStarted() called with: view = [" + view + "], url = [" + url + "], favicon = [" + favicon + "]");
                 ts = System.currentTimeMillis() / 1000;
+                oldTitle = view.getTitle();
+                if(oldTitle.isEmpty()||oldTitle==null||oldTitle.equals("")||oldTitle.equals("null")){
+                    oldTitle = url;
+                }
                 if(page==null){
-                    page = new Page(url, url, String.valueOf(ts), "logo");
+                    page = new Page(oldTitle, url, String.valueOf(ts), "logo");
+                }
+                else {
+                    page = new Page(oldTitle, url, String.valueOf(ts), "logo");
                 }
                 id = mydb.insertPage(true, page);
+            }
+
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                Log.d(TAG, "shouldOverrideUrlLoading() called with: " + "view = [" + view + "], url = [" + url + "]");
+
                 return false;
             }
         });
@@ -142,13 +157,14 @@ public class BrowserPage {
                     bubbleHead.setProgressVisibility(View.INVISIBLE);
                 }
                 if (oldTitle != browserwv.getTitle()) {
+                    Log.d(TAG, "onProgressChanged() oldtitle with: view = [" + view + "], progress = [" + progress + "]");
                     oldTitle = browserwv.getTitle();
                     if (oldTitle != null && !oldTitle.isEmpty() && !oldTitle.equals("null")){
                         page.setTitle(oldTitle);
                         page.setUrl( browserwv.getUrl());
                         page.setTs(String.valueOf(ts));
                     }
-                        mydb.updateContact(true, (int) id, page);
+                    mydb.updateContact(true, (int) id, page);
                     tv.setText(oldTitle);
                 }
             }
@@ -185,7 +201,7 @@ public class BrowserPage {
             page.setTs(String.valueOf(ts));
             page.setLogo("logo");
         }
-        id = mydb.insertPage(true, page);
+        //id = mydb.insertPage(true, page);
     }
 
     public void shareText(String title, String body) {

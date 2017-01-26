@@ -85,17 +85,20 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_DATA, page.toString());
-        //Log.d(TAG, "insertPage() called with: db "  + "isHistory = [" + isHistory + "], title = [" + title + "], url = [" + url + "], timestamp = [" + timestamp + "]");
+        Log.d(TAG, "insertPage() called with: db "  + "isHistory = [" + isHistory + "]");
         if (isHistory) {
+            long page_data = db.insert("history", null, contentValues);
+            Log.d(TAG, "insertPage() called with: isHistory = [" + isHistory + "], page = [" + page + "]");
             if(hl!=null){
-                //Log.d(TAG, "inside hl insertPage() called with: isHistory = [" + isHistory + "], title = [" + title + "], url = [" + url + "], timestamp = [" + timestamp + "]");
+                Log.d(TAG, "inside hl insertPage() called with: isHistory = [" + isHistory + "], title = [");
                 hl.onDataChanged();
             }
-            return db.insert("history", null, contentValues);
+            return page_data;
         } else {
+            long page_data = db.insert("bookmarks", null, contentValues);
             if(bl!=null)
                 bl.onDataChanged();
-            return db.insert("bookmarks", null, contentValues);
+            return page_data;
         }
     }
 
@@ -121,8 +124,14 @@ public class DBHelper extends SQLiteOpenHelper {
 //        contentValues.put(COLUMN_TIMESTAMP, timestamp);
         if (isHistory) {
             db.update("history", contentValues, "id = ? ", new String[]{Integer.toString(id)});
+            if(hl!=null){
+                Log.d(TAG, "inside hl insertPage() called with: isHistory = [" + isHistory + "], title = [");
+                hl.onDataChanged();
+            }
         } else {
             db.update("bookmarks", contentValues, "id = ? ", new String[]{Integer.toString(id)});
+            if(bl!=null)
+                bl.onDataChanged();
         }
         return true;
     }
