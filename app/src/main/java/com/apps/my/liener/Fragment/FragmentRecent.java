@@ -45,7 +45,6 @@ public class FragmentRecent extends Fragment {
 
         myAdapter = new MyAdapter(arrayList);
 
-        final FragmentRecent fragmentRecent = new FragmentRecent();
         DbListener dbListener = new DbListener() {
             @Override
             public void onDataChanged() {
@@ -90,7 +89,6 @@ public class FragmentRecent extends Fragment {
             public TextView mUrl;
             public TextView mTime;
 
-            public Page mPage;
 
             public ViewHolder(View v) {
                 super(v);
