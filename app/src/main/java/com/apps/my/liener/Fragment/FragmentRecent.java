@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,10 +14,15 @@ import android.widget.TextView;
 
 import com.apps.my.liener.DbListener;
 import com.apps.my.liener.MainActivity;
+import com.apps.my.liener.Page;
 import com.apps.my.liener.R;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * Created by rahul on 25/12/16.
@@ -25,32 +31,39 @@ import java.util.Collections;
 public class FragmentRecent extends Fragment {
     View recyclerView;
     String TAG = this.getClass().getSimpleName();
-    ArrayList<String> arrayList;
+    ArrayList<Page> arrayList;
     MyAdapter myAdapter;
+    boolean isHistory;
+
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        arrayList = MainActivity.mydb.getAllData(true);
+        isHistory = getArguments().getBoolean("isHistory");
+        arrayList = MainActivity.mydb.getAllData(isHistory);
         Collections.reverse(arrayList);
 
         myAdapter = new MyAdapter(arrayList);
 
-        final FragmentRecent fragmentRecent = new FragmentRecent();
-
-        MainActivity.mydb.onHistoryChangedListener(new DbListener() {
+        DbListener dbListener = new DbListener() {
             @Override
             public void onDataChanged() {
-                arrayList = MainActivity.mydb.getAllData(true);
-                Collections.reverse(arrayList);
-                Log.d(TAG, "onDataChanged() dblistener called");
-                myAdapter.swap(arrayList);
+                sqlDataChanged();
+                Log.d(TAG, "onDataChanged() "+ isHistory +"called");
             }
 
             @Override
             public void onError(Throwable error) {
 
             }
-        });
+        };
+        if(isHistory){
+            MainActivity.mydb.onHistoryChangedListener(dbListener);
+        }
+        else {
+            MainActivity.mydb.onBookmarkChangedListener(dbListener);
+        }
+
     }
 
     @Override
@@ -72,11 +85,16 @@ public class FragmentRecent extends Fragment {
 
         public class ViewHolder extends RecyclerView.ViewHolder {
             // each data item is just a string in this case
-            public TextView mTextView;
+            public TextView mTitle;
+            public TextView mUrl;
+            public TextView mTime;
+
 
             public ViewHolder(View v) {
                 super(v);
-                mTextView = (TextView) v.findViewById(R.id.content);
+                mTitle = (TextView) v.findViewById(R.id.title);
+                mUrl = (TextView) v.findViewById(R.id.url);
+                mTime = (TextView) v.findViewById(R.id.time);
             }
         }
 
@@ -88,13 +106,16 @@ public class FragmentRecent extends Fragment {
         public MyAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
                                                        int viewType) {
             View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_list_content, parent, false);
+                    .inflate(R.layout.link_view, parent, false);
             return (new ViewHolder(v));
         }
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            holder.mTextView.setText(mDataset.get(position).toString());
+            Page mPage = new Page(mDataset.get(position).toString());
+            holder.mTitle.setText(mPage.getTitle());
+            holder.mUrl.setText(mPage.getUrl());
+            holder.mTime.setText(getDate(mPage.getTs()));
         }
 
         @Override
@@ -102,14 +123,31 @@ public class FragmentRecent extends Fragment {
             return mDataset.size();
         }
 
-        public void swap(ArrayList<String> datas){
+        public void swap(ArrayList<Page> datas){
             mDataset.clear();
             mDataset.addAll(datas);
             notifyDataSetChanged();
         }
     }
 
-}
+    private String getDate(String time) {
+        if(time==null)
+            return "null";
+        Calendar calendar = Calendar.getInstance();
+        TimeZone tz = TimeZone.getDefault();
+        calendar.add(Calendar.MILLISECOND, tz.getOffset(calendar.getTimeInMillis()));
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        Log.d(TAG, "getDate() called with: time = [" + time + "]");
+        java.util.Date currenTimeZone=new java.util.Date(Long.parseLong(time));
+        return  sdf.format(currenTimeZone);
+    }
 
+    private void sqlDataChanged(){
+        arrayList = MainActivity.mydb.getAllData(isHistory);
+        Collections.reverse(arrayList);
+        Log.d(TAG, "onDataChanged() dblistener called");
+        myAdapter.swap(arrayList);
+    }
+}
 
 

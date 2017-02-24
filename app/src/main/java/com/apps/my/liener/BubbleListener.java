@@ -35,10 +35,19 @@ public interface BubbleListener extends EventListener {
     int CLICK_EVENT_TYPE_MINIMIZE = 0;
     int CLICK_EVENT_TYPE_EXPAND = 1;
 
+    @Retention(SOURCE)
+    @IntDef({EVENT_TYPE_ACTION_OVERFLOW})
+    @interface EVENT_TYPE {
+    }
+
+    int EVENT_TYPE_ACTION_OVERFLOW = 0;
+
 
     void onTouchEvent(@TOUCH_EVENT_TYPE int event_type, @BubbleHead.HEAD_TYPE int head_type, int BId);
 
     void onClickEvent(@CLICK_EVENT_TYPE int event_type, @BubbleHead.HEAD_TYPE int head_type, int BId);
+
+    void onEvent(@EVENT_TYPE int event_type);
 
     void onError(Throwable error);
 }

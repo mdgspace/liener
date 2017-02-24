@@ -30,4 +30,5 @@ public class LayoutParams extends WindowManager.LayoutParams {
         this.width = size;
         this.height = size;
     }
+
 }

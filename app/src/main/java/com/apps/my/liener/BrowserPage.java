@@ -2,21 +2,18 @@ package com.apps.my.liener;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
-import android.support.v7.widget.PopupMenu;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
 import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.TextView;
-
-import static java.security.AccessController.getContext;
 
 
 /**
@@ -36,6 +33,8 @@ public class BrowserPage {
     Paint paint;
     int BId;
     Context context;
+    Page page;
+    View action_overflow_view;
 
 //    int alphaColor = 100;
 //    int aColor=Color.argb(alphaColor,160,160,160);
@@ -75,6 +74,7 @@ public class BrowserPage {
         });
 
         //TODO Implement action_overflow touch listener
+
         browser.findViewById(R.id.share_url).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -82,6 +82,14 @@ public class BrowserPage {
             }
         });
 
+        browser.findViewById(R.id.overflow_menu).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sendEvent(BubbleListener.EVENT_TYPE_ACTION_OVERFLOW);
+            }
+        });
+
+        action_overflow_view = li.inflate(R.layout.browser_overflow_menu, null);
 
 //        final PopupMenu popup = new PopupMenu(context,browser.findViewById(R.id.overflow_menu));
 //        MenuInflater inflater = popup.getMenuInflater();
@@ -111,10 +119,27 @@ public class BrowserPage {
                 tv.setText(view.getTitle());
             }
 
+            public void  onPageStarted (WebView view,
+                                        String url,
+                                        Bitmap favicon){
+                Log.d(TAG, "onPageStarted() called with: view = [" + view + "], url = [" + url + "], favicon = [" + favicon + "]");
+                ts = System.currentTimeMillis() / 1000;
+                oldTitle = view.getTitle();
+                if(oldTitle.isEmpty()||oldTitle==null||oldTitle.equals("")||oldTitle.equals("null")){
+                    oldTitle = url;
+                }
+                if(page==null){
+                    page = new Page(oldTitle, url, String.valueOf(ts), "logo");
+                }
+                else {
+                    page = new Page(oldTitle, url, String.valueOf(ts), "logo");
+                }
+                id = mydb.insertPage(true, page);
+            }
+
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 Log.d(TAG, "shouldOverrideUrlLoading() called with: " + "view = [" + view + "], url = [" + url + "]");
-                ts = System.currentTimeMillis() / 1000;
-                id = mydb.insertContact(true, url, url, String.valueOf(ts));
+
                 return false;
             }
         });
@@ -132,9 +157,14 @@ public class BrowserPage {
                     bubbleHead.setProgressVisibility(View.INVISIBLE);
                 }
                 if (oldTitle != browserwv.getTitle()) {
+                    Log.d(TAG, "onProgressChanged() oldtitle with: view = [" + view + "], progress = [" + progress + "]");
                     oldTitle = browserwv.getTitle();
-                    if (oldTitle != null && !oldTitle.isEmpty() && !oldTitle.equals("null"))
-                        mydb.updateContact(true, (int) id, oldTitle, browserwv.getUrl(), String.valueOf(ts));
+                    if (oldTitle != null && !oldTitle.isEmpty() && !oldTitle.equals("null")){
+                        page.setTitle(oldTitle);
+                        page.setUrl( browserwv.getUrl());
+                        page.setTs(String.valueOf(ts));
+                    }
+                    mydb.updateContact(true, (int) id, page);
                     tv.setText(oldTitle);
                 }
             }
@@ -148,15 +178,30 @@ public class BrowserPage {
             name = browserwv.getUrl();
         }
         Log.d(TAG, "onClick() called with: " + "name = [" + name + "]" + browserwv.getUrl() + "");
-        mydb.insertContact(false, name, browserwv.getUrl(), String.valueOf(System.currentTimeMillis() / 1000));
-
+        if(page==null){
+            page = new Page(name, browserwv.getUrl(), String.valueOf(System.currentTimeMillis() / 1000), "logo");
+        }else {
+            page.setTitle(name);
+            page.setUrl(browserwv.getUrl());
+            page.setTs(String.valueOf(System.currentTimeMillis() / 1000));
+        }
+        mydb.insertPage(false, page);
     }
 
     public void loadUrl(String url) {
         browserwv.loadUrl(url);
         ts = System.currentTimeMillis() / 1000;
         Log.d(TAG, "loadUrl() called with: " + "url = [" + url + "]");
-        id = mydb.insertContact(true, url, url, String.valueOf(ts));
+        if(page==null){
+            page = new Page(url, url, String.valueOf(ts), "logo");
+        }
+        else{
+            page.setTitle(url);
+            page.setUrl(url);
+            page.setTs(String.valueOf(ts));
+            page.setLogo("logo");
+        }
+        //id = mydb.insertPage(true, page);
     }
 
     public void shareText(String title, String body) {
@@ -176,6 +221,18 @@ public class BrowserPage {
 
     public void switchToLarge() {
         bubbleHead.switchToLarge();
+    }
+
+    BubbleListener fetchListener = null;
+
+    public void setListener(BubbleListener listener) {
+        this.fetchListener = listener;
+    }
+
+    public void sendEvent(@BubbleListener.EVENT_TYPE int event_type) {
+        Log.d(TAG, "sendEvent() called with: event_type = [" + event_type + "]");
+        if (this.fetchListener != null)
+            this.fetchListener.onEvent(event_type);
     }
 
     public void createIcon() {
@@ -281,4 +338,6 @@ public class BrowserPage {
 //                        canvas.drawArc(rectF, 270 + 30 * i, 27, true, paint);
 //                    }
 //    }
+
+
 }

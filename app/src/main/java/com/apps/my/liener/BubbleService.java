@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.provider.Settings;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -50,12 +51,13 @@ import java.util.logging.LogManager;
 
 import static com.apps.my.liener.Constant.BubbleSizeDelete;
 
+
 public class BubbleService extends Service implements OnKeyListener, View.OnTouchListener, View.OnFocusChangeListener, BubbleListener {
     WindowManager bubbleWindow;
     Context context = this;
     boolean onRightSide = true;
     private static final String TAG = BubbleService.class.getSimpleName();
-    WindowManager.LayoutParams paramBrowser;
+    WindowManager.LayoutParams paramBrowser, action_overflow_params;
     boolean is_open = false, is_running;
     int paramx = 0, paramy = 0, count = 0, current = 0, bubbleWidth, heightNew, widthMid;
 
@@ -63,6 +65,8 @@ public class BubbleService extends Service implements OnKeyListener, View.OnTouc
     int arrIndex[] = new int[20];
     BubbleHead bh, deleteHead;
     HomeWatcher mHomeWatcher;
+
+    LinearLayout browserLayout;
 
     public boolean onKey(View v, int keyCode, KeyEvent event) {
         return true;
@@ -75,7 +79,7 @@ public class BubbleService extends Service implements OnKeyListener, View.OnTouc
         initDeleteHead();
         initParamBrowser();
         initHomeListener();
-
+        initActionOverflowParams();
     }
 
     public void initVariables() {
@@ -87,7 +91,6 @@ public class BubbleService extends Service implements OnKeyListener, View.OnTouc
         }
 
         bubbleWindow = (WindowManager) getSystemService(WINDOW_SERVICE);
-
         loadDimensions();
         bh = new BubbleHead(context, heightNew, widthMid, BubbleHead.HEAD_TYPE_MAIN, -2);
         bh.initParams(0, heightNew);
@@ -102,6 +105,9 @@ public class BubbleService extends Service implements OnKeyListener, View.OnTouc
                 PixelFormat.TRANSLUCENT
         );
         paramBrowser.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+
+        browserLayout = new LinearLayout(this);
+        browserLayout.setBackgroundColor(Color.WHITE);
     }
 
 
@@ -112,6 +118,31 @@ public class BubbleService extends Service implements OnKeyListener, View.OnTouc
         deleteHead.layoutParams.gravity = Gravity.BOTTOM | Gravity.CENTER;
         bubbleWindow.addView(deleteHead.view, deleteHead.layoutParams);
         Log.d(TAG, "DeleteHead added");
+    }
+
+    public void initActionOverflowParams() {
+        action_overflow_params = new WindowManager.LayoutParams(
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.TYPE_TOAST,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                PixelFormat.TRANSLUCENT
+        );
+        action_overflow_params.gravity = Gravity.TOP | Gravity.RIGHT;
+        action_overflow_params.y = (int) (heightNew * 28 / 100);
+        Log.d(TAG, "initActionOverflowParams() called" + action_overflow_params.y);
+    }
+
+    private boolean isMenuOpen = false;
+
+    public void showActionOverflow() {
+        if (isMenuOpen) {
+            bubbleWindow.removeView(browserPageArray[arrIndex[current]].action_overflow_view);
+            isMenuOpen = false;
+        } else {
+            bubbleWindow.addView(browserPageArray[arrIndex[current]].action_overflow_view, action_overflow_params);
+            isMenuOpen = true;
+        }
     }
 
 
@@ -146,6 +177,7 @@ public class BubbleService extends Service implements OnKeyListener, View.OnTouc
         is_running = true;
         browserPageArray[arrIndex[count]] = new BrowserPage(context, BubbleService.this, count * Constant.BubbleSizeLarge, heightNew, widthMid, arrIndex[count]);
         browserPageArray[arrIndex[count]].bubbleHead.setListener(this);
+        browserPageArray[arrIndex[count]].setListener(this);
         browserPageArray[arrIndex[count]].loadUrl(url);
         if (count == 0) {
             Log.d("testing", "addview9");
@@ -185,10 +217,10 @@ public class BubbleService extends Service implements OnKeyListener, View.OnTouc
                 bubbleWindow.removeView(bh.view);
                 bubbleWidth = bh.view.getWidth();
                 Log.d(TAG, "" + "bubblewidth = [" + bubbleWidth + "]");
-                addBrowser(current);
                 for (int i = 0; i < count; i++) {
                     bubbleWindow.addView(browserPageArray[arrIndex[i]].bubbleHead.view, browserPageArray[arrIndex[i]].bubbleHead.layoutParams);
                 }
+                addBrowser(current);
                 is_open = true;
             } else {
                 Log.d(TAG, "min 0");
@@ -218,7 +250,16 @@ public class BubbleService extends Service implements OnKeyListener, View.OnTouc
         browserPageArray[arrIndex[index]].browser.setOnTouchListener(this);
         browserPageArray[arrIndex[index]].browser.setOnFocusChangeListener(this);
         Log.d("testing", "addview4");
-        bubbleWindow.addView(browserPageArray[arrIndex[index]].browser, paramBrowser);
+
+
+        //Add view to layout
+        browserLayout.addView(browserPageArray[arrIndex[index]].browser, paramBrowser);
+
+        if (index == current) {
+            bubbleWindow.addView(browserLayout, paramBrowser);
+        }
+
+        //bubbleWindow.addView(browserPageArray[arrIndex[index]].browser, paramBrowser);
         Log.d("testing", "addview4b");
         browserPageArray[arrIndex[index]].browserwv.setOnKeyListener(new OnKeyListener() {
             @Override
@@ -251,7 +292,14 @@ public class BubbleService extends Service implements OnKeyListener, View.OnTouc
             }
 
             Log.d("testing", "removeView5" + " current = [" + current + "]");
-            bubbleWindow.removeView(browserPageArray[arrIndex[current]].browser);
+
+            //Remove layout
+            //Remove view from layout
+
+            bubbleWindow.removeView(browserLayout);
+            browserLayout.removeView(browserPageArray[arrIndex[current]].browser);
+
+            //bubbleWindow.removeView(browserPageArray[arrIndex[current]].browser);
             Log.d("testing", "update layout6");
             bubbleWindow.addView(bh.view, bh.layoutParams);
             is_open = false;
@@ -259,7 +307,11 @@ public class BubbleService extends Service implements OnKeyListener, View.OnTouc
         } else {
             addBrowser(index);
             Log.d("testing", "removeView6");
-            bubbleWindow.removeView(browserPageArray[arrIndex[current]].browser);
+
+            //Remove view from layout
+            browserLayout.removeView(browserPageArray[arrIndex[current]].browser);
+
+            //bubbleWindow.removeView(browserPageArray[arrIndex[current]].browser);
             Log.d("testing", "removeView9");
             browserPageArray[arrIndex[index]].switchToLarge();
             bubbleWindow.updateViewLayout(browserPageArray[arrIndex[index]].bubbleHead.view, browserPageArray[arrIndex[index]].bubbleHead.layoutParams);
@@ -289,7 +341,7 @@ public class BubbleService extends Service implements OnKeyListener, View.OnTouc
         Log.d("testing", "removeView7" + "arrindex =");
 
         if (current >= count) {
-            current--;
+            current=0;
             browserPageArray[arrIndex[0]].switchToLarge();
             bubbleWindow.updateViewLayout(browserPageArray[arrIndex[0]].bubbleHead.view, browserPageArray[arrIndex[0]].bubbleHead.layoutParams);
         } else if (arrIndex[count] == current_BId) {
@@ -304,7 +356,14 @@ public class BubbleService extends Service implements OnKeyListener, View.OnTouc
 
         if (current >= 0) {
             Log.d("testing", "addview8");
-            bubbleWindow.addView(browserPageArray[arrIndex[current]].browser, paramBrowser);
+
+            //Add view Layout
+            //Add view in layout
+
+            browserLayout.addView(browserPageArray[arrIndex[current]].browser, paramBrowser);
+            bubbleWindow.addView(browserLayout, paramBrowser);
+
+            //bubbleWindow.addView(browserPageArray[arrIndex[current]].browser, paramBrowser);
         } else {
             mHomeWatcher.stopWatch();
             stopSelf();
@@ -337,6 +396,10 @@ public class BubbleService extends Service implements OnKeyListener, View.OnTouc
     @Override
     public void onTouchEvent(@TOUCH_EVENT_TYPE int event_type, @BubbleHead.HEAD_TYPE int head_type, int BId) {
         Log.d(TAG, "Listener onEvent() called with: type = [" + event_type + "]");
+        if (isMenuOpen) {
+            bubbleWindow.removeView(browserPageArray[arrIndex[current]].action_overflow_view);
+            isMenuOpen = false;
+        }
         switch (event_type) {
             case TOUCH_EVENT_TYPE_ADD_DELETE:
                 deleteHead.view.setVisibility(View.VISIBLE);
@@ -388,11 +451,18 @@ public class BubbleService extends Service implements OnKeyListener, View.OnTouc
                 }
                 break;
             case TOUCH_EVENT_TYPE_REMOVE_BROWSER:
-                bubbleWindow.removeView(browserPageArray[arrIndex[current]].browser);
+                bubbleWindow.removeView(browserLayout);
+                browserLayout.removeView(browserPageArray[arrIndex[current]].browser);
                 Log.d(TAG, "removeview8");
                 break;
             case TOUCH_EVENT_TYPE_ADD_BROWSER:
-                bubbleWindow.addView(browserPageArray[arrIndex[current]].browser, paramBrowser);
+                //Add view layout
+                //Add view to layout
+
+                browserLayout.addView(browserPageArray[arrIndex[current]].browser, paramBrowser);
+                bubbleWindow.addView(browserLayout, paramBrowser);
+
+                //bubbleWindow.addView(browserPageArray[arrIndex[current]].browser, paramBrowser);
                 break;
         }
     }
@@ -400,6 +470,10 @@ public class BubbleService extends Service implements OnKeyListener, View.OnTouc
     @Override
     public void onClickEvent(@CLICK_EVENT_TYPE int event_type, @BubbleHead.HEAD_TYPE int head_type, int BId) {
         Log.d(TAG, "onClickEvent() called with: event_type = [" + event_type + "], head_type = [" + head_type + "], BId = [" + BId + "]");
+        if (isMenuOpen) {
+            bubbleWindow.removeView(browserPageArray[arrIndex[current]].action_overflow_view);
+            isMenuOpen = false;
+        }
         switch (event_type) {
             case CLICK_EVENT_TYPE_EXPAND:
                 expandBrowser();
@@ -407,6 +481,15 @@ public class BubbleService extends Service implements OnKeyListener, View.OnTouc
             case CLICK_EVENT_TYPE_MINIMIZE:
                 Log.d(TAG, "onClickEvent() called with: event_type = [" + event_type + "], head_type = [" + head_type + "], BId = [" + BId + "], GetIndex = [" + getIndex(BId) + "]");
                 minimizeBrowser(getIndex(BId));
+                break;
+        }
+    }
+
+    @Override
+    public void onEvent(@EVENT_TYPE int event_type) {
+        switch (event_type) {
+            case EVENT_TYPE_ACTION_OVERFLOW:
+                showActionOverflow();
                 break;
         }
     }

@@ -11,6 +11,11 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
+import com.facebook.rebound.Spring;
+import com.facebook.rebound.SpringConfig;
+import com.facebook.rebound.SpringListener;
+import com.facebook.rebound.SpringSystem;
+
 import java.lang.annotation.Retention;
 import java.security.PublicKey;
 
@@ -21,11 +26,18 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
  * Created by rahul on 3/12/16.
  */
 
-public class BubbleHead implements View.OnTouchListener {
+public class BubbleHead implements View.OnTouchListener, SpringListener {
     private static final String TAG = BubbleHead.class.getSimpleName();
     public View view;
     public int height, widthMid;
     LayoutParams layoutParams;
+
+    private static double TENSION = 800;
+    private static double DAMPER = 20; //friction
+
+
+    private SpringSystem mSpringSystem;
+    private Spring mSpring;
 
     @Retention(SOURCE)
     @IntDef({HEAD_TYPE_DELETE, HEAD_TYPE_MAIN, HEAD_TYPE_TAB})
@@ -50,14 +62,20 @@ public class BubbleHead implements View.OnTouchListener {
         if (defaultType != HEAD_TYPE_DELETE) {
             setListener();
         }
+
+        setRebound();
     }
 
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        Log.d(TAG, "onTouch() called with: v = [" + v + "], event = [" + event + "]");
-        return false;
-    }
+    private void setRebound(){
 
+        mSpringSystem = SpringSystem.create();
+
+        mSpring = mSpringSystem.createSpring();
+        mSpring.addListener(this);
+
+        SpringConfig config = new SpringConfig(TENSION, DAMPER);
+        mSpring.setSpringConfig(config);
+    }
 
     public void setProgressVisibility(int visibility) {
         // visibility can be View.VISIBLE or View.INVISIBLE
@@ -140,6 +158,7 @@ public class BubbleHead implements View.OnTouchListener {
                         initialTouchX = event.getRawX();
                         initialTouchY = event.getRawY();
                         Log.d(TAG, "onTouch() called with: v = [" + v + "], event = [" + event + "]");
+                        mSpring.setEndValue(1f);
                         return false;
                     case MotionEvent.ACTION_MOVE:
                         if (isMoveEnabled) {
@@ -179,6 +198,7 @@ public class BubbleHead implements View.OnTouchListener {
                         }
                         return false;
                     case MotionEvent.ACTION_UP:
+                        mSpring.setEndValue(0f);
                         if (isMoveEnabled) {
                             sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_REMOVE_DELETE);
                             if (onDeleteCheck()) {
@@ -251,5 +271,43 @@ public class BubbleHead implements View.OnTouchListener {
     public void moveBubbleToOldPosition(int initialX, int initialY) {
         layoutParams.x = initialX;
         layoutParams.y = initialY;
+    }
+
+    @Override
+    public void onSpringUpdate(Spring spring) {
+        float value = (float) spring.getCurrentValue();
+        float scale = 1f - (value * 0.5f);
+        view.setScaleX(scale);
+        view.setScaleY(scale);
+    }
+
+
+    @Override
+    public void onSpringAtRest(Spring spring) {
+
+    }
+
+    @Override
+    public void onSpringActivate(Spring spring) {
+
+    }
+
+    @Override
+    public void onSpringEndStateChange(Spring spring) {
+
+    }
+
+    @Override
+    public boolean onTouch(View view, MotionEvent motionEvent) {
+//        switch (motionEvent.getAction()) {
+//            case MotionEvent.ACTION_DOWN:
+//                mSpring.setEndValue(1f);
+//                return true;
+//            case MotionEvent.ACTION_UP:
+//                mSpring.setEndValue(0f);
+//                return true;
+//        }
+
+        return false;
     }
 }
