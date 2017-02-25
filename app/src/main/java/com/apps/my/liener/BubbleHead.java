@@ -28,9 +28,9 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 public class BubbleHead implements View.OnTouchListener, SpringListener {
     private static final String TAG = BubbleHead.class.getSimpleName();
-    public View view;
-    public int height, widthMid;
-    LayoutParams layoutParams;
+    private View view;
+    private int height, widthMid;
+    private LayoutParams layoutParams;
 
     private static double TENSION = 800;
     private static double DAMPER = 20; //friction
@@ -48,9 +48,9 @@ public class BubbleHead implements View.OnTouchListener, SpringListener {
     public static final int HEAD_TYPE_DELETE = 1;
     public static final int HEAD_TYPE_TAB = 2;
 
-    int BId;
+    private int BId;
 
-    int defaultType;
+    private int defaultType;
 
     public BubbleHead(Context context, int height, int widthMid, @HEAD_TYPE int head_type, int BId) {
         this.BId = BId;
@@ -100,6 +100,25 @@ public class BubbleHead implements View.OnTouchListener, SpringListener {
             switchToDelete();
         }
     }
+    public void initParams(int x, int y, int gravity) {
+//        layoutParams = new WindowManager.LayoutParams(
+//                WindowManager.LayoutParams.WRAP_CONTENT,
+//                WindowManager.LayoutParams.WRAP_CONTENT,
+//                WindowManager.LayoutParams.TYPE_TOAST,
+//                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+//                PixelFormat.TRANSLUCENT
+//        );
+//        layoutParams.width = 100;
+//        layoutParams.height = 100;
+//        layoutParams.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+        layoutParams = new LayoutParams();
+        layoutParams.x = x;
+        layoutParams.y = y;
+        if (defaultType == HEAD_TYPE_DELETE) {
+            switchToDelete();
+        }
+        layoutParams.gravity = gravity;
+    }
 
     public void switchToSmall() {
         layoutParams.width = Constant.BubbleSizeSmall;
@@ -140,9 +159,9 @@ public class BubbleHead implements View.OnTouchListener, SpringListener {
     }
 
 
-    boolean onRightSide = true;
-    boolean isMoveEnabled = false;
-    boolean isOnDelete = false;
+    private boolean onRightSide = true;
+    private boolean isMoveEnabled = false;
+    private boolean isOnDelete = false;
 
     public void setListener() {
         view.setOnTouchListener(new View.OnTouchListener() {
@@ -309,5 +328,53 @@ public class BubbleHead implements View.OnTouchListener, SpringListener {
 //        }
 
         return false;
+    }
+
+    public int getDefaultType() {
+        return defaultType;
+    }
+
+    public void setDefaultType(int defaultType) {
+        this.defaultType = defaultType;
+    }
+
+    public int getBId() {
+        return BId;
+    }
+
+    public void setBId(int BId) {
+        this.BId = BId;
+    }
+
+    public LayoutParams getLayoutParams() {
+        return layoutParams;
+    }
+
+    public void setLayoutParams(LayoutParams layoutParams) {
+        this.layoutParams = layoutParams;
+    }
+
+    public View getView() {
+        return view;
+    }
+
+    public void setView(View view) {
+        this.view = view;
+    }
+
+    public void setViewVisibility(int visibility){
+        view.setVisibility(visibility);
+    }
+
+    public void setLayoutParamsSize(int size){
+        layoutParams.setSize(size);
+    }
+
+    public int getLayoutParamsX(){
+        return layoutParams.x;
+    }
+
+    public void setLayoutParamsX(int x){
+        layoutParams.x=x;
     }
 }

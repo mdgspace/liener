@@ -1,5 +1,6 @@
 package com.apps.my.liener;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -7,7 +8,9 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.provider.Browser;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.webkit.WebChromeClient;
@@ -20,21 +23,21 @@ import android.widget.TextView;
  * Created by RAHUL on 5/12/2016.
  */
 public class BrowserPage {
-    WebView browserwv;
-    BubbleHead bubbleHead;
+    private WebView browserwv;
+    public BubbleHead bubbleHead;
     private static final String TAG = BrowserPage.class.getSimpleName();
-    View browser;
-    String oldTitle = " ";
-    TextView tv;
-    DBHelper mydb;
-    long id, ts;
-    Canvas canvas;
-    RectF rectF;
-    Paint paint;
-    int BId;
-    Context context;
-    Page page;
-    View action_overflow_view;
+    private View browser;
+    private String oldTitle = " ";
+    private TextView tv;
+    private DBHelper mydb;
+    private long id, ts;
+    private Canvas canvas;
+    private RectF rectF;
+    private Paint paint;
+    private int BId;
+    private Context context;
+    private Page page;
+    private View action_overflow_view;
 
 //    int alphaColor = 100;
 //    int aColor=Color.argb(alphaColor,160,160,160);
@@ -293,6 +296,66 @@ public class BrowserPage {
 //        }
     }
 
+    public void performClick(){
+        bubbleHead.getView().performClick();
+    }
+
+    public View getBubbleView(){
+        return bubbleHead.getView();
+    }
+
+    public LayoutParams getBubbleLayout(){
+        return bubbleHead.getLayoutParams();
+    }
+
+    public void setBubbleListener(BubbleListener bl){
+        Log.d(TAG, "setBubbleListener() called with: bl = [" + bl + "]");
+        bubbleHead.setListener(bl);
+        Log.d(TAG, "setBubbleListener() called with: bl = [" + bl + "]");
+    }
+
+    public View getBrowserView(){
+        return browser;
+    }
+
+    public void setWebViewKeyListener(){
+        browserwv.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                Log.d(TAG, "onKey() called with: " + "v = [" + v + "], keyCode = [" + keyCode + "], event = [" + event + "]");
+                if (event.getAction() != KeyEvent.ACTION_DOWN)
+                    return false;
+                if (keyCode == KeyEvent.KEYCODE_HOME) {
+                    Log.d(TAG, "onKey() called with: " + "v = [" + v + "], keyCode = [" + keyCode + "], event = [" + event + "]");
+                }
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
+                    if (browserwv.canGoBack()) {
+                        browserwv.goBack();
+                    } else {
+                        bubbleHead.getView().performClick();
+                    }
+                }
+                return false;
+            }
+        });
+    }
+
+    public BubbleHead getBubble(){
+        return bubbleHead;
+    }
+
+    public void setBrowserListeners(BubbleService bubbleServiceActivity){
+        browser.setOnTouchListener(bubbleServiceActivity);
+        browser.setOnFocusChangeListener(bubbleServiceActivity);
+    }
+
+    public int getBubbleLayoutX(){
+        return bubbleHead.getLayoutParamsX();
+    }
+
+    public void setBubbleLayoutX(int x){
+        bubbleHead.setLayoutParamsX(x);
+    }
 //    public void changeIconProgress(int progress){
 //                            int x = (int) (progress * 12 / 100);
 //                    Log.d(TAG, "onProgressChanged() called with: " + "x = [" + x + "], progress = [" + progress + "]");

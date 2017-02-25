@@ -14,6 +14,7 @@ import static com.apps.my.liener.Constant.BubbleSizeSmall;
  */
 public class LayoutParams extends WindowManager.LayoutParams {
     private static final String TAG = LayoutParams.class.getSimpleName();
+    private boolean isRightAlign;
     LayoutParams(){
         super(WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
@@ -23,6 +24,7 @@ public class LayoutParams extends WindowManager.LayoutParams {
         this.width = BubbleSizeSmall;
         this.height = BubbleSizeSmall;
         this.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+        this.isRightAlign = true;
     }
 
     public void setSize(int size){
@@ -31,4 +33,11 @@ public class LayoutParams extends WindowManager.LayoutParams {
         this.height = size;
     }
 
+    public boolean isRightAlign() {
+        return isRightAlign;
+    }
+
+    public void setRightAlign(boolean right) {
+        isRightAlign = right;
+    }
 }
