@@ -7,15 +7,21 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PixelFormat;
 import android.graphics.RectF;
 import android.provider.Browser;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 
@@ -26,7 +32,7 @@ public class BrowserPage {
     private WebView browserwv;
     public BubbleHead bubbleHead;
     private static final String TAG = BrowserPage.class.getSimpleName();
-    private View browser;
+    private LinearLayout browser;
     private String oldTitle = " ";
     private TextView tv;
     private DBHelper mydb;
@@ -38,6 +44,7 @@ public class BrowserPage {
     private Context context;
     private Page page;
     private View action_overflow_view;
+    private boolean isActionMenuOpen = false;
 
 //    int alphaColor = 100;
 //    int aColor=Color.argb(alphaColor,160,160,160);
@@ -62,7 +69,7 @@ public class BrowserPage {
         mydb = DBHelper.init(context);
 
         LayoutInflater li = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        browser = li.inflate(R.layout.browser_page, null);
+        browser = (LinearLayout) li.inflate(R.layout.browser_page, null);
         bubbleHead = new BubbleHead(context, height, widthMid, BubbleHead.HEAD_TYPE_TAB, BId);
         bubbleHead.initParams(x, height);
 
@@ -85,14 +92,40 @@ public class BrowserPage {
             }
         });
 
-        browser.findViewById(R.id.overflow_menu).setOnClickListener(new View.OnClickListener() {
+        action_overflow_view = li.inflate(R.layout.browser_overflow_menu, null);
+
+
+        final RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.addRule(RelativeLayout.ALIGN_PARENT_END,RelativeLayout.TRUE);
+        params.addRule(RelativeLayout.ALIGN_PARENT_TOP,RelativeLayout.TRUE);
+        params.topMargin = 10;
+
+        final RelativeLayout browserPane = (RelativeLayout)browser.findViewById(R.id.browser_pane);
+
+        action_overflow_view.setOnFocusChangeListener(new View.OnFocusChangeListener(){
+
             @Override
-            public void onClick(View view) {
-                sendEvent(BubbleListener.EVENT_TYPE_ACTION_OVERFLOW);
+            public void onFocusChange(View view, boolean b) {
+                Log.d(TAG, "onFocusChange() called with: view = [" + view + "], b = [" + b + "]");
             }
         });
 
-        action_overflow_view = li.inflate(R.layout.browser_overflow_menu, null);
+        browser.findViewById(R.id.overflow_menu).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                sendEvent(BubbleListener.EVENT_TYPE_ACTION_OVERFLOW);
+                if(isActionMenuOpen){
+                    isActionMenuOpen = false;
+                    browserPane.removeView(action_overflow_view);
+                }
+                else {
+                    browserPane.addView(action_overflow_view,params);
+                    isActionMenuOpen = true;
+                }
+            }
+        });
+
 
 //        final PopupMenu popup = new PopupMenu(context,browser.findViewById(R.id.overflow_menu));
 //        MenuInflater inflater = popup.getMenuInflater();

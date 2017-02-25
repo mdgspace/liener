@@ -169,19 +169,18 @@ public class BubbleHead implements View.OnTouchListener, SpringListener {
             float initialTouchX, initialTouchY;
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                Log.d(TAG, "onTouch() called with: Type = [" + defaultType + "], event = [" + event + "]");
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
                         initialX = layoutParams.x;
                         initialY = layoutParams.y;
                         initialTouchX = event.getRawX();
                         initialTouchY = event.getRawY();
-                        Log.d(TAG, "onTouch() called with: v = [" + v + "], event = [" + event + "]");
+
                         mSpring.setEndValue(1f);
                         return false;
                     case MotionEvent.ACTION_MOVE:
                         if (isMoveEnabled) {
-                            Log.d(TAG, "onTouch() move enabled called with: v = [" + v + "], event = [" + event + "]");
+
                             if ((!onRightSide) && defaultType == HEAD_TYPE_MAIN) {
                                 layoutParams.x = initialX + (int) (event.getRawX() - initialTouchX);
                             } else {

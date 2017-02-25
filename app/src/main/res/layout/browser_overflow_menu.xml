@@ -9,17 +9,20 @@
         android:layout_width="wrap_content"
         android:layout_margin="1dp"
         android:layout_height="wrap_content"
-        android:text="Find in page" />
+        android:text="Find in page"
+        android:lines="1"/>
     <TextView
         android:id="@+id/open_in"
         android:layout_margin="1dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Open in .." />
+        android:text="Open in .."
+        android:lines="1"/>
     <TextView
         android:id="@+id/desktop_site"
         android:layout_margin="1dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Request desktop site" />
+        android:text="Request desktop site"
+        android:lines="1"/>
 </LinearLayout>
