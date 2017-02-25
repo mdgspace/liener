@@ -217,7 +217,7 @@ public class BubbleHead implements View.OnTouchListener, SpringListener {
                         }
                         return false;
                     case MotionEvent.ACTION_UP:
-                        mSpring.setEndValue(0f);
+                        mSpring.setEndValue(0.7f);
                         if (isMoveEnabled) {
                             sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_REMOVE_DELETE);
                             if (onDeleteCheck()) {
@@ -295,7 +295,7 @@ public class BubbleHead implements View.OnTouchListener, SpringListener {
     @Override
     public void onSpringUpdate(Spring spring) {
         float value = (float) spring.getCurrentValue();
-        float scale = 1f - (value * 0.5f);
+        float scale = 1f - (value * 0.3f);
         view.setScaleX(scale);
         view.setScaleY(scale);
     }
