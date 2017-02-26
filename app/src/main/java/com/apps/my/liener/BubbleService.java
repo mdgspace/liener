@@ -440,7 +440,7 @@ public class BubbleService extends Service implements OnKeyListener, View.OnTouc
     public void onEvent(@EVENT_TYPE int event_type) {
         switch (event_type) {
             case EVENT_TYPE_ACTION_OVERFLOW:
-                showActionOverflow();
+                minimizeBrowser(current);
                 break;
         }
     }

@@ -1,6 +1,7 @@
 package com.apps.my.liener;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -11,7 +12,7 @@ import android.widget.RelativeLayout;
 /**
  * Created by rahul on 26/2/17.
  */
-public class ActionOverflowMenu extends LinearLayout {
+public class ActionOverflowMenu extends LinearLayout implements View.OnClickListener{
     private static final String TAG = ActionOverflowMenu.class.getSimpleName();
 
     private MenuOptionListener menuOptionListener;
@@ -39,6 +40,11 @@ public class ActionOverflowMenu extends LinearLayout {
     public ActionOverflowMenu(Context context) {
         super(context);
         inflate(context, R.layout.browser_overflow_menu, this);
+        initialize();
+        setClickListeners();
+    }
+
+    private void initialize(){
         params = new RelativeLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.addRule(RelativeLayout.ALIGN_PARENT_END,RelativeLayout.TRUE);
@@ -46,8 +52,31 @@ public class ActionOverflowMenu extends LinearLayout {
         params.topMargin = 10;
         isOpen=false;
     }
+    private void setClickListeners(){
+        setItemClickListeners(new int[]{
+                R.id.find_in_page,
+                R.id.open_in,
+                R.id.desktop_site
+        });
+    }
+
+    @Override
+    public void onClick(View view) {
+        isOpen = !isOpen;
+    }
 
     public interface MenuOptionListener {
-        public void onOptionClicked(MenuItem item);
+        public void onOptionClicked(int resourceId);
+    }
+
+    private void setItemClickListeners(int []resourceIds){
+        for (final int resourceId:resourceIds) {
+            findViewById(resourceId).setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View view) {
+                    menuOptionListener.onOptionClicked(resourceId);
+                }
+            });
+        }
     }
 }

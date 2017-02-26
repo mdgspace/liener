@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.RectF;
+import android.net.Uri;
 import android.provider.Browser;
 import android.util.Log;
 import android.view.Gravity;
@@ -29,6 +30,7 @@ import android.widget.TextView;
  * Created by RAHUL on 5/12/2016.
  */
 public class BrowserPage {
+
     private WebView browserwv;
     public BubbleHead bubbleHead;
     private static final String TAG = BrowserPage.class.getSimpleName();
@@ -62,6 +64,8 @@ public class BrowserPage {
 
     BubbleService BubbleServiceActivity;
 
+    RelativeLayout browserPane;
+
     public BrowserPage(final Context context, BubbleService bubbleService, int x, int height, int widthMid, int BId) {
         this.BId = BId;
         this.context = context;
@@ -93,8 +97,36 @@ public class BrowserPage {
         });
 
         action_overflow_view = new ActionOverflowMenu(context);
+        action_overflow_view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG, "onClick() called with: view = [" + view + "]");
+                Log.d(TAG, "onClick() called with: view = [" + view.getId() + "]");
+            }
+        });
+
+        browserPane = (RelativeLayout)browser.findViewById(R.id.browser_pane);
 
 
+        action_overflow_view.setMenuOptionListener(new ActionOverflowMenu.MenuOptionListener() {
+            @Override
+            public void onOptionClicked(int resourceId) {
+                switch (resourceId){
+                    case R.id.find_in_page:
+                        Log.d(TAG, "onOptionClicked() called with: resourceId = [" + resourceId + "]");
+                        break;
+                    case R.id.open_in:
+                        openInOtherBrowser();
+                        break;
+                    case R.id.desktop_site:
+                        Log.d(TAG, "onOptionClicked() called with: resourceId = [" + resourceId + "]");
+                        break;
+                    default:
+                        break;
+                }
+                closeActionOverflowMenu();
+            }
+        });
 //
 //        action_overflow_view.setOnFocusChangeListener(new View.OnFocusChangeListener(){
 //
@@ -104,18 +136,15 @@ public class BrowserPage {
 //            }
 //        });
 
-        final RelativeLayout browserPane = (RelativeLayout)browser.findViewById(R.id.browser_pane);
 
         browser.findViewById(R.id.overflow_menu).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(action_overflow_view.isOpen()){
-                    browserPane.removeView(action_overflow_view);
-                    action_overflow_view.setOpen(false);
+                    closeActionOverflowMenu();
                 }
                 else {
-                    browserPane.addView(action_overflow_view,action_overflow_view.getParams());
-                    action_overflow_view.setOpen(true);
+                     openActionOverflowMenu();
                 }
             }
         });
@@ -136,6 +165,23 @@ public class BrowserPage {
         setBrowser();
 
 
+    }
+
+    private void closeActionOverflowMenu(){
+        browserPane.removeView(action_overflow_view);
+        action_overflow_view.setOpen(false);
+    }
+
+    private void openActionOverflowMenu(){
+        browserPane.addView(action_overflow_view,action_overflow_view.getParams());
+        action_overflow_view.setOpen(true);
+    }
+
+    private void openInOtherBrowser(){
+        sendEvent(BubbleListener.EVENT_TYPE_ACTION_OVERFLOW);
+
+        Intent openUrlIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(browserwv.getUrl()));
+        context.startActivity(openUrlIntent);
     }
 
     public void setBrowser() {
@@ -383,6 +429,7 @@ public class BrowserPage {
     public void setBubbleLayoutX(int x){
         bubbleHead.setLayoutParamsX(x);
     }
+
 //    public void changeIconProgress(int progress){
 //                            int x = (int) (progress * 12 / 100);
 //                    Log.d(TAG, "onProgressChanged() called with: " + "x = [" + x + "], progress = [" + progress + "]");
@@ -428,6 +475,5 @@ public class BrowserPage {
 //                        canvas.drawArc(rectF, 270 + 30 * i, 27, true, paint);
 //                    }
 //    }
-
 
 }
