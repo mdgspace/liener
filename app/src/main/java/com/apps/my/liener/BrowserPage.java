@@ -43,7 +43,7 @@ public class BrowserPage {
     private int BId;
     private Context context;
     private Page page;
-    private View action_overflow_view;
+    private ActionOverflowMenu action_overflow_view;
     private boolean isActionMenuOpen = false;
 
 //    int alphaColor = 100;
@@ -92,36 +92,30 @@ public class BrowserPage {
             }
         });
 
-        action_overflow_view = li.inflate(R.layout.browser_overflow_menu, null);
+        action_overflow_view = new ActionOverflowMenu(context);
 
 
-        final RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.addRule(RelativeLayout.ALIGN_PARENT_END,RelativeLayout.TRUE);
-        params.addRule(RelativeLayout.ALIGN_PARENT_TOP,RelativeLayout.TRUE);
-        params.topMargin = 10;
+//
+//        action_overflow_view.setOnFocusChangeListener(new View.OnFocusChangeListener(){
+//
+//            @Override
+//            public void onFocusChange(View view, boolean b) {
+//                Log.d(TAG, "onFocusChange() called with: view = [" + view + "], b = [" + b + "]");
+//            }
+//        });
 
         final RelativeLayout browserPane = (RelativeLayout)browser.findViewById(R.id.browser_pane);
-
-        action_overflow_view.setOnFocusChangeListener(new View.OnFocusChangeListener(){
-
-            @Override
-            public void onFocusChange(View view, boolean b) {
-                Log.d(TAG, "onFocusChange() called with: view = [" + view + "], b = [" + b + "]");
-            }
-        });
 
         browser.findViewById(R.id.overflow_menu).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                sendEvent(BubbleListener.EVENT_TYPE_ACTION_OVERFLOW);
-                if(isActionMenuOpen){
-                    isActionMenuOpen = false;
+                if(action_overflow_view.isOpen()){
                     browserPane.removeView(action_overflow_view);
+                    action_overflow_view.setOpen(false);
                 }
                 else {
-                    browserPane.addView(action_overflow_view,params);
-                    isActionMenuOpen = true;
+                    browserPane.addView(action_overflow_view,action_overflow_view.getParams());
+                    action_overflow_view.setOpen(true);
                 }
             }
         });
@@ -136,7 +130,7 @@ public class BrowserPage {
 //            public void onClick(View view) {
 //                popup.show();
 //            }
-//        });
+//        });iono
 
         browserwv = (WebView) browser.findViewById(R.id.webview);
         setBrowser();

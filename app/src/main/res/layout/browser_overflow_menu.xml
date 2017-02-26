@@ -26,3 +26,5 @@
         android:text="Request desktop site"
         android:lines="1"/>
 </LinearLayout>
+
+
