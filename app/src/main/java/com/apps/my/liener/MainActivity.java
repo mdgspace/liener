@@ -33,6 +33,7 @@ import eu.long1.spacetablayout.SpaceTabLayout;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener{
     SpaceTabLayout tabLayout;
+    FragmentRecent recents;
     private static final String TAG = MainActivity.class.getSimpleName();
     int c = 0;
 
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
+        drawer.addDrawerListener(toggle);
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -63,7 +64,7 @@ public class MainActivity extends AppCompatActivity
         //add the fragments you want to display in a List
         Bundle bdlRecents = new Bundle(2);
         bdlRecents.putBoolean("isHistory",true);
-        FragmentRecent recents = new FragmentRecent();
+        recents = new FragmentRecent();
         recents.setArguments(bdlRecents);
 
         Bundle bdlBookmarks = new Bundle(2);
@@ -97,6 +98,7 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.action_clear_all) {
             mydb.deleteAllHistory();
+            recents.refreshList();
             return true;
         }else if (id == R.id.action_about_us){
             startActivity(new Intent(getApplicationContext(), AboutUsActivity.class));

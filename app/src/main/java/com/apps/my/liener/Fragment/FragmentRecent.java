@@ -1,5 +1,6 @@
 package com.apps.my.liener.Fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -11,7 +12,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.apps.my.liener.BubbleService;
 import com.apps.my.liener.DbListener;
 import com.apps.my.liener.MainActivity;
 import com.apps.my.liener.Page;
@@ -112,10 +115,19 @@ public class FragmentRecent extends Fragment {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            Page mPage = new Page(mDataset.get(position).toString());
+            final Page mPage = new Page(mDataset.get(position).toString());
             holder.mTitle.setText(mPage.getTitle());
             holder.mUrl.setText(mPage.getUrl());
             holder.mTime.setText(getDate(mPage.getTs()));
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent pageIntent = new Intent(getActivity(), BubbleService.class);
+                    pageIntent.putExtra("url", mPage.getUrl());
+                    pageIntent.putExtra("isRecent",true);
+                    getActivity().startService(pageIntent);
+                }
+            });
         }
 
         @Override
@@ -148,6 +160,10 @@ public class FragmentRecent extends Fragment {
         Log.d(TAG, "onDataChanged() dblistener called");
         myAdapter.swap(arrayList);
     }
+    public void refreshList(){
+        sqlDataChanged();
+    }
+
 }
 
 

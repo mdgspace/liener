@@ -68,7 +68,7 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS history");
         db.execSQL(
                 "create table history" +
-                        "(id integer primary key, title text,url text, timestamp text)"
+                        "(id integer primary key, data text)"
         );
     }
 
