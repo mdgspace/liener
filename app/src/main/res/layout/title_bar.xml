@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/hr_ll"
     android:layout_width="match_parent"
-    android:layout_height="0dp"
-    android:layout_weight="10"
-    android:background="#ffffff"
+    android:layout_height="?android:attr/actionBarSize"
     android:orientation="horizontal"
+    android:background="#ffffff"
     android:weightSum="100">
 
     <TextView
@@ -16,40 +16,41 @@
         android:layout_weight="50"
         android:gravity="center_vertical"
         android:maxLines="1"
+        android:text="Google"
         android:singleLine="true"
-        android:textColor="#000000"
         android:textSize="25sp" />
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="50"
-        android:gravity="right"
         android:orientation="horizontal"
         android:padding="5dp"
-        android:weightSum="50">
+        android:weightSum="3">
 
         <Button
             android:id="@+id/add_bookmark"
-
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_marginEnd="5dp"
-            android:layout_weight="11"
+            android:layout_weight="1"
+            android:scaleType="fitXY"
             android:background="@drawable/ic_menu_add" />
 
         <Button
             android:id="@+id/share_url"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="11"
-            android:background="@drawable/ic_share" />
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:scaleType="fitXY"
+            android:background="@drawable/ic_share"/>
 
         <Button
             android:id="@+id/overflow_menu"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="11"
-            android:background="@drawable/ic_action_overflow" />
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:scaleType="fitXY"
+            android:background="@drawable/ic_action_overflow"/>
     </LinearLayout>
 </LinearLayout>

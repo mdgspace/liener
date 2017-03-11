@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="?android:attr/actionBarSize"
+    android:weightSum="100"
+    android:background="#ffffff"
+    android:id="@+id/search_layout"
+    android:elevation="5dp">
+    <EditText
+        android:hint="Find"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="30"
+        android:id="@+id/query_text"
+        android:padding="10dp"
+        android:backgroundTint="@android:color/transparent"
+        android:singleLine="true"/>
+    <TextView
+        android:text="0 of 0"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="20"
+        android:textColor="@android:color/darker_gray"
+        android:id="@+id/result_text"
+        android:padding="10dp"/>
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_weight="50"
+        android:layout_height="match_parent"
+        android:weightSum="30">
+
+        <Button
+            android:id="@+id/pre_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:textColor="@android:color/darker_gray"
+            android:background="@android:color/transparent"
+            android:text="Pre"/>
+
+        <Button
+            android:id="@+id/next_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:textColor="@android:color/darker_gray"
+            android:background="@android:color/transparent"
+            android:text="Next"/>
+
+        <Button
+            android:id="@+id/close_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="10"
+            android:background="@android:color/transparent"
+            android:text="X" />
+
+    </LinearLayout>
+</LinearLayout>

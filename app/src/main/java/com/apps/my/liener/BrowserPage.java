@@ -11,6 +11,8 @@ import android.graphics.PixelFormat;
 import android.graphics.RectF;
 import android.net.Uri;
 import android.provider.Browser;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -21,9 +23,15 @@ import android.view.WindowManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.lang.reflect.Method;
 
 
 /**
@@ -34,9 +42,9 @@ public class BrowserPage {
     private WebView browserwv;
     public BubbleHead bubbleHead;
     private static final String TAG = BrowserPage.class.getSimpleName();
-    private LinearLayout browser;
+    private RelativeLayout browser;
     private String oldTitle = " ";
-    private TextView tv;
+    private TextView tv, result_text;
     private DBHelper mydb;
     private long id, ts;
     private Canvas canvas;
@@ -47,6 +55,10 @@ public class BrowserPage {
     private Page page;
     private ActionOverflowMenu action_overflow_view;
     private boolean isActionMenuOpen = false;
+    private EditText queryText;
+    private Button findClose,preFind,nextFind;
+    private int totalResult;
+    private int curResult;
 
 //    int alphaColor = 100;
 //    int aColor=Color.argb(alphaColor,160,160,160);
@@ -73,7 +85,7 @@ public class BrowserPage {
         mydb = DBHelper.init(context);
 
         LayoutInflater li = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        browser = (LinearLayout) li.inflate(R.layout.browser_page, null);
+        browser = (RelativeLayout) li.inflate(R.layout.browser_page, null);
         bubbleHead = new BubbleHead(context, height, widthMid, BubbleHead.HEAD_TYPE_TAB, BId);
         bubbleHead.initParams(x, height);
 
@@ -114,6 +126,9 @@ public class BrowserPage {
                 switch (resourceId){
                     case R.id.find_in_page:
                         Log.d(TAG, "onOptionClicked() called with: resourceId = [" + resourceId + "]");
+                        browser.findViewById(R.id.search_layout).setVisibility(View.VISIBLE);
+                        result_text.setText("0 of 0");
+                        queryText.setText("");
                         break;
                     case R.id.open_in:
                         openInOtherBrowser();
@@ -163,6 +178,7 @@ public class BrowserPage {
 
         browserwv = (WebView) browser.findViewById(R.id.webview);
         setBrowser();
+        setFindBar();
 
 
     }
@@ -475,5 +491,62 @@ public class BrowserPage {
 //                        canvas.drawArc(rectF, 270 + 30 * i, 27, true, paint);
 //                    }
 //    }
+    private void setFindBar(){
+        browserwv.setFindListener(new WebView.FindListener() {
+            @Override
+            public void onFindResultReceived(int activeMatchOrdinal, int numberOfMatches, boolean isDoneCounting) {
+                    curResult = activeMatchOrdinal + 1;
+                    totalResult = numberOfMatches;
+                if(numberOfMatches == 0)
+                    curResult = 0;
+                    result_text.setText(curResult + " of " + totalResult);
+            }
+
+        });
+        browser.findViewById(R.id.search_layout).setVisibility(View.INVISIBLE);
+        queryText = (EditText)browser.findViewById(R.id.query_text);
+        result_text = (TextView) browser.findViewById(R.id.result_text);
+        findClose = (Button)browser.findViewById(R.id.close_btn);
+        preFind = (Button)browser.findViewById(R.id.pre_btn);
+        nextFind = (Button)browser.findViewById(R.id.next_btn);
+
+        queryText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                browserwv.findAllAsync(queryText.getText().toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+        findClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                browser.findViewById(R.id.search_layout).setVisibility(View.INVISIBLE);
+                browserwv.clearMatches();
+            }
+        });
+        preFind.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                browserwv.findNext(false);
+                //result_text.setText(curResult + " of " +totalResult);
+            }
+        });
+        nextFind.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                browserwv.findNext(true);
+                //result_text.setText(curResult + " of " +totalResult);
+            }
+        });
+    }
 
 }

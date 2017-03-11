@@ -169,7 +169,7 @@ public class BubbleService extends Service implements OnKeyListener, View.OnTouc
             String url = intent.getStringExtra("url");
             addNewPage(url);
             setNotification();// Notification in notification panel to keep the activity running in background
-            if(intent.getBooleanExtra("isRecent",false)){
+            if(intent.getBooleanExtra("isRecent", false)){
                 expandBrowser();
             }
         }

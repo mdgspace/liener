@@ -10,5 +10,5 @@
     <item
         android:id="@+id/desktop_site"
         android:title="Request desktop site" />
-=
+
 </menu>
