@@ -18,7 +18,7 @@ public class LayoutParams extends WindowManager.LayoutParams {
     LayoutParams(){
         super(WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_TOAST,
+                WindowManager.LayoutParams.TYPE_PHONE,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT);
         this.width = BubbleSizeSmall;

@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
@@ -104,7 +105,7 @@ public class BubbleService extends Service implements OnKeyListener, View.OnTouc
     public void initParamBrowser() {
         paramBrowser = new WindowManager.LayoutParams(WindowManager.LayoutParams.FILL_PARENT,
                 heightNew,
-                WindowManager.LayoutParams.TYPE_TOAST,
+                WindowManager.LayoutParams.TYPE_PHONE,
                 WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
                 PixelFormat.TRANSLUCENT
         );
@@ -125,7 +126,7 @@ public class BubbleService extends Service implements OnKeyListener, View.OnTouc
         action_overflow_params = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_TOAST,
+                WindowManager.LayoutParams.TYPE_PHONE,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT
         );
@@ -165,6 +166,7 @@ public class BubbleService extends Service implements OnKeyListener, View.OnTouc
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
         if (!("" + intent + "").equals("null")) {
             String url = intent.getStringExtra("url");
             addNewPage(url);
