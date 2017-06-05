@@ -14,18 +14,12 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 
 import static android.content.Context.WINDOW_SERVICE;
-import static com.apps.my.liener.BubbleListener.EVENT_TYPE_ACTION_OVERFLOW;
-import static com.apps.my.liener.BubbleListener.TOUCH_EVENT_TYPE_ADD_BROWSER;
-import static com.apps.my.liener.BubbleListener.TOUCH_EVENT_TYPE_OFF_DELETE;
-import static com.apps.my.liener.BubbleListener.TOUCH_EVENT_TYPE_REMOVE_BROWSER;
-import static com.apps.my.liener.BubbleListener.TOUCH_EVENT_TYPE_REMOVE_DELETE;
-import static com.apps.my.liener.BubbleListener.TOUCH_EVENT_TYPE_UPDATE;
 import static com.apps.my.liener.Constant.BubbleSizeDelete;
 
 /**
  * Created by rahul on 5/6/17.
  */
-public class Browser implements BubbleListener, View.OnTouchListener, View.OnFocusChangeListener {
+public class Browser{
     private static final String TAG = Browser.class.getSimpleName();
 
     WindowManager bubbleWindow;
@@ -51,6 +45,7 @@ public class Browser implements BubbleListener, View.OnTouchListener, View.OnFoc
 
         initVariables();
         initDeleteHead();
+        initBubbleHead();
         initParamBrowser();
         initHomeListener();
         initActionOverflowParams();
@@ -68,10 +63,54 @@ public class Browser implements BubbleListener, View.OnTouchListener, View.OnFoc
 
         bubbleWindow = (WindowManager) context.getSystemService(WINDOW_SERVICE);
         loadDimensions();
-        bh = new BubbleHead(context, heightNew, widthMid, BubbleHead.HEAD_TYPE_MAIN, -2);
-        bh.initParams(0, heightNew);
-        bh.setListener(this);
 
+
+    }
+
+    private void initBubbleHead(){
+        bh = new BubbleHead(context, heightNew, widthMid, BubbleHead.HEAD_TYPE_MAIN);
+        bh.initParams(0, heightNew);
+        bh.setBubbleListener(new BubbleListener() {
+            @Override
+            public void onClick() {
+                expandBrowser();
+            }
+
+            @Override
+            public void onDelete() {
+                is_running = false;
+                stopSelf();
+            }
+
+            @Override
+            public void updateView() {
+                bubbleWindow.updateViewLayout(bh.getView(), bh.getLayoutParams());
+            }
+
+            @Override
+            public void onMove(boolean isMoving) {
+                if(isMoving){
+                    deleteHead.setViewVisibility(View.VISIBLE);
+                }
+                else {
+                    deleteHead.getView().setVisibility(View.INVISIBLE);
+                }
+            }
+
+            @Override
+            public void overDeleteArea(boolean isOver) {
+                if(isOver){
+                    deleteHead.setLayoutParamsSize(Constant.BubbleSizeDeleteLarge);
+                    bubbleWindow.updateViewLayout(deleteHead.getView(), deleteHead.getLayoutParams());
+                    deleteHead.setLayoutParamsSize(Constant.BubbleSizeLarge);
+                    bubbleWindow.updateViewLayout(bh.getView(), deleteHead.getLayoutParams());
+                }
+                else {
+                    deleteHead.getLayoutParams().setSize(BubbleSizeDelete);
+                    bubbleWindow.updateViewLayout(deleteHead.getView(), deleteHead.getLayoutParams());
+                }
+            }
+        });
     }
 
     public void initParamBrowser() {
@@ -88,7 +127,7 @@ public class Browser implements BubbleListener, View.OnTouchListener, View.OnFoc
     }
 
     public void initDeleteHead() {
-        deleteHead = new BubbleHead(context, heightNew, widthMid, BubbleHead.HEAD_TYPE_DELETE, -1);
+        deleteHead = new BubbleHead(context, heightNew, widthMid, BubbleHead.HEAD_TYPE_DELETE);
         deleteHead.initParams(0, (int) (heightNew / 4 - BubbleSizeDelete / 2), Gravity.BOTTOM | Gravity.CENTER);
         bubbleWindow.addView(deleteHead.getView(), deleteHead.getLayoutParams());
     }
@@ -153,97 +192,97 @@ public class Browser implements BubbleListener, View.OnTouchListener, View.OnFoc
         }
     }
 
-    @Override
-    public void onTouchEvent(@BubbleListener.TOUCH_EVENT_TYPE int event_type, @BubbleHead.HEAD_TYPE int head_type, int BId) {
-        Log.d(TAG, "Listener onEvent() called with: type = [" + event_type + "]");
-        if (isMenuOpen) {
-            //[ACTION_FLOW]bubbleWindow.removeView(getBrowserTab(current).action_overflow_view);
-            isMenuOpen = false;
-        }
-        switch (event_type) {
-            case TOUCH_EVENT_TYPE_ADD_DELETE:
-                deleteHead.setViewVisibility(View.VISIBLE);
-                break;
-            case TOUCH_EVENT_TYPE_DELETE:
-                switch (head_type) {
-                    case BubbleHead.HEAD_TYPE_MAIN:
-                        is_running = false;
-                        stopSelf();
-                        break;
-                    case BubbleHead.HEAD_TYPE_TAB:
-                        deletePage(getIndex(BId));
-                        break;
-                }
-                break;
-            case TOUCH_EVENT_TYPE_ON_DELETE:
-                switch (head_type) {
-                    case BubbleHead.HEAD_TYPE_MAIN:
-                        deleteHead.setLayoutParamsSize(Constant.BubbleSizeDeleteLarge);
-                        bubbleWindow.updateViewLayout(deleteHead.getView(), deleteHead.getLayoutParams());
-                        deleteHead.setLayoutParamsSize(Constant.BubbleSizeLarge);
-                        bubbleWindow.updateViewLayout(bh.getView(), deleteHead.getLayoutParams());
-                        break;
-                    case BubbleHead.HEAD_TYPE_TAB:
-                        deleteHead.setLayoutParamsSize(Constant.BubbleSizeDeleteLarge);
-                        bubbleWindow.updateViewLayout(deleteHead.getView(), deleteHead.getLayoutParams());
-                        deleteHead.setLayoutParamsSize(Constant.BubbleSizeLarge);
-                        bubbleWindow.updateViewLayout(browserPageArray[BId].getBubbleView(), deleteHead.getLayoutParams());
-                        break;
-                }
-                deleteHead.getLayoutParams().setSize(BubbleSizeDelete);
-                break;
+//    @Override
+//    public void onTouchEvent(@BubbleListener.TOUCH_EVENT_TYPE int event_type, @BubbleHead.HEAD_TYPE int head_type, int BId) {
+//        Log.d(TAG, "Listener onEvent() called with: type = [" + event_type + "]");
+//        if (isMenuOpen) {
+//            //[ACTION_FLOW]bubbleWindow.removeView(getBrowserTab(current).action_overflow_view);
+//            isMenuOpen = false;
+//        }
+//        switch (event_type) {
+//            case TOUCH_EVENT_TYPE_ADD_DELETE:
+//                deleteHead.setViewVisibility(View.VISIBLE);
+//                break;
+//            case TOUCH_EVENT_TYPE_DELETE:
+//                switch (head_type) {
+//                    case BubbleHead.HEAD_TYPE_MAIN:
+//                        is_running = false;
+//                        stopSelf();
+//                        break;
+//                    case BubbleHead.HEAD_TYPE_TAB:
+//                        deletePage(getIndex(BId));
+//                        break;
+//                }
+//                break;
+//            case TOUCH_EVENT_TYPE_ON_DELETE:
+//                switch (head_type) {
+//                    case BubbleHead.HEAD_TYPE_MAIN:
+//                        deleteHead.setLayoutParamsSize(Constant.BubbleSizeDeleteLarge);
+//                        bubbleWindow.updateViewLayout(deleteHead.getView(), deleteHead.getLayoutParams());
+//                        deleteHead.setLayoutParamsSize(Constant.BubbleSizeLarge);
+//                        bubbleWindow.updateViewLayout(bh.getView(), deleteHead.getLayoutParams());
+//                        break;
+//                    case BubbleHead.HEAD_TYPE_TAB:
+//                        deleteHead.setLayoutParamsSize(Constant.BubbleSizeDeleteLarge);
+//                        bubbleWindow.updateViewLayout(deleteHead.getView(), deleteHead.getLayoutParams());
+//                        deleteHead.setLayoutParamsSize(Constant.BubbleSizeLarge);
+//                        bubbleWindow.updateViewLayout(browserPageArray[BId].getBubbleView(), deleteHead.getLayoutParams());
+//                        break;
+//                }
+//                deleteHead.getLayoutParams().setSize(BubbleSizeDelete);
+//                break;
+//
+//            case TOUCH_EVENT_TYPE_OFF_DELETE:
+//                deleteHead.getLayoutParams().setSize(BubbleSizeDelete);
+//                bubbleWindow.updateViewLayout(deleteHead.getView(), deleteHead.getLayoutParams());
+//                break;
+//            case TOUCH_EVENT_TYPE_REMOVE_DELETE:
+//                deleteHead.getView().setVisibility(View.INVISIBLE);
+//                break;
+//            case TOUCH_EVENT_TYPE_UPDATE:
+//                switch (head_type) {
+//                    case BubbleHead.HEAD_TYPE_MAIN:
+//                        bubbleWindow.updateViewLayout(bh.getView(), bh.getLayoutParams());
+//                        break;
+//                    case BubbleHead.HEAD_TYPE_TAB:
+//                        bubbleWindow.updateViewLayout(browserPageArray[BId].getBubbleView(), browserPageArray[BId].getBubbleLayout());
+//                        break;
+//                }
+//                break;
+//            case TOUCH_EVENT_TYPE_REMOVE_BROWSER:
+//                bubbleWindow.removeView(browserLayout);
+//                browserLayout.removeView(getBrowserTab(current).getBrowserView());
+//                Log.d(TAG, "removeview8");
+//                break;
+//            case TOUCH_EVENT_TYPE_ADD_BROWSER:
+//                //Add view layout
+//                //Add view to layout
+//
+//                browserLayout.addView(getBrowserTab(current).getBrowserView(), paramBrowser);
+//                bubbleWindow.addView(browserLayout, paramBrowser);
+//
+//                //bubbleWindow.addView(getBrowserTab(current).browser, paramBrowser);
+//                break;
+//        }
+//    }
 
-            case TOUCH_EVENT_TYPE_OFF_DELETE:
-                deleteHead.getLayoutParams().setSize(BubbleSizeDelete);
-                bubbleWindow.updateViewLayout(deleteHead.getView(), deleteHead.getLayoutParams());
-                break;
-            case TOUCH_EVENT_TYPE_REMOVE_DELETE:
-                deleteHead.getView().setVisibility(View.INVISIBLE);
-                break;
-            case TOUCH_EVENT_TYPE_UPDATE:
-                switch (head_type) {
-                    case BubbleHead.HEAD_TYPE_MAIN:
-                        bubbleWindow.updateViewLayout(bh.getView(), bh.getLayoutParams());
-                        break;
-                    case BubbleHead.HEAD_TYPE_TAB:
-                        bubbleWindow.updateViewLayout(browserPageArray[BId].getBubbleView(), browserPageArray[BId].getBubbleLayout());
-                        break;
-                }
-                break;
-            case TOUCH_EVENT_TYPE_REMOVE_BROWSER:
-                bubbleWindow.removeView(browserLayout);
-                browserLayout.removeView(getBrowserTab(current).getBrowserView());
-                Log.d(TAG, "removeview8");
-                break;
-            case TOUCH_EVENT_TYPE_ADD_BROWSER:
-                //Add view layout
-                //Add view to layout
-
-                browserLayout.addView(getBrowserTab(current).getBrowserView(), paramBrowser);
-                bubbleWindow.addView(browserLayout, paramBrowser);
-
-                //bubbleWindow.addView(getBrowserTab(current).browser, paramBrowser);
-                break;
-        }
-    }
-
-    @Override
-    public void onClickEvent(@BubbleListener.CLICK_EVENT_TYPE int event_type, @BubbleHead.HEAD_TYPE int head_type, int BId) {
-        Log.d(TAG, "onClickEvent() called with: event_type = [" + event_type + "], head_type = [" + head_type + "], BId = [" + BId + "]");
-        if (isMenuOpen) {
-            //[ACTION_FLOW]bubbleWindow.removeView(getBrowserTab(current).action_overflow_view);
-            isMenuOpen = false;
-        }
-        switch (event_type) {
-            case CLICK_EVENT_TYPE_EXPAND:
-                expandBrowser();
-                break;
-            case CLICK_EVENT_TYPE_MINIMIZE:
-                Log.d(TAG, "onClickEvent() called with: event_type = [" + event_type + "], head_type = [" + head_type + "], BId = [" + BId + "], GetIndex = [" + getIndex(BId) + "]");
-                minimizeBrowser(getIndex(BId));
-                break;
-        }
-    }
+//    @Override
+//    public void onClickEvent(@BubbleListener.CLICK_EVENT_TYPE int event_type, @BubbleHead.HEAD_TYPE int head_type, int BId) {
+//        Log.d(TAG, "onClickEvent() called with: event_type = [" + event_type + "], head_type = [" + head_type + "], BId = [" + BId + "]");
+//        if (isMenuOpen) {
+//            //[ACTION_FLOW]bubbleWindow.removeView(getBrowserTab(current).action_overflow_view);
+//            isMenuOpen = false;
+//        }
+//        switch (event_type) {
+//            case CLICK_EVENT_TYPE_EXPAND:
+//                expandBrowser();
+//                break;
+//            case CLICK_EVENT_TYPE_MINIMIZE:
+//                Log.d(TAG, "onClickEvent() called with: event_type = [" + event_type + "], head_type = [" + head_type + "], BId = [" + BId + "], GetIndex = [" + getIndex(BId) + "]");
+//                minimizeBrowser(getIndex(BId));
+//                break;
+//        }
+//    }
 
 
     public int getIndex(int BId) {
@@ -269,13 +308,62 @@ public class Browser implements BubbleListener, View.OnTouchListener, View.OnFoc
         browserPageArray[arrIndex[index]] = browserPage;
     }
 
+
     public void addTab(BubbleService bubbleService, String url){
         is_running = true;
-        addBrowserTab(count,new BrowserPage(context, bubbleService, count * Constant.BubbleSizeLarge, heightNew, widthMid, arrIndex[count]));
 
-        getBrowserTab(count).setBubbleListener(this);
+        BrowserPage browserPage = new BrowserPage(context, bubbleService, count * Constant.BubbleSizeLarge, heightNew, widthMid);
+        final int BId = arrIndex[count];
+        addBrowserTab(count,browserPage);
+        getBrowserTab(count).setBubbleListener(new BubbleListener() {
+            @Override
+            public void onClick() {
+                minimizeBrowser(getIndex(arrIndex[BId]));
+            }
 
-        getBrowserTab(count).setListener(this);
+            @Override
+            public void onDelete() {
+                deleteHead.getView().setVisibility(View.INVISIBLE);
+                deletePage(getIndex(BId));
+            }
+
+            @Override
+            public void updateView() {
+                bubbleWindow.updateViewLayout(browserPageArray[BId].getBubbleView(), browserPageArray[BId].getBubbleLayout());
+            }
+
+            @Override
+            public void onMove(boolean isMoving) {
+                if(isMoving){
+                    deleteHead.setViewVisibility(View.VISIBLE);
+                    bubbleWindow.removeView(browserLayout);
+                    browserLayout.removeView(getBrowserTab(current).getBrowserView());
+                }
+                else {
+                    deleteHead.getView().setVisibility(View.INVISIBLE);
+                    bubbleWindow.updateViewLayout(browserPageArray[BId].getBubbleView(), browserPageArray[BId].getBubbleLayout());
+                    browserLayout.addView(getBrowserTab(current).getBrowserView(), paramBrowser);
+                    bubbleWindow.addView(browserLayout, paramBrowser);
+                }
+            }
+
+            @Override
+            public void overDeleteArea(boolean isOver) {
+                if(isOver){
+                    deleteHead.setLayoutParamsSize(Constant.BubbleSizeDeleteLarge);
+                    bubbleWindow.updateViewLayout(deleteHead.getView(), deleteHead.getLayoutParams());
+                    deleteHead.setLayoutParamsSize(Constant.BubbleSizeLarge);
+                    bubbleWindow.updateViewLayout(browserPageArray[BId].getBubbleView(), deleteHead.getLayoutParams());
+                }
+                else {
+                    deleteHead.getLayoutParams().setSize(BubbleSizeDelete);
+                    bubbleWindow.updateViewLayout(deleteHead.getView(), deleteHead.getLayoutParams());
+                }
+            }
+        });
+
+
+//        getBrowserTab(count).setListener(this);
 
         getBrowserTab(count).loadUrl(url);
         if (count == 0) {
@@ -309,7 +397,6 @@ public class Browser implements BubbleListener, View.OnTouchListener, View.OnFoc
     }
 
     public void addBrowser(final int index) {
-        getBrowserTab(index).setBrowserListeners(this);
 
         //Add view to layout
         browserLayout.addView(getBrowserTab(index).getBrowserView(), paramBrowser);
@@ -385,33 +472,23 @@ public class Browser implements BubbleListener, View.OnTouchListener, View.OnFoc
         }
     }
 
-    @Override
-    public void onEvent(@BubbleListener.EVENT_TYPE int event_type) {
-        switch (event_type) {
-            case EVENT_TYPE_ACTION_OVERFLOW:
-                minimizeBrowser(current);
-                break;
-        }
-    }
-
-    @Override
-    public void onError(Throwable error) {
-
-    }
+//    @Override
+//    public void onEvent(@BubbleListener.EVENT_TYPE int event_type) {
+//        switch (event_type) {
+//            case EVENT_TYPE_ACTION_OVERFLOW:
+//                minimizeBrowser(current);
+//                break;
+//        }
+//    }
+//
+//    @Override
+//    public void onError(Throwable error) {
+//
+//    }
 
     private void stopSelf(){
         Intent bubbleService  = new Intent(context, BubbleService.class);
         context.stopService(bubbleService);
     }
 
-
-    @Override
-    public void onFocusChange(View view, boolean b) {
-
-    }
-
-    @Override
-    public boolean onTouch(View view, MotionEvent motionEvent) {
-        return false;
-    }
 }

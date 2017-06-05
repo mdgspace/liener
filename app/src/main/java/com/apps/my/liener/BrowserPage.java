@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -66,15 +67,14 @@ public class BrowserPage {
 
     RelativeLayout browserPane;
 
-    public BrowserPage(final Context context, BubbleService bubbleService, int x, int height, int widthMid, int BId) {
-        this.BId = BId;
+    public BrowserPage(final Context context, BubbleService bubbleService, int x, int height, int widthMid) {
         this.context = context;
         BubbleServiceActivity = bubbleService;
         mydb = DBHelper.init(context);
 
         LayoutInflater li = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         browser = (LinearLayout) li.inflate(R.layout.browser_page, null);
-        bubbleHead = new BubbleHead(context, height, widthMid, BubbleHead.HEAD_TYPE_TAB, BId);
+        bubbleHead = new BubbleHead(context, height, widthMid, BubbleHead.HEAD_TYPE_TAB);
         bubbleHead.initParams(x, height);
 
         tv = (TextView) browser.findViewById(R.id.txtview);
@@ -178,7 +178,7 @@ public class BrowserPage {
     }
 
     private void openInOtherBrowser(){
-        sendEvent(BubbleListener.EVENT_TYPE_ACTION_OVERFLOW);
+//        sendEvent(BubbleListener.EVENT_TYPE_ACTION_OVERFLOW);
 
         Intent openUrlIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(browserwv.getUrl()));
         context.startActivity(openUrlIntent);
@@ -299,17 +299,17 @@ public class BrowserPage {
         bubbleHead.switchToLarge();
     }
 
-    BubbleListener fetchListener = null;
+//    BubbleListener fetchListener = null;
+//
+//    public void setListener(BubbleListener listener) {
+//        this.fetchListener = listener;
+//    }
 
-    public void setListener(BubbleListener listener) {
-        this.fetchListener = listener;
-    }
-
-    public void sendEvent(@BubbleListener.EVENT_TYPE int event_type) {
-        Log.d(TAG, "sendEvent() called with: event_type = [" + event_type + "]");
-        if (this.fetchListener != null)
-            this.fetchListener.onEvent(event_type);
-    }
+//    public void sendEvent(@BubbleListener.EVENT_TYPE int event_type) {
+//        Log.d(TAG, "sendEvent() called with: event_type = [" + event_type + "]");
+//        if (this.fetchListener != null)
+//            this.fetchListener.onEvent(event_type);
+//    }
 
     public void createIcon() {
         //        Paint paint=new Paint();
@@ -383,7 +383,7 @@ public class BrowserPage {
 
     public void setBubbleListener(BubbleListener bl){
         Log.d(TAG, "setBubbleListener() called with: bl = [" + bl + "]");
-        bubbleHead.setListener(bl);
+        bubbleHead.setBubbleListener(bl);
         Log.d(TAG, "setBubbleListener() called with: bl = [" + bl + "]");
     }
 
@@ -417,11 +417,6 @@ public class BrowserPage {
         return bubbleHead;
     }
 
-    public void setBrowserListeners(com.apps.my.liener.Browser bubbleServiceActivity){
-        browser.setOnTouchListener(bubbleServiceActivity);
-        browser.setOnFocusChangeListener(bubbleServiceActivity);
-    }
-
     public int getBubbleLayoutX(){
         return bubbleHead.getLayoutParamsX();
     }
@@ -429,6 +424,7 @@ public class BrowserPage {
     public void setBubbleLayoutX(int x){
         bubbleHead.setLayoutParamsX(x);
     }
+
 
 //    public void changeIconProgress(int progress){
 //                            int x = (int) (progress * 12 / 100);
