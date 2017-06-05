@@ -288,7 +288,7 @@ public class BrowserPage {
         Intent typechooser = Intent.createChooser(sendIntent, "Choose sharing method");
         typechooser.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(typechooser);
-        BubbleServiceActivity.minimizeBrowser(BubbleServiceActivity.current);
+//        BubbleServiceActivity.minimizeBrowser(BubbleServiceActivity.current);
     }
 
     public void switchToSmall() {
@@ -417,7 +417,7 @@ public class BrowserPage {
         return bubbleHead;
     }
 
-    public void setBrowserListeners(BubbleService bubbleServiceActivity){
+    public void setBrowserListeners(com.apps.my.liener.Browser bubbleServiceActivity){
         browser.setOnTouchListener(bubbleServiceActivity);
         browser.setOnFocusChangeListener(bubbleServiceActivity);
     }
@@ -432,6 +432,7 @@ public class BrowserPage {
 
 //    public void changeIconProgress(int progress){
 //                            int x = (int) (progress * 12 / 100);
+//                            int x = (int) (progress * 12 / 100);f
 //                    Log.d(TAG, "onProgressChanged() called with: " + "x = [" + x + "], progress = [" + progress + "]");
 //                    for (int i = 0; i <= x; i++) {
 //                        switch (i) {
