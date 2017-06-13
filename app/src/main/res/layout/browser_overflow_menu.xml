@@ -10,31 +10,31 @@
         android:id="@+id/find_in_page"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp"
         android:lines="1"
-        android:textSize="12sp"
+        android:padding="10dp"
         android:text="Find in page"
-        android:textColor="#fff" />
+        android:textColor="#fff"
+        android:textSize="12sp" />
 
     <TextView
         android:id="@+id/open_in"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp"
         android:lines="1"
-        android:textSize="12sp"
+        android:padding="10dp"
         android:text="Open in .."
-        android:textColor="#fff" />
+        android:textColor="#fff"
+        android:textSize="12sp" />
 
     <TextView
         android:id="@+id/desktop_site"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp"
         android:lines="1"
-        android:textSize="12sp"
+        android:padding="10dp"
         android:text="Request desktop site"
-        android:textColor="#fff" />
+        android:textColor="#fff"
+        android:textSize="12sp" />
 </LinearLayout>
 
 
