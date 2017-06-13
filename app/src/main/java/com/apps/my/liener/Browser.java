@@ -309,8 +309,14 @@ public class Browser {
     public void addTab(BubbleService bubbleService, String url) {
         is_running = true;
 
-        BrowserPage browserPage = new BrowserPage(context, bubbleService, count * Constant.BubbleSizeLarge, heightNew, widthMid);
+        BrowserPage browserPage = new BrowserPage(context, count * Constant.BubbleSizeLarge, heightNew, widthMid);
         final int BId = arrIndex[count];
+        browserPage.setPageListener(new PageListener() {
+            @Override
+            public void onMinimize() {
+                minimizeBrowser(getIndex(arrIndex[BId]));
+            }
+        });
         addBrowserTab(count, browserPage);
         getBrowserTab(count).setBubbleListener(new BubbleListener() {
             @Override

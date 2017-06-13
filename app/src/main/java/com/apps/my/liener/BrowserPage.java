@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
@@ -35,11 +36,9 @@ public class BrowserPage {
     private Canvas canvas;
     private RectF rectF;
     private Paint paint;
-    private int BId;
     private Context context;
     private Page page;
     private ActionOverflowMenu action_overflow_view;
-    private boolean isActionMenuOpen = false;
 
 //    int alphaColor = 100;
 //    int aColor=Color.argb(alphaColor,160,160,160);
@@ -55,13 +54,10 @@ public class BrowserPage {
 //    int kColor=Color.argb(alphaColor,60,60,60);
 //    int lColor=Color.argb(alphaColor,50,50,50)
 
-    BubbleService BubbleServiceActivity;
-
     RelativeLayout browserPane;
 
-    public BrowserPage(final Context context, BubbleService bubbleService, int x, int height, int widthMid) {
+    public BrowserPage(final Context context, int x, int height, int widthMid) {
         this.context = context;
-        BubbleServiceActivity = bubbleService;
         mydb = DBHelper.init(context);
 
         LayoutInflater li = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -79,7 +75,6 @@ public class BrowserPage {
             }
         });
 
-        //TODO Implement action_overflow touch listener
 
         browser.findViewById(R.id.share_url).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,11 +84,6 @@ public class BrowserPage {
         });
 
         action_overflow_view = new ActionOverflowMenu(context);
-        action_overflow_view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-            }
-        });
 
         browserPane = (RelativeLayout) browser.findViewById(R.id.browser_pane);
 
@@ -102,13 +92,14 @@ public class BrowserPage {
             public void onOptionClicked(int resourceId) {
                 switch (resourceId) {
                     case R.id.find_in_page:
-                        Log.d(TAG, "onOptionClicked() called with: resourceId = [" + resourceId + "]");
+                        Log.d(TAG, "onOptionClicked() called with: resourceId = [find in page]");
                         break;
                     case R.id.open_in:
+                        Log.d(TAG, "onOptionClicked() called with: resourceId = [open in other browser]");
                         openInOtherBrowser();
                         break;
                     case R.id.desktop_site:
-                        Log.d(TAG, "onOptionClicked() called with: resourceId = [" + resourceId + "]");
+                        Log.d(TAG, "onOptionClicked() called with: resourceId = [ desktop site]");
                         switchUA();
                         break;
                     default:
@@ -117,14 +108,30 @@ public class BrowserPage {
                 closeActionOverflowMenu();
             }
         });
-//
-//        action_overflow_view.setOnFocusChangeListener(new View.OnFocusChangeListener(){
-//
-//            @Override
-//            public void onFocusChange(View view, boolean b) {
-//                Log.d(TAG, "onFocusChange() called with: view = [" + view + "], b = [" + b + "]");
-//            }
-//        });
+
+        action_overflow_view.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (!b)
+                    closeActionOverflowMenu();
+            }
+        });
+
+        browser.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+
+            }
+        });
+
+        browser.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                browser.requestFocus();
+                return false;
+            }
+        });
 
 
         browser.findViewById(R.id.overflow_menu).setOnClickListener(new View.OnClickListener() {
@@ -139,36 +146,29 @@ public class BrowserPage {
         });
 
 
-//        final PopupMenu popup = new PopupMenu(context,browser.findViewById(R.id.overflow_menu));
-//        MenuInflater inflater = popup.getMenuInflater();
-//        inflater.inflate(R.menu.browser_menu, popup.getMenu());
-//
-//        browser.findViewById(R.id.overflow_menu).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                popup.show();
-//            }
-//        });iono
-
         browserwv = (WebView) browser.findViewById(R.id.webview);
         setBrowser();
 
-
+        action_overflow_view.setFocusableInTouchMode(true);
     }
 
     private void closeActionOverflowMenu() {
-        browser.removeView(action_overflow_view);
-        action_overflow_view.setOpen(false);
+        if (action_overflow_view.isOpen()) {
+            action_overflow_view.setOpen(false);
+            browser.removeView(action_overflow_view);
+        }
     }
 
     private void openActionOverflowMenu() {
-        browser.addView(action_overflow_view, action_overflow_view.getParams());
-        action_overflow_view.setOpen(true);
+        if (!action_overflow_view.isOpen()) {
+            browser.addView(action_overflow_view, action_overflow_view.getParams());
+            action_overflow_view.setOpen(true);
+            action_overflow_view.requestFocus();
+        }
     }
 
     private void openInOtherBrowser() {
-//        sendEvent(BubbleListener.EVENT_TYPE_ACTION_OVERFLOW);
-
+        pageListener.onMinimize();
         Intent openUrlIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(browserwv.getUrl()));
         openUrlIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(openUrlIntent);
@@ -357,9 +357,7 @@ public class BrowserPage {
     }
 
     public void setBubbleListener(BubbleListener bl) {
-        Log.d(TAG, "setBubbleListener() called with: bl = [" + bl + "]");
         bubbleHead.setBubbleListener(bl);
-        Log.d(TAG, "setBubbleListener() called with: bl = [" + bl + "]");
     }
 
     public View getBrowserView() {
@@ -415,6 +413,12 @@ public class BrowserPage {
             browserwv.reload();
             desktopView = true;
         }
+    }
+
+    private PageListener pageListener;
+
+    public void setPageListener(PageListener pageListener){
+        this.pageListener = pageListener;
     }
 
 //    public void changeIconProgress(int progress){

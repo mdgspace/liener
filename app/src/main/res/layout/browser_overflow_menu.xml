@@ -8,9 +8,9 @@
 
     <TextView
         android:id="@+id/find_in_page"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:padding="10dp"
         android:lines="1"
         android:textSize="12sp"
         android:text="Find in page"
@@ -18,9 +18,9 @@
 
     <TextView
         android:id="@+id/open_in"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:padding="10dp"
         android:lines="1"
         android:textSize="12sp"
         android:text="Open in .."
@@ -28,9 +28,9 @@
 
     <TextView
         android:id="@+id/desktop_site"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:padding="10dp"
         android:lines="1"
         android:textSize="12sp"
         android:text="Request desktop site"
