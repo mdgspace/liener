@@ -1,56 +1,13 @@
 package com.apps.my.liener;
 
-import android.Manifest;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.graphics.PixelFormat;
-import android.graphics.Point;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
 import android.os.IBinder;
-import android.os.SystemClock;
-import android.provider.Settings;
-import android.support.annotation.DrawableRes;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.PopupMenu;
-import android.text.Layout;
-import android.util.Log;
-import android.view.Display;
-import android.view.GestureDetector;
-import android.view.Gravity;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.Toast;
-import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.View.OnKeyListener;
-import android.widget.EditText;
-import android.widget.Toast;
-import android.app.Activity;
-
-import java.util.logging.LogManager;
-
-import static com.apps.my.liener.Constant.BubbleSizeDelete;
 
 
 public class BubbleService extends Service {
@@ -89,7 +46,7 @@ public class BubbleService extends Service {
             String url = intent.getStringExtra("url");
             browser.addTab(this, url);
             setNotification();// Notification in notification panel to keep the activity running in background
-            if(intent.getBooleanExtra("isRecent",false)){
+            if (intent.getBooleanExtra("isRecent", false)) {
                 browser.expandBrowser();
             }
         }

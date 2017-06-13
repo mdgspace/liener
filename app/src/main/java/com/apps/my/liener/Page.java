@@ -8,7 +8,7 @@ import java.io.Serializable;
 /**
  * Created by rahul on 19/1/17.
  */
-public class Page implements Serializable{
+public class Page implements Serializable {
     private static final String TAG = Page.class.getSimpleName();
 
     private String title;
@@ -30,7 +30,7 @@ public class Page implements Serializable{
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        if(jsonObject!=null){
+        if (jsonObject != null) {
             try {
                 this.title = jsonObject.getString("title");
                 this.url = jsonObject.getString("url");

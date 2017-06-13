@@ -1,9 +1,6 @@
 package com.apps.my.liener;
 
 import android.content.Context;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -12,7 +9,7 @@ import android.widget.RelativeLayout;
 /**
  * Created by rahul on 26/2/17.
  */
-public class ActionOverflowMenu extends LinearLayout implements View.OnClickListener{
+public class ActionOverflowMenu extends LinearLayout implements View.OnClickListener {
     private static final String TAG = ActionOverflowMenu.class.getSimpleName();
 
     private MenuOptionListener menuOptionListener;
@@ -44,15 +41,16 @@ public class ActionOverflowMenu extends LinearLayout implements View.OnClickList
         setClickListeners();
     }
 
-    private void initialize(){
+    private void initialize() {
         params = new RelativeLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.addRule(RelativeLayout.ALIGN_PARENT_END,RelativeLayout.TRUE);
-        params.addRule(RelativeLayout.ALIGN_PARENT_TOP,RelativeLayout.TRUE);
+        params.addRule(RelativeLayout.ALIGN_PARENT_END, RelativeLayout.TRUE);
+        params.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.TRUE);
         params.topMargin = 10;
-        isOpen=false;
+        isOpen = false;
     }
-    private void setClickListeners(){
+
+    private void setClickListeners() {
         setItemClickListeners(new int[]{
                 R.id.find_in_page,
                 R.id.open_in,
@@ -69,9 +67,9 @@ public class ActionOverflowMenu extends LinearLayout implements View.OnClickList
         public void onOptionClicked(int resourceId);
     }
 
-    private void setItemClickListeners(int []resourceIds){
-        for (final int resourceId:resourceIds) {
-            findViewById(resourceId).setOnClickListener(new View.OnClickListener(){
+    private void setItemClickListeners(int[] resourceIds) {
+        for (final int resourceId : resourceIds) {
+            findViewById(resourceId).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     menuOptionListener.onOptionClicked(resourceId);

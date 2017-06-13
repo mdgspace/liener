@@ -4,17 +4,15 @@ package com.apps.my.liener;
  * Created by rahul on 10/10/16.
  */
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Hashtable;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class DBHelper extends SQLiteOpenHelper {
     public static DBHelper dbHelper;
@@ -35,9 +33,9 @@ public class DBHelper extends SQLiteOpenHelper {
         this.bl = null;
     }
 
-    public static DBHelper init(Context context){
-        if(dbHelper==null){
-            dbHelper=new DBHelper(context);
+    public static DBHelper init(Context context) {
+        if (dbHelper == null) {
+            dbHelper = new DBHelper(context);
         }
         return dbHelper;
     }
@@ -85,18 +83,18 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_DATA, page.toString());
-        Log.d(TAG, "insertPage() called with: db "  + "isHistory = [" + isHistory + "]");
+        Log.d(TAG, "insertPage() called with: db " + "isHistory = [" + isHistory + "]");
         if (isHistory) {
             long page_data = db.insert("history", null, contentValues);
             Log.d(TAG, "insertPage() called with: isHistory = [" + isHistory + "], page = [" + page + "]");
-            if(hl!=null){
+            if (hl != null) {
                 Log.d(TAG, "inside hl insertPage() called with: isHistory = [" + isHistory + "], title = [");
                 hl.onDataChanged();
             }
             return page_data;
         } else {
             long page_data = db.insert("bookmarks", null, contentValues);
-            if(bl!=null)
+            if (bl != null)
                 bl.onDataChanged();
             return page_data;
         }
@@ -119,18 +117,14 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_DATA, page.toString());
-//        contentValues.put(COLUMN_TITLE, title);
-//        contentValues.put(COLUMN_URL, url);
-//        contentValues.put(COLUMN_TIMESTAMP, timestamp);
         if (isHistory) {
             db.update("history", contentValues, "id = ? ", new String[]{Integer.toString(id)});
-            if(hl!=null){
-                Log.d(TAG, "inside hl insertPage() called with: isHistory = [" + isHistory + "], title = [");
+            if (hl != null) {
                 hl.onDataChanged();
             }
         } else {
             db.update("bookmarks", contentValues, "id = ? ", new String[]{Integer.toString(id)});
-            if(bl!=null)
+            if (bl != null)
                 bl.onDataChanged();
         }
         return true;
@@ -153,7 +147,6 @@ public class DBHelper extends SQLiteOpenHelper {
     public ArrayList<Page> getAllData(boolean isHistory) {
         ArrayList<Page> array_list = new ArrayList<Page>();
 
-        //hp = new HashMap();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor res;
         if (isHistory) {
@@ -170,25 +163,11 @@ public class DBHelper extends SQLiteOpenHelper {
         return array_list;
     }
 
-    public void onHistoryChangedListener(DbListener hl){
+    public void onHistoryChangedListener(DbListener hl) {
         this.hl = hl;
-//        if(this.hl!=null){
-//            Log.d(TAG, "if not null called with: hl = [" + hl + "]");
-//        }
-//        else {
-//            Log.d(TAG, "if  null onHistoryChangedListener() called with: hl = [" + hl + "]");
-//        }
-//        if(hl!=null){
-//            Log.d(TAG, "if not null called with: hl = [" + hl + "]");
-//        }
-//        else {
-//            Log.d(TAG, "if  null onHistoryChangedListener() called with: hl = [" + hl + "]");
-//        }
-//        Log.d(TAG, "onHistoryChangedListener() called with: hl = [" + hl + "]");
     }
 
-    public void onBookmarkChangedListener(DbListener bl){
+    public void onBookmarkChangedListener(DbListener bl) {
         this.bl = bl;
-        Log.d(TAG, "onHistoryChangedListener() called with: bl = [" + bl + "]");
     }
 }

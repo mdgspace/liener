@@ -6,13 +6,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.apps.my.liener.BubbleService;
 import com.apps.my.liener.DbListener;
@@ -52,7 +50,7 @@ public class FragmentRecent extends Fragment {
             @Override
             public void onDataChanged() {
                 sqlDataChanged();
-                Log.d(TAG, "onDataChanged() "+ isHistory +"called");
+                Log.d(TAG, "onDataChanged() " + isHistory + "called");
             }
 
             @Override
@@ -60,10 +58,9 @@ public class FragmentRecent extends Fragment {
 
             }
         };
-        if(isHistory){
+        if (isHistory) {
             MainActivity.mydb.onHistoryChangedListener(dbListener);
-        }
-        else {
+        } else {
             MainActivity.mydb.onBookmarkChangedListener(dbListener);
         }
 
@@ -87,7 +84,7 @@ public class FragmentRecent extends Fragment {
         private ArrayList mDataset;
 
         public class ViewHolder extends RecyclerView.ViewHolder {
-            // each data item is just a string in this case
+
             public TextView mTitle;
             public TextView mUrl;
             public TextView mTime;
@@ -124,7 +121,7 @@ public class FragmentRecent extends Fragment {
                 public void onClick(View v) {
                     Intent pageIntent = new Intent(getActivity(), BubbleService.class);
                     pageIntent.putExtra("url", mPage.getUrl());
-                    pageIntent.putExtra("isRecent",true);
+                    pageIntent.putExtra("isRecent", true);
                     getActivity().startService(pageIntent);
                 }
             });
@@ -135,7 +132,7 @@ public class FragmentRecent extends Fragment {
             return mDataset.size();
         }
 
-        public void swap(ArrayList<Page> datas){
+        public void swap(ArrayList<Page> datas) {
             mDataset.clear();
             mDataset.addAll(datas);
             notifyDataSetChanged();
@@ -143,24 +140,23 @@ public class FragmentRecent extends Fragment {
     }
 
     private String getDate(String time) {
-        if(time==null)
+        if (time == null)
             return "null";
         Calendar calendar = Calendar.getInstance();
         TimeZone tz = TimeZone.getDefault();
         calendar.add(Calendar.MILLISECOND, tz.getOffset(calendar.getTimeInMillis()));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-        Log.d(TAG, "getDate() called with: time = [" + time + "]");
-        java.util.Date currenTimeZone=new java.util.Date(Long.parseLong(time));
-        return  sdf.format(currenTimeZone);
+        java.util.Date currenTimeZone = new java.util.Date(Long.parseLong(time));
+        return sdf.format(currenTimeZone);
     }
 
-    private void sqlDataChanged(){
+    private void sqlDataChanged() {
         arrayList = MainActivity.mydb.getAllData(isHistory);
         Collections.reverse(arrayList);
-        Log.d(TAG, "onDataChanged() dblistener called");
         myAdapter.swap(arrayList);
     }
-    public void refreshList(){
+
+    public void refreshList() {
         sqlDataChanged();
     }
 

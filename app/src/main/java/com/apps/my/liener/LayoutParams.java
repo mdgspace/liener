@@ -4,9 +4,6 @@ import android.graphics.PixelFormat;
 import android.view.Gravity;
 import android.view.WindowManager;
 
-import static com.apps.my.liener.Constant.BubbleInDelete;
-import static com.apps.my.liener.Constant.BubbleSizeDeleteLarge;
-import static com.apps.my.liener.Constant.BubbleSizeLarge;
 import static com.apps.my.liener.Constant.BubbleSizeSmall;
 
 /**
@@ -15,7 +12,8 @@ import static com.apps.my.liener.Constant.BubbleSizeSmall;
 public class LayoutParams extends WindowManager.LayoutParams {
     private static final String TAG = LayoutParams.class.getSimpleName();
     private boolean isRightAlign;
-    LayoutParams(){
+
+    LayoutParams() {
         super(WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.TYPE_PHONE,
@@ -27,8 +25,8 @@ public class LayoutParams extends WindowManager.LayoutParams {
         this.isRightAlign = true;
     }
 
-    public void setSize(int size){
-        this.y = this.y + (width - size)/2;
+    public void setSize(int size) {
+        this.y = this.y + (width - size) / 2;
         this.width = size;
         this.height = size;
     }

@@ -8,7 +8,6 @@ import android.graphics.Point;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
@@ -19,7 +18,7 @@ import static com.apps.my.liener.Constant.BubbleSizeDelete;
 /**
  * Created by rahul on 5/6/17.
  */
-public class Browser{
+public class Browser {
     private static final String TAG = Browser.class.getSimpleName();
 
     WindowManager bubbleWindow;
@@ -39,7 +38,7 @@ public class Browser{
 
     Context context;
 
-    public Browser(Context context){
+    public Browser(Context context) {
 
         this.context = context;
 
@@ -67,7 +66,7 @@ public class Browser{
 
     }
 
-    private void initBubbleHead(){
+    private void initBubbleHead() {
         bh = new BubbleHead(context, heightNew, widthMid, BubbleHead.HEAD_TYPE_MAIN);
         bh.initParams(0, heightNew);
         bh.setBubbleListener(new BubbleListener() {
@@ -89,23 +88,21 @@ public class Browser{
 
             @Override
             public void onMove(boolean isMoving) {
-                if(isMoving){
+                if (isMoving) {
                     deleteHead.setViewVisibility(View.VISIBLE);
-                }
-                else {
+                } else {
                     deleteHead.getView().setVisibility(View.INVISIBLE);
                 }
             }
 
             @Override
             public void overDeleteArea(boolean isOver) {
-                if(isOver){
+                if (isOver) {
                     deleteHead.setLayoutParamsSize(Constant.BubbleSizeDeleteLarge);
                     bubbleWindow.updateViewLayout(deleteHead.getView(), deleteHead.getLayoutParams());
                     deleteHead.setLayoutParamsSize(Constant.BubbleSizeLarge);
                     bubbleWindow.updateViewLayout(bh.getView(), deleteHead.getLayoutParams());
-                }
-                else {
+                } else {
                     deleteHead.getLayoutParams().setSize(BubbleSizeDelete);
                     bubbleWindow.updateViewLayout(deleteHead.getView(), deleteHead.getLayoutParams());
                 }
@@ -169,9 +166,9 @@ public class Browser{
         widthMid = (int) (size.x / 2);
     }
 
-    public void finish(){
+    public void finish() {
         if (is_open) {
-            if (current >= 0 && count >0) {
+            if (current >= 0 && count > 0) {
                 getBrowserTab(current).performClick();  // Minimizes before destroying
             }
         } else {
@@ -300,21 +297,21 @@ public class Browser{
         getBrowserTab(index).setBubbleLayoutX(getBrowserTab(index).getBubbleLayoutX() - Constant.BubbleSizeLarge);
     }
 
-    private BrowserPage getBrowserTab(int index){
+    private BrowserPage getBrowserTab(int index) {
         return browserPageArray[arrIndex[index]];
     }
 
-    private void addBrowserTab(int index, BrowserPage browserPage){
+    private void addBrowserTab(int index, BrowserPage browserPage) {
         browserPageArray[arrIndex[index]] = browserPage;
     }
 
 
-    public void addTab(BubbleService bubbleService, String url){
+    public void addTab(BubbleService bubbleService, String url) {
         is_running = true;
 
         BrowserPage browserPage = new BrowserPage(context, bubbleService, count * Constant.BubbleSizeLarge, heightNew, widthMid);
         final int BId = arrIndex[count];
-        addBrowserTab(count,browserPage);
+        addBrowserTab(count, browserPage);
         getBrowserTab(count).setBubbleListener(new BubbleListener() {
             @Override
             public void onClick() {
@@ -334,12 +331,11 @@ public class Browser{
 
             @Override
             public void onMove(boolean isMoving) {
-                if(isMoving){
+                if (isMoving) {
                     deleteHead.setViewVisibility(View.VISIBLE);
                     bubbleWindow.removeView(browserLayout);
                     browserLayout.removeView(getBrowserTab(current).getBrowserView());
-                }
-                else {
+                } else {
                     deleteHead.getView().setVisibility(View.INVISIBLE);
                     bubbleWindow.updateViewLayout(browserPageArray[BId].getBubbleView(), browserPageArray[BId].getBubbleLayout());
                     browserLayout.addView(getBrowserTab(current).getBrowserView(), paramBrowser);
@@ -349,13 +345,12 @@ public class Browser{
 
             @Override
             public void overDeleteArea(boolean isOver) {
-                if(isOver){
+                if (isOver) {
                     deleteHead.setLayoutParamsSize(Constant.BubbleSizeDeleteLarge);
                     bubbleWindow.updateViewLayout(deleteHead.getView(), deleteHead.getLayoutParams());
                     deleteHead.setLayoutParamsSize(Constant.BubbleSizeLarge);
                     bubbleWindow.updateViewLayout(browserPageArray[BId].getBubbleView(), deleteHead.getLayoutParams());
-                }
-                else {
+                } else {
                     deleteHead.getLayoutParams().setSize(BubbleSizeDelete);
                     bubbleWindow.updateViewLayout(deleteHead.getView(), deleteHead.getLayoutParams());
                 }
@@ -450,7 +445,7 @@ public class Browser{
             shiftBubble(i);
         }
         if (current >= count) {
-            current=0;
+            current = 0;
             getBrowserTab(0).switchToLarge();
             bubbleWindow.updateViewLayout(getBrowserTab(0).getBubbleView(), getBrowserTab(0).getBubbleLayout());
         } else if (arrIndex[count] == current_BId) {
@@ -462,7 +457,7 @@ public class Browser{
             bubbleWindow.updateViewLayout(getBrowserTab(i).getBubbleView(), getBrowserTab(i).getBubbleLayout());
         }
 
-        if (current >= 0 && count>0) {
+        if (current >= 0 && count > 0) {
             browserLayout.addView(getBrowserTab(current).getBrowserView(), paramBrowser);
             bubbleWindow.addView(browserLayout, paramBrowser);
 
@@ -486,8 +481,8 @@ public class Browser{
 //
 //    }
 
-    private void stopSelf(){
-        Intent bubbleService  = new Intent(context, BubbleService.class);
+    private void stopSelf() {
+        Intent bubbleService = new Intent(context, BubbleService.class);
         context.stopService(bubbleService);
     }
 

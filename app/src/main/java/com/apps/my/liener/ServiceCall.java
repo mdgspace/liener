@@ -1,29 +1,19 @@
 package com.apps.my.liener;
 
-import android.Manifest;
-import android.app.Service;
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.TextView;
-import android.os.Bundle;
-import android.view.KeyEvent;
-import android.view.View;
-import android.view.View.OnKeyListener;
-import android.widget.EditText;
-import android.widget.Toast;
-import android.app.Activity;
 
 public class ServiceCall extends Activity {
     TextView test;
@@ -39,8 +29,7 @@ public class ServiceCall extends Activity {
         //getPermission(Manifest.permission.SYSTEM_ALERT_WINDOW);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
             askPermissions();
-        }
-        else
+        } else
             startService();
     }
 
@@ -50,14 +39,13 @@ public class ServiceCall extends Activity {
         if (requestCode == 111) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
                 askPermissions();
-            }
-            else{
+            } else {
                 startService();
             }
         }
     }
 
-    private void askPermissions(){
+    private void askPermissions() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("Please give permission to use the app")
                 .setCancelable(false)

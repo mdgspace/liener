@@ -1,17 +1,10 @@
 package com.apps.my.liener;
 
-import android.support.annotation.IntDef;
-
-import java.lang.annotation.Retention;
-import java.util.EventListener;
-
-import static java.lang.annotation.RetentionPolicy.SOURCE;
-
 /**
  * Created by rahul on 3/12/16.
  */
 
-public interface BubbleListener{
+public interface BubbleListener {
 
     public void onClick();
 

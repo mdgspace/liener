@@ -1,24 +1,17 @@
 package com.apps.my.liener;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.PixelFormat;
 import android.graphics.RectF;
 import android.net.Uri;
-import android.provider.Browser;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -105,13 +98,13 @@ public class BrowserPage {
             }
         });
 
-        browserPane = (RelativeLayout)browser.findViewById(R.id.browser_pane);
+        browserPane = (RelativeLayout) browser.findViewById(R.id.browser_pane);
 
 
         action_overflow_view.setMenuOptionListener(new ActionOverflowMenu.MenuOptionListener() {
             @Override
             public void onOptionClicked(int resourceId) {
-                switch (resourceId){
+                switch (resourceId) {
                     case R.id.find_in_page:
                         Log.d(TAG, "onOptionClicked() called with: resourceId = [" + resourceId + "]");
                         break;
@@ -140,11 +133,10 @@ public class BrowserPage {
         browser.findViewById(R.id.overflow_menu).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(action_overflow_view.isOpen()){
+                if (action_overflow_view.isOpen()) {
                     closeActionOverflowMenu();
-                }
-                else {
-                     openActionOverflowMenu();
+                } else {
+                    openActionOverflowMenu();
                 }
             }
         });
@@ -167,17 +159,17 @@ public class BrowserPage {
 
     }
 
-    private void closeActionOverflowMenu(){
+    private void closeActionOverflowMenu() {
         browserPane.removeView(action_overflow_view);
         action_overflow_view.setOpen(false);
     }
 
-    private void openActionOverflowMenu(){
-        browserPane.addView(action_overflow_view,action_overflow_view.getParams());
+    private void openActionOverflowMenu() {
+        browserPane.addView(action_overflow_view, action_overflow_view.getParams());
         action_overflow_view.setOpen(true);
     }
 
-    private void openInOtherBrowser(){
+    private void openInOtherBrowser() {
 //        sendEvent(BubbleListener.EVENT_TYPE_ACTION_OVERFLOW);
 
         Intent openUrlIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(browserwv.getUrl()));
@@ -195,19 +187,18 @@ public class BrowserPage {
                 tv.setText(view.getTitle());
             }
 
-            public void  onPageStarted (WebView view,
-                                        String url,
-                                        Bitmap favicon){
+            public void onPageStarted(WebView view,
+                                      String url,
+                                      Bitmap favicon) {
                 Log.d(TAG, "onPageStarted() called with: view = [" + view + "], url = [" + url + "], favicon = [" + favicon + "]");
                 ts = System.currentTimeMillis() / 1000;
                 oldTitle = view.getTitle();
-                if(oldTitle.isEmpty()||oldTitle==null||oldTitle.equals("")||oldTitle.equals("null")){
+                if (oldTitle.isEmpty() || oldTitle == null || oldTitle.equals("") || oldTitle.equals("null")) {
                     oldTitle = url;
                 }
-                if(page==null){
+                if (page == null) {
                     page = new Page(oldTitle, url, String.valueOf(ts), "logo");
-                }
-                else {
+                } else {
                     page = new Page(oldTitle, url, String.valueOf(ts), "logo");
                 }
                 id = mydb.insertPage(true, page);
@@ -235,9 +226,9 @@ public class BrowserPage {
                 if (oldTitle != browserwv.getTitle()) {
                     Log.d(TAG, "onProgressChanged() oldtitle with: view = [" + view + "], progress = [" + progress + "]");
                     oldTitle = browserwv.getTitle();
-                    if (oldTitle != null && !oldTitle.isEmpty() && !oldTitle.equals("null")){
+                    if (oldTitle != null && !oldTitle.isEmpty() && !oldTitle.equals("null")) {
                         page.setTitle(oldTitle);
-                        page.setUrl( browserwv.getUrl());
+                        page.setUrl(browserwv.getUrl());
                         page.setTs(String.valueOf(ts));
                     }
                     mydb.updateContact(true, (int) id, page);
@@ -254,9 +245,9 @@ public class BrowserPage {
             name = browserwv.getUrl();
         }
         Log.d(TAG, "onClick() called with: " + "name = [" + name + "]" + browserwv.getUrl() + "");
-        if(page==null){
+        if (page == null) {
             page = new Page(name, browserwv.getUrl(), String.valueOf(System.currentTimeMillis() / 1000), "logo");
-        }else {
+        } else {
             page.setTitle(name);
             page.setUrl(browserwv.getUrl());
             page.setTs(String.valueOf(System.currentTimeMillis() / 1000));
@@ -268,10 +259,9 @@ public class BrowserPage {
         browserwv.loadUrl(url);
         ts = System.currentTimeMillis() / 1000;
         Log.d(TAG, "loadUrl() called with: " + "url = [" + url + "]");
-        if(page==null){
+        if (page == null) {
             page = new Page(url, url, String.valueOf(ts), "logo");
-        }
-        else{
+        } else {
             page.setTitle(url);
             page.setUrl(url);
             page.setTs(String.valueOf(ts));
@@ -369,29 +359,29 @@ public class BrowserPage {
 //        }
     }
 
-    public void performClick(){
+    public void performClick() {
         bubbleHead.getView().performClick();
     }
 
-    public View getBubbleView(){
+    public View getBubbleView() {
         return bubbleHead.getView();
     }
 
-    public LayoutParams getBubbleLayout(){
+    public LayoutParams getBubbleLayout() {
         return bubbleHead.getLayoutParams();
     }
 
-    public void setBubbleListener(BubbleListener bl){
+    public void setBubbleListener(BubbleListener bl) {
         Log.d(TAG, "setBubbleListener() called with: bl = [" + bl + "]");
         bubbleHead.setBubbleListener(bl);
         Log.d(TAG, "setBubbleListener() called with: bl = [" + bl + "]");
     }
 
-    public View getBrowserView(){
+    public View getBrowserView() {
         return browser;
     }
 
-    public void setWebViewKeyListener(){
+    public void setWebViewKeyListener() {
         browserwv.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -413,15 +403,15 @@ public class BrowserPage {
         });
     }
 
-    public BubbleHead getBubble(){
+    public BubbleHead getBubble() {
         return bubbleHead;
     }
 
-    public int getBubbleLayoutX(){
+    public int getBubbleLayoutX() {
         return bubbleHead.getLayoutParamsX();
     }
 
-    public void setBubbleLayoutX(int x){
+    public void setBubbleLayoutX(int x) {
         bubbleHead.setLayoutParamsX(x);
     }
 

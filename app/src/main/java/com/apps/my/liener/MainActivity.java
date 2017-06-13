@@ -1,4 +1,4 @@
-    package com.apps.my.liener;
+package com.apps.my.liener;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -22,21 +22,18 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 import android.widget.ListView;
 
 import com.apps.my.liener.Fragment.FragmentMain;
 import com.apps.my.liener.Fragment.FragmentRecent;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import eu.long1.spacetablayout.SpaceTabLayout;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener{
+        implements NavigationView.OnNavigationItemSelectedListener {
     SpaceTabLayout tabLayout;
     FragmentRecent recents;
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -68,13 +65,13 @@ public class MainActivity extends AppCompatActivity
 
         //add the fragments you want to display in a List
         Bundle bdlRecents = new Bundle(2);
-        bdlRecents.putBoolean("isHistory",true);
+        bdlRecents.putBoolean("isHistory", true);
         recents = new FragmentRecent();
         recents.setArguments(bdlRecents);
 
         Bundle bdlBookmarks = new Bundle(2);
         FragmentRecent bookmarks = new FragmentRecent();
-        bdlBookmarks.putBoolean("isHistory",false);
+        bdlBookmarks.putBoolean("isHistory", false);
         bookmarks.setArguments(bdlBookmarks);
 
         List<Fragment> fragmentList = new ArrayList<>();
@@ -104,7 +101,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void askPermissions(){
+    private void askPermissions() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("Please give permission to use the app")
                 .setCancelable(false)
@@ -125,8 +122,6 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -142,7 +137,7 @@ public class MainActivity extends AppCompatActivity
             mydb.deleteAllHistory();
             recents.refreshList();
             return true;
-        }else if (id == R.id.action_about_us){
+        } else if (id == R.id.action_about_us) {
             startActivity(new Intent(getApplicationContext(), AboutUsActivity.class));
         }
 

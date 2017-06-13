@@ -1,14 +1,12 @@
 package com.apps.my.liener;
 
 import android.content.Context;
-import android.graphics.PixelFormat;
 import android.support.annotation.IntDef;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.facebook.rebound.Spring;
@@ -17,7 +15,6 @@ import com.facebook.rebound.SpringListener;
 import com.facebook.rebound.SpringSystem;
 
 import java.lang.annotation.Retention;
-import java.security.PublicKey;
 
 import static com.apps.my.liener.Constant.BubbleSizeDelete;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
@@ -66,7 +63,7 @@ public class BubbleHead implements SpringListener {
         setRebound();
     }
 
-    private void setRebound(){
+    private void setRebound() {
 
         mSpringSystem = SpringSystem.create();
 
@@ -78,7 +75,6 @@ public class BubbleHead implements SpringListener {
     }
 
     public void setProgressVisibility(int visibility) {
-        // visibility can be View.VISIBLE or View.INVISIBLE
         view.findViewById(R.id.progressBar).setVisibility(visibility);
     }
 
@@ -91,6 +87,7 @@ public class BubbleHead implements SpringListener {
             switchToDelete();
         }
     }
+
     public void initParams(int x, int y, int gravity) {
         layoutParams = new LayoutParams();
         layoutParams.x = x;
@@ -121,23 +118,6 @@ public class BubbleHead implements SpringListener {
     }
 
 
-//    BubbleListener fetchListener = null;
-//
-//    public void setListener(BubbleListener listener) {
-//        this.fetchListener = listener;
-//    }
-
-//    public void sendTouchEvent(@BubbleListener.TOUCH_EVENT_TYPE int event_type) {
-//        if (this.fetchListener != null)
-//            this.fetchListener.onTouchEvent(event_type, defaultType);
-//    }
-//
-//    public void sendClickEvent(@BubbleListener.CLICK_EVENT_TYPE int event_type) {
-//        if (this.fetchListener != null)
-//            this.fetchListener.onClickEvent(event_type, defaultType);
-//    }
-
-
     private boolean onRightSide = true;
     private boolean isMoveEnabled = false;
     private boolean isOnDelete = false;
@@ -146,6 +126,7 @@ public class BubbleHead implements SpringListener {
         view.setOnTouchListener(new View.OnTouchListener() {
             int initialX, initialY;
             float initialTouchX, initialTouchY;
+
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
@@ -166,38 +147,28 @@ public class BubbleHead implements SpringListener {
                                 layoutParams.x = initialX - (int) (event.getRawX() - initialTouchX);
                             }
                             layoutParams.y = initialY - (int) (event.getRawY() - initialTouchY);
-                            if(isOnDelete){
-                                if(!onDeleteCheck()){
+                            if (isOnDelete) {
+                                if (!onDeleteCheck()) {
                                     isOnDelete = false;
-//                                    sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_OFF_DELETE);
-                                    if(bubbleListener!=null)
+                                    if (bubbleListener != null)
                                         bubbleListener.overDeleteArea(isOnDelete);
                                 }
-                            }
-                            else {
-//                                sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_UPDATE);
-                                if(bubbleListener!=null)
+                            } else {
+                                if (bubbleListener != null)
                                     bubbleListener.updateView();
                                 if (onDeleteCheck()) {
-                                    Log.d(TAG, "in ondelete() called with: v = [" + v + "], event = [" + event + "]");
                                     isOnDelete = true;
-//                                    sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_ON_DELETE);
-                                    if(bubbleListener!=null)
+                                    if (bubbleListener != null)
                                         bubbleListener.overDeleteArea(isOnDelete);
                                 }
                             }
 
                         } else {
-                            Log.d(TAG, "onTouch() else called with: v = [" + v + "], event = [" + event + "]");
                             int x = (int) (event.getRawX() - initialTouchX);
                             int y = (int) (event.getRawY() - initialTouchY);
-                            if ((x < -Constant.ENABLE_MOVE || x > Constant.ENABLE_MOVE) || (y < -Constant.ENABLE_MOVE || y > Constant.ENABLE_MOVE)){
-                                Log.d(TAG, "onTouch() inside if called with: v = [" + v + "], event = [" + event + "]");
+                            if ((x < -Constant.ENABLE_MOVE || x > Constant.ENABLE_MOVE) || (y < -Constant.ENABLE_MOVE || y > Constant.ENABLE_MOVE)) {
                                 isMoveEnabled = true;
-//                                sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_ADD_DELETE);
-//                                if (defaultType == HEAD_TYPE_TAB)
-//                                    sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_REMOVE_BROWSER);
-                                if(bubbleListener!=null)
+                                if (bubbleListener != null)
                                     bubbleListener.onMove(true);
                             }
                         }
@@ -207,12 +178,10 @@ public class BubbleHead implements SpringListener {
 
                         mSpring.setEndValue(0.3f);
                         if (isMoveEnabled) {
-//                            sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_REMOVE_DELETE);
-                            if(bubbleListener!=null && defaultType == HEAD_TYPE_MAIN)
+                            if (bubbleListener != null && defaultType == HEAD_TYPE_MAIN)
                                 bubbleListener.onMove(false);
                             if (onDeleteCheck()) {
-//                                sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_DELETE);
-                                if(bubbleListener!=null)
+                                if (bubbleListener != null)
                                     bubbleListener.onDelete();
                                 return true;
                             } else {
@@ -224,14 +193,11 @@ public class BubbleHead implements SpringListener {
                                         break;
                                     case HEAD_TYPE_TAB:
                                         moveBubbleToOldPosition(initialX, initialY);
-                                        if(bubbleListener!=null)
+                                        if (bubbleListener != null)
                                             bubbleListener.onMove(false);
-//                                        sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_UPDATE);
-//                                        sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_ADD_BROWSER);
                                         break;
                                 }
-//                                sendTouchEvent(BubbleListener.TOUCH_EVENT_TYPE_UPDATE);
-                                if(bubbleListener!=null)
+                                if (bubbleListener != null)
                                     bubbleListener.updateView();
                                 Log.d(TAG, "else in action_up");
                             }
@@ -249,15 +215,8 @@ public class BubbleHead implements SpringListener {
                 switch (defaultType) {
                     case HEAD_TYPE_DELETE:
                         break;
-//                    case HEAD_TYPE_MAIN:
-////                        sendClickEvent(BubbleListener.CLICK_EVENT_TYPE_EXPAND);
-//                        if(bubbleListener!=null)
-//                            bubbleListener.onClick();
-//                        break;
-//                    case HEAD_TYPE_TAB:
                     default:
-//                        sendClickEvent(BubbleListener.CLICK_EVENT_TYPE_MINIMIZE);
-                        if(bubbleListener!=null)
+                        if (bubbleListener != null)
                             bubbleListener.onClick();
                         break;
                 }
@@ -268,7 +227,6 @@ public class BubbleHead implements SpringListener {
     public boolean onDeleteCheck() {
         int y = (layoutParams.y - height / 4);
         int x = (layoutParams.x - width + BubbleSizeDelete / 2);
-        Log.d(TAG, "onDeleteCheck() called " + " height: " + height + " widthmid: " + width + " x: " + x + " y: " + y);
         if ((x > -100 && x < 100) && (y > -100 && y < 100)) {
             Log.d("TESTING", "deleted");
             return true;
@@ -341,23 +299,23 @@ public class BubbleHead implements SpringListener {
         this.view = view;
     }
 
-    public void setViewVisibility(int visibility){
+    public void setViewVisibility(int visibility) {
         view.setVisibility(visibility);
     }
 
-    public void setLayoutParamsSize(int size){
+    public void setLayoutParamsSize(int size) {
         layoutParams.setSize(size);
     }
 
-    public int getLayoutParamsX(){
+    public int getLayoutParamsX() {
         return layoutParams.x;
     }
 
-    public void setLayoutParamsX(int x){
-        layoutParams.x=x;
+    public void setLayoutParamsX(int x) {
+        layoutParams.x = x;
     }
 
-    public void setBubbleListener(BubbleListener bubbleListener){
+    public void setBubbleListener(BubbleListener bubbleListener) {
         this.bubbleListener = bubbleListener;
     }
 }
