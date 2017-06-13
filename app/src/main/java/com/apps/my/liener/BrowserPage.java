@@ -15,7 +15,6 @@ import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -28,7 +27,7 @@ public class BrowserPage {
     private WebView browserwv;
     public BubbleHead bubbleHead;
     private static final String TAG = BrowserPage.class.getSimpleName();
-    private LinearLayout browser;
+    private RelativeLayout browser;
     private String oldTitle = " ";
     private TextView tv;
     private DBHelper mydb;
@@ -66,7 +65,7 @@ public class BrowserPage {
         mydb = DBHelper.init(context);
 
         LayoutInflater li = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        browser = (LinearLayout) li.inflate(R.layout.browser_page, null);
+        browser = (RelativeLayout) li.inflate(R.layout.browser_page, null);
         bubbleHead = new BubbleHead(context, height, widthMid, BubbleHead.HEAD_TYPE_TAB);
         bubbleHead.initParams(x, height);
 
@@ -93,13 +92,10 @@ public class BrowserPage {
         action_overflow_view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d(TAG, "onClick() called with: view = [" + view + "]");
-                Log.d(TAG, "onClick() called with: view = [" + view.getId() + "]");
             }
         });
 
         browserPane = (RelativeLayout) browser.findViewById(R.id.browser_pane);
-
 
         action_overflow_view.setMenuOptionListener(new ActionOverflowMenu.MenuOptionListener() {
             @Override
@@ -113,6 +109,7 @@ public class BrowserPage {
                         break;
                     case R.id.desktop_site:
                         Log.d(TAG, "onOptionClicked() called with: resourceId = [" + resourceId + "]");
+                        switchUA();
                         break;
                     default:
                         break;
@@ -160,12 +157,12 @@ public class BrowserPage {
     }
 
     private void closeActionOverflowMenu() {
-        browserPane.removeView(action_overflow_view);
+        browser.removeView(action_overflow_view);
         action_overflow_view.setOpen(false);
     }
 
     private void openActionOverflowMenu() {
-        browserPane.addView(action_overflow_view, action_overflow_view.getParams());
+        browser.addView(action_overflow_view, action_overflow_view.getParams());
         action_overflow_view.setOpen(true);
     }
 
@@ -173,6 +170,7 @@ public class BrowserPage {
 //        sendEvent(BubbleListener.EVENT_TYPE_ACTION_OVERFLOW);
 
         Intent openUrlIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(browserwv.getUrl()));
+        openUrlIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(openUrlIntent);
     }
 
@@ -267,7 +265,6 @@ public class BrowserPage {
             page.setTs(String.valueOf(ts));
             page.setLogo("logo");
         }
-        //id = mydb.insertPage(true, page);
     }
 
     public void shareText(String title, String body) {
@@ -288,18 +285,6 @@ public class BrowserPage {
     public void switchToLarge() {
         bubbleHead.switchToLarge();
     }
-
-//    BubbleListener fetchListener = null;
-//
-//    public void setListener(BubbleListener listener) {
-//        this.fetchListener = listener;
-//    }
-
-//    public void sendEvent(@BubbleListener.EVENT_TYPE int event_type) {
-//        Log.d(TAG, "sendEvent() called with: event_type = [" + event_type + "]");
-//        if (this.fetchListener != null)
-//            this.fetchListener.onEvent(event_type);
-//    }
 
     public void createIcon() {
         //        Paint paint=new Paint();
@@ -415,6 +400,22 @@ public class BrowserPage {
         bubbleHead.setLayoutParamsX(x);
     }
 
+    boolean desktopView = false;
+    String mobileUA;
+
+    private void switchUA() {
+        if (desktopView) {
+            browserwv.getSettings().setUserAgentString(mobileUA);
+            browserwv.reload();
+            desktopView = false;
+        } else {
+            String desktopUA = "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.4) Gecko/20100101 Firefox/4.0";
+            mobileUA = browserwv.getSettings().getUserAgentString();
+            browserwv.getSettings().setUserAgentString(desktopUA);
+            browserwv.reload();
+            desktopView = true;
+        }
+    }
 
 //    public void changeIconProgress(int progress){
 //                            int x = (int) (progress * 12 / 100);

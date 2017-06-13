@@ -2,8 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/hr_ll"
     android:layout_width="match_parent"
-    android:layout_height="0dp"
-    android:layout_weight="10"
+    android:layout_height="@dimen/title_bar_size"
     android:background="#ffffff"
     android:orientation="horizontal"
     android:weightSum="100">

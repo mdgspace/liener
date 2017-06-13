@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-    <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:theme="@style/AppTheme">
+
+    <include
+        android:id="@+id/hr_ll"
+        layout="@layout/title_bar" />
+
+    <RelativeLayout
+        android:id="@+id/browser_pane"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="bottom"
-        android:orientation="vertical"
-        android:weightSum="100">
+        android:layout_below="@id/hr_ll">
 
-        <include layout="@layout/title_bar" />
-
-        <RelativeLayout
-            android:id="@+id/browser_pane"
+        <WebView
+            android:id="@+id/webview"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="90">
-            <WebView
-                android:id="@+id/webview"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-        </RelativeLayout>
+            android:layout_height="match_parent" />
+    </RelativeLayout>
 
-    </LinearLayout>
+</RelativeLayout>

@@ -228,7 +228,6 @@ public class BubbleHead implements SpringListener {
         int y = (layoutParams.y - height / 4);
         int x = (layoutParams.x - width + BubbleSizeDelete / 2);
         if ((x > -100 && x < 100) && (y > -100 && y < 100)) {
-            Log.d("TESTING", "deleted");
             return true;
         } else return false;
     }
