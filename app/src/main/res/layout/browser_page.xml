@@ -10,7 +10,7 @@
         android:id="@+id/hr_ll"
         layout="@layout/title_bar" />
 
-    <RelativeLayout
+    <FrameLayout
         android:id="@+id/browser_pane"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -18,6 +18,7 @@
 
         <include
             android:id="@+id/search_layout"
+            android:visibility="gone"
             layout="@layout/search_bar" />
 
         <WebView
@@ -26,6 +27,33 @@
             android:layout_height="match_parent"
             android:layout_below="@id/search_layout" />
 
-    </RelativeLayout>
+        <LinearLayout
+            android:id="@+id/permiDialog"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@android:color/white"
+            android:layout_gravity="center"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Permission Required"
+                android:textColor="@android:color/black"
+                />
+            <Button
+                android:id="@+id/permiAc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Accept" />
+
+            <Button
+                android:id="@+id/permiDc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Decline" />
+        </LinearLayout>
+
+    </FrameLayout>
 
 </RelativeLayout>

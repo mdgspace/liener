@@ -14,6 +14,8 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.Toolbar;
 
 public class ServiceCall extends Activity {
     TextView test;
@@ -69,12 +71,24 @@ public class ServiceCall extends Activity {
     private void startService() {
         String action = intent.getAction();
         String data = intent.getDataString();
-        Log.d(TAG, "onNewIntent() called with: " + "intent = [" + intent + "]");
         if (Intent.ACTION_VIEW.equals(action) && data != null) {
             Intent urlIntent = new Intent(this, BubbleService.class);
             urlIntent.putExtra("url", data);
             startService(urlIntent);
             finish();
+        } else if (Intent.ACTION_PROCESS_TEXT.equals(action)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                String query = getIntent()
+                        .getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT).toString();
+                String formattedQuery = query.replace(" ","+");
+                String url = "https://www.google.co.in/search?q=" + formattedQuery;
+                Intent urlIntent = new Intent(this, BubbleService.class);
+                urlIntent.putExtra("url", url);
+                startService(urlIntent);
+                finish();
+            }
+
+
         }
     }
 

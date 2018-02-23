@@ -1,13 +1,19 @@
 package com.apps.my.liener;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -15,13 +21,17 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.webkit.PermissionRequest;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 /**
@@ -63,7 +73,10 @@ public class BrowserPage {
 //    int kColor=Color.argb(alphaColor,60,60,60);
 //    int lColor=Color.argb(alphaColor,50,50,50)
 
-    RelativeLayout browserPane;
+    FrameLayout browserPane;
+    LinearLayout permiDialog;
+    Button permiAc, permiDc;
+    int permiToAsk;
 
     public BrowserPage(final Context context, int x, int height, int widthMid) {
         this.context = context;
@@ -94,7 +107,11 @@ public class BrowserPage {
 
         action_overflow_view = new ActionOverflowMenu(context);
 
-        browserPane = (RelativeLayout) browser.findViewById(R.id.browser_pane);
+        browserPane = (FrameLayout) browser.findViewById(R.id.browser_pane);
+        permiDialog = (LinearLayout) browser.findViewById(R.id.permiDialog);
+        permiDialog.setVisibility(View.INVISIBLE);
+        permiAc = (Button) browser.findViewById(R.id.permiAc);
+        permiDc = (Button) browser.findViewById(R.id.permiDc);
 
         action_overflow_view.setMenuOptionListener(new ActionOverflowMenu.MenuOptionListener() {
             @Override
@@ -143,6 +160,7 @@ public class BrowserPage {
                 browser.requestFocus();
                 return false;
             }
+
         });
 
 
@@ -198,6 +216,7 @@ public class BrowserPage {
                 tv.setText(view.getTitle());
             }
 
+            @Override
             public void onPageStarted(WebView view,
                                       String url,
                                       Bitmap favicon) {
@@ -222,6 +241,7 @@ public class BrowserPage {
             }
         });
         browserwv.setWebChromeClient(new WebChromeClient() {
+            @Override
             public void onProgressChanged(WebView view, int progress) {
 
                 if (progress < 100) {
@@ -244,6 +264,22 @@ public class BrowserPage {
                     }
                     mydb.updateContact(true, (int) id, page);
                     tv.setText(oldTitle);
+                }
+            }
+            @Override
+            public void onPermissionRequest(final PermissionRequest request) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+                   final String RESOURCE_AUDIO_CAPTURE = "android.webkit.resource.AUDIO_CAPTURE";
+                   final String RESOURCE_MIDI_SYSEX = "android.webkit.resource.MIDI_SYSEX";
+                   final String RESOURCE_PROTECTED_MEDIA_ID = "android.webkit.resource.PROTECTED_MEDIA_ID";
+                   final String RESOURCE_VIDEO_CAPTURE = "android.webkit.resource.VIDEO_CAPTURE";
+                    switch (request.getResources()[0]) {
+                        case RESOURCE_VIDEO_CAPTURE: permiToAsk = 1;
+                        case RESOURCE_AUDIO_CAPTURE: permiToAsk = 2;
+                        case RESOURCE_MIDI_SYSEX: permiToAsk = 3;
+                        case RESOURCE_PROTECTED_MEDIA_ID: permiToAsk = 1;
+                    }
+                    buttonListener(request,permiToAsk);
                 }
             }
         });
@@ -492,7 +528,7 @@ public class BrowserPage {
             }
 
         });
-        browser.findViewById(R.id.search_layout).setVisibility(View.INVISIBLE);
+        browser.findViewById(R.id.search_layout).setVisibility(View.GONE);
         queryText = (EditText) browser.findViewById(R.id.query_text);
         result_text = (TextView) browser.findViewById(R.id.result_text);
         findClose = (Button) browser.findViewById(R.id.close_btn);
@@ -518,7 +554,7 @@ public class BrowserPage {
         findClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                browser.findViewById(R.id.search_layout).setVisibility(View.INVISIBLE);
+                browser.findViewById(R.id.search_layout).setVisibility(View.GONE);
                 browserwv.clearMatches();
             }
         });
@@ -537,5 +573,93 @@ public class BrowserPage {
             }
         });
     }
+    public void buttonListener (final PermissionRequest req,final int tempPermiCount) {
+        permiDialog.setVisibility(View.VISIBLE);
+        permiAc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SharedPreferences perValue = context.getSharedPreferences("Permissions", Context.MODE_PRIVATE);
+                Boolean perStatus = perValue.getBoolean(Integer.toString(tempPermiCount), false);
+                if (!perStatus) {
+                    Intent i = new Intent(context, PermissionManager.class);
+                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    i.putExtra("perNum", tempPermiCount);
+                    context.startActivity(i);
+                } else {
+                    req.grant(req.getResources());
+                    permiDialog.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
+        permiDc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                req.deny();
+                permiDialog.setVisibility(View.INVISIBLE);
+            }
+        });
 
+
+
+
+        /* PermissionManager pM = new PermissionManager();
+        int tempResult;
+        tempResult = pM.systemPermiManager( 1, new PermissionManager.TempInter(){
+            @Override
+            public void tempMeth(int a) {
+                if (a == 200) {
+                    req.grant(req.getResources());
+                } else {
+                    req.deny();
+                }
+            }
+        });
+        if (tempResult == 200) {
+            req.grant(req.getResources());
+        }
+        return;*/
+        /*permiDialog.setVisibility(View.VISIBLE);
+        permiAc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String[] temp = new String[1];
+             //   temp[0] = req.getResources()[permiToAsk];
+                req.grant(req.getResources());
+                permiDialog.setVisibility(View.INVISIBLE);
+            }
+        });
+        permiDc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String[] temp = new String[1];
+//                temp[0] = req.getResources()[permiToAsk];
+                req.deny();
+                permiDialog.setVisibility(View.INVISIBLE);
+            }
+        });
+   /*     permiToAsk = tempPermiCount;
+        if (permiToAsk >= 0) {
+            permiDialog.setVisibility(View.VISIBLE);
+            permiAc.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    String[] temp = new String[1];
+                    temp[0] = req.getResources()[permiToAsk];
+                    req.grant(temp);
+                    permiDialog.setVisibility(View.INVISIBLE);
+                    buttonListener(req,permiToAsk--);
+                }
+            });
+            permiDc.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    String[] temp = new String[1];
+                    temp[0] = req.getResources()[permiToAsk];
+                    req.grant(temp);
+                    permiDialog.setVisibility(View.INVISIBLE);
+                    buttonListener(req,permiToAsk--);
+                }
+            });
+        }*/
+    }
 }

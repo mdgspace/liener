@@ -10,7 +10,9 @@ import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
+import android.webkit.PermissionRequest;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import static android.content.Context.WINDOW_SERVICE;
 import static com.apps.my.liener.Constant.BubbleSizeDelete;
@@ -169,7 +171,8 @@ public class Browser {
     public void finish() {
         if (is_open) {
             if (current >= 0 && count > 0) {
-                getBrowserTab(current).performClick();  // Minimizes before destroying
+                getBrowserTab(current).performClick();
+                // Minimizes before destroying
             }
         } else {
             bubbleWindow.removeView(bh.getView());
@@ -491,5 +494,6 @@ public class Browser {
         Intent bubbleService = new Intent(context, BubbleService.class);
         context.stopService(bubbleService);
     }
-
 }
+
+

@@ -22,7 +22,7 @@ public class FragmentMain extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent googleIntent = new Intent(getActivity(), BubbleService.class);
-                googleIntent.putExtra("url", "http://google.com/");
+                googleIntent.putExtra("url", "https://webcammictest.com/");
                 getActivity().startService(googleIntent);
             }
         });

@@ -44,6 +44,8 @@ public class BubbleHead implements SpringListener {
     public @interface HEAD_TYPE {
     }
 
+    int HEAD_TYPE_DELETE2;
+
     public static final int HEAD_TYPE_MAIN = 0;
     public static final int HEAD_TYPE_DELETE = 1;
     public static final int HEAD_TYPE_TAB = 2;
