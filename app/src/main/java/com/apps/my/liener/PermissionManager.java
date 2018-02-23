@@ -27,7 +27,6 @@ public class PermissionManager extends Activity {
         setContentView(R.layout.activity_splash_screen);
         setPermiStatus = getSharedPreferences("Permissions", MODE_PRIVATE).edit();
         perNumber = this.getIntent().getIntExtra("perNum", 0);
-        Toast.makeText(this, Integer.toString(perNumber), Toast.LENGTH_SHORT).show();
         if (perNumber != 0) {
              if(checkAndDecide(perNumber) == 200) {
                  finish();
