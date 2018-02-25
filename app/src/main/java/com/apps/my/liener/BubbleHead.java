@@ -7,6 +7,8 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 
 import com.facebook.rebound.Spring;
@@ -15,6 +17,7 @@ import com.facebook.rebound.SpringListener;
 import com.facebook.rebound.SpringSystem;
 
 import java.lang.annotation.Retention;
+import java.util.logging.Handler;
 
 import static com.apps.my.liener.Constant.BubbleSizeDelete;
 import static java.lang.annotation.RetentionPolicy.SOURCE;

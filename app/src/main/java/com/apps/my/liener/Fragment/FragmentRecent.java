@@ -1,6 +1,7 @@
 package com.apps.my.liener.Fragment;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -10,10 +11,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.Toolbar;
 
 import com.apps.my.liener.BubbleService;
 import com.apps.my.liener.DbListener;
+import com.apps.my.liener.FileManager;
 import com.apps.my.liener.MainActivity;
 import com.apps.my.liener.Page;
 import com.apps.my.liener.R;
@@ -35,6 +40,7 @@ public class FragmentRecent extends Fragment {
     ArrayList<Page> arrayList;
     MyAdapter myAdapter;
     boolean isHistory;
+    FileManager fileManager;
 
 
     @Override
@@ -43,7 +49,7 @@ public class FragmentRecent extends Fragment {
         isHistory = getArguments().getBoolean("isHistory");
         arrayList = MainActivity.mydb.getAllData(isHistory);
         Collections.reverse(arrayList);
-
+        fileManager = new FileManager(getActivity());
         myAdapter = new MyAdapter(arrayList);
 
         DbListener dbListener = new DbListener() {
@@ -88,6 +94,7 @@ public class FragmentRecent extends Fragment {
             public TextView mTitle;
             public TextView mUrl;
             public TextView mTime;
+            public ImageView mFavicon;
 
 
             public ViewHolder(View v) {
@@ -95,6 +102,7 @@ public class FragmentRecent extends Fragment {
                 mTitle = (TextView) v.findViewById(R.id.title);
                 mUrl = (TextView) v.findViewById(R.id.url);
                 mTime = (TextView) v.findViewById(R.id.time);
+                mFavicon = (ImageView) v.findViewById(R.id.favicon);
             }
         }
 
@@ -116,6 +124,12 @@ public class FragmentRecent extends Fragment {
             holder.mTitle.setText(mPage.getTitle());
             holder.mUrl.setText(mPage.getUrl());
             holder.mTime.setText(getDate(mPage.getTs()));
+            Uri feviconUri = fileManager.getBitmapUri(mPage.getLogo());
+            if (feviconUri != null) {
+                holder.mFavicon.setImageURI(feviconUri);
+            } else {
+                holder.mFavicon.setImageResource(R.drawable.no_fevicon);
+            }
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

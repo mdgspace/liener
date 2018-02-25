@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -32,6 +33,9 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Toolbar;
+
+import java.util.UUID;
 
 
 /**
@@ -77,11 +81,11 @@ public class BrowserPage {
     LinearLayout permiDialog;
     Button permiAc, permiDc;
     int permiToAsk;
-
+    String faviconId;
     public BrowserPage(final Context context, int x, int height, int widthMid) {
         this.context = context;
         mydb = DBHelper.init(context);
-
+        faviconId = UUID.randomUUID().toString();
         LayoutInflater li = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         browser = (RelativeLayout) li.inflate(R.layout.browser_page, null);
         bubbleHead = new BubbleHead(context, height, widthMid, BubbleHead.HEAD_TYPE_TAB);
@@ -226,10 +230,11 @@ public class BrowserPage {
                 if (oldTitle.isEmpty() || oldTitle == null || oldTitle.equals("") || oldTitle.equals("null")) {
                     oldTitle = url;
                 }
+
                 if (page == null) {
-                    page = new Page(oldTitle, url, String.valueOf(ts), "logo");
+                    page = new Page(oldTitle, url, String.valueOf(ts), faviconId);
                 } else {
-                    page = new Page(oldTitle, url, String.valueOf(ts), "logo");
+                    page = new Page(oldTitle, url, String.valueOf(ts), faviconId);
                 }
                 id = mydb.insertPage(true, page);
             }
@@ -264,6 +269,16 @@ public class BrowserPage {
                     }
                     mydb.updateContact(true, (int) id, page);
                     tv.setText(oldTitle);
+                }
+            }
+            @Override
+            public void onReceivedIcon(WebView view, Bitmap icon) {
+                super.onReceivedIcon(view, icon);
+                if (icon != null) {
+                    FileManager bitmapManager = new FileManager(context);
+                    bitmapManager.saveBitmap(icon, faviconId);
+                } else {
+                    faviconId = "noFavicon";
                 }
             }
             @Override

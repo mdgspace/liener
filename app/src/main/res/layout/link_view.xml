@@ -21,10 +21,12 @@
             android:orientation="horizontal">
 
             <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/facebook_icon"
+                android:id="@+id/favicon"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/no_fevicon"
                 android:layout_centerVertical="true"
+                android:scaleType="fitXY"
                 android:layout_gravity="center"
                 android:layout_margin="13dp" />
             <LinearLayout

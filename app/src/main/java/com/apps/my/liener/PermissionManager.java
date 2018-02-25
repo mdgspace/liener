@@ -1,15 +1,12 @@
 package com.apps.my.liener;
 
-import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.webkit.PermissionRequest;
-import android.widget.Toast;
+
 
 /**
  * Created by kaishu on 1/2/18.
