@@ -225,7 +225,7 @@ public class BrowserPage {
                                       String url,
                                       Bitmap favicon) {
                 Log.d(TAG, "onPageStarted() called with: view = [" + view + "], url = [" + url + "], favicon = [" + favicon + "]");
-                ts = System.currentTimeMillis() / 1000;
+                ts = System.currentTimeMillis();
                 oldTitle = view.getTitle();
                 if (oldTitle.isEmpty() || oldTitle == null || oldTitle.equals("") || oldTitle.equals("null")) {
                     oldTitle = url;
@@ -308,18 +308,18 @@ public class BrowserPage {
         }
         Log.d(TAG, "onClick() called with: " + "name = [" + name + "]" + browserwv.getUrl() + "");
         if (page == null) {
-            page = new Page(name, browserwv.getUrl(), String.valueOf(System.currentTimeMillis() / 1000), "logo");
+            page = new Page(name, browserwv.getUrl(), String.valueOf(System.currentTimeMillis()), "logo");
         } else {
             page.setTitle(name);
             page.setUrl(browserwv.getUrl());
-            page.setTs(String.valueOf(System.currentTimeMillis() / 1000));
+            page.setTs(String.valueOf(System.currentTimeMillis()));
         }
         mydb.insertPage(false, page);
     }
 
     public void loadUrl(String url) {
         browserwv.loadUrl(url);
-        ts = System.currentTimeMillis() / 1000;
+        ts = System.currentTimeMillis();
         Log.d(TAG, "loadUrl() called with: " + "url = [" + url + "]");
         if (page == null) {
             page = new Page(url, url, String.valueOf(ts), "logo");
