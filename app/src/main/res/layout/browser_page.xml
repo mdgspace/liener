@@ -18,8 +18,8 @@
 
         <include
             android:id="@+id/search_layout"
-            android:visibility="gone"
-            layout="@layout/search_bar" />
+            layout="@layout/search_bar"
+            android:visibility="gone" />
 
         <WebView
             android:id="@+id/webview"
@@ -28,32 +28,41 @@
             android:layout_below="@id/search_layout" />
 
         <LinearLayout
-            android:id="@+id/permiDialog"
+            android:id="@+id/alertDialog"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@android:color/white"
             android:layout_gravity="center"
-            >
+            android:background="@android:color/white"
+            android:orientation="vertical"
+            android:visibility="invisible">
+
             <TextView
-                android:layout_width="wrap_content"
+                android:id="@+id/dialogTitle"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Permission Required"
+                android:text="Dialog Title"
                 android:textColor="@android:color/black"
-                />
-            <Button
-                android:id="@+id/permiAc"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Accept" />
+                android:textAlignment="center"/>
 
-            <Button
-                android:id="@+id/permiDc"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Decline" />
+                android:orientation="horizontal"
+                >
+
+                <Button
+                    android:id="@+id/permiAc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Accept" />
+
+                <Button
+                    android:id="@+id/permiDc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Decline" />
+            </LinearLayout>
         </LinearLayout>
-
     </FrameLayout>
 
 </RelativeLayout>

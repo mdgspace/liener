@@ -1,6 +1,7 @@
 package com.apps.my.liener;
 
 import android.app.AlertDialog;
+import android.app.DownloadManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -13,6 +14,7 @@ import android.graphics.RectF;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
@@ -22,7 +24,10 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.webkit.DownloadListener;
 import android.webkit.PermissionRequest;
+import android.webkit.URLUtil;
+import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -36,6 +41,8 @@ import android.widget.Toast;
 import android.widget.Toolbar;
 
 import java.util.UUID;
+
+import static android.content.Context.DOWNLOAD_SERVICE;
 
 
 /**
@@ -78,14 +85,18 @@ public class BrowserPage {
 //    int lColor=Color.argb(alphaColor,50,50,50)
 
     FrameLayout browserPane;
-    LinearLayout permiDialog;
-    Button permiAc, permiDc;
+    LinearLayout alertDialog;
+    TextView alertDialogTitle;
+    Button alertAc, alertDc;
     int permiToAsk;
     String faviconId;
+    FileManager fileManager;
+
     public BrowserPage(final Context context, int x, int height, int widthMid) {
         this.context = context;
         mydb = DBHelper.init(context);
         faviconId = UUID.randomUUID().toString();
+        fileManager = new FileManager(context);
         LayoutInflater li = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         browser = (RelativeLayout) li.inflate(R.layout.browser_page, null);
         bubbleHead = new BubbleHead(context, height, widthMid, BubbleHead.HEAD_TYPE_TAB);
@@ -112,10 +123,11 @@ public class BrowserPage {
         action_overflow_view = new ActionOverflowMenu(context);
 
         browserPane = (FrameLayout) browser.findViewById(R.id.browser_pane);
-        permiDialog = (LinearLayout) browser.findViewById(R.id.permiDialog);
-        permiDialog.setVisibility(View.INVISIBLE);
-        permiAc = (Button) browser.findViewById(R.id.permiAc);
-        permiDc = (Button) browser.findViewById(R.id.permiDc);
+        alertDialog = (LinearLayout) browser.findViewById(R.id.alertDialog);
+        alertDialogTitle = (TextView) browser.findViewById(R.id.dialogTitle);
+        alertDialog.setVisibility(View.INVISIBLE);
+        alertAc = (Button) browser.findViewById(R.id.permiAc);
+        alertDc = (Button) browser.findViewById(R.id.permiDc);
 
         action_overflow_view.setMenuOptionListener(new ActionOverflowMenu.MenuOptionListener() {
             @Override
@@ -271,32 +283,51 @@ public class BrowserPage {
                     tv.setText(oldTitle);
                 }
             }
+
             @Override
             public void onReceivedIcon(WebView view, Bitmap icon) {
                 super.onReceivedIcon(view, icon);
                 if (icon != null) {
-                    FileManager bitmapManager = new FileManager(context);
-                    bitmapManager.saveBitmap(icon, faviconId);
+                    fileManager.saveBitmap(icon, faviconId);
                 } else {
                     faviconId = "noFavicon";
                 }
             }
+
             @Override
             public void onPermissionRequest(final PermissionRequest request) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
-                   final String RESOURCE_AUDIO_CAPTURE = "android.webkit.resource.AUDIO_CAPTURE";
-                   final String RESOURCE_MIDI_SYSEX = "android.webkit.resource.MIDI_SYSEX";
-                   final String RESOURCE_PROTECTED_MEDIA_ID = "android.webkit.resource.PROTECTED_MEDIA_ID";
-                   final String RESOURCE_VIDEO_CAPTURE = "android.webkit.resource.VIDEO_CAPTURE";
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    final String RESOURCE_AUDIO_CAPTURE = "android.webkit.resource.AUDIO_CAPTURE";
+                    final String RESOURCE_MIDI_SYSEX = "android.webkit.resource.MIDI_SYSEX";
+                    final String RESOURCE_PROTECTED_MEDIA_ID = "android.webkit.resource.PROTECTED_MEDIA_ID";
+                    final String RESOURCE_VIDEO_CAPTURE = "android.webkit.resource.VIDEO_CAPTURE";
                     switch (request.getResources()[0]) {
-                        case RESOURCE_VIDEO_CAPTURE: permiToAsk = 1;
-                        case RESOURCE_AUDIO_CAPTURE: permiToAsk = 2;
-                        case RESOURCE_MIDI_SYSEX: permiToAsk = 3;
-                        case RESOURCE_PROTECTED_MEDIA_ID: permiToAsk = 1;
+                        case RESOURCE_VIDEO_CAPTURE:
+                            permiToAsk = 1;
+                        case RESOURCE_AUDIO_CAPTURE:
+                            permiToAsk = 2;
+                        case RESOURCE_MIDI_SYSEX:
+                            permiToAsk = 3;
+                        case RESOURCE_PROTECTED_MEDIA_ID:
+                            permiToAsk = 1;
                     }
-                    buttonListener(request,permiToAsk);
+                    permiButtonListener(request, permiToAsk);
                 }
             }
+            @Override
+            public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
+
+                return true;
+            }
+
+        });
+
+        browserwv.setDownloadListener(new DownloadListener() {
+            @Override
+            public void onDownloadStart(String s, String s1, String s2, String s3, long l) {
+                downloadDialog(s, s1, s2, s3);
+            }
+
         });
     }
 
@@ -588,9 +619,11 @@ public class BrowserPage {
             }
         });
     }
-    public void buttonListener (final PermissionRequest req,final int tempPermiCount) {
-        permiDialog.setVisibility(View.VISIBLE);
-        permiAc.setOnClickListener(new View.OnClickListener() {
+
+    public void permiButtonListener(final PermissionRequest req, final int tempPermiCount) {
+        alertDialogTitle.setText("Permission Required"); // temporary title
+        alertDialog.setVisibility(View.VISIBLE);
+        alertAc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 SharedPreferences perValue = context.getSharedPreferences("Permissions", Context.MODE_PRIVATE);
@@ -602,20 +635,45 @@ public class BrowserPage {
                     context.startActivity(i);
                 } else {
                     req.grant(req.getResources());
-                    permiDialog.setVisibility(View.INVISIBLE);
+                    alertDialog.setVisibility(View.INVISIBLE);
                 }
             }
         });
-        permiDc.setOnClickListener(new View.OnClickListener() {
+        alertDc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 req.deny();
-                permiDialog.setVisibility(View.INVISIBLE);
+                alertDialog.setVisibility(View.INVISIBLE);
             }
         });
+    }
 
-
-
+    public void downloadDialog(final String url, final String userAgent, final String contentDisposition, final String mimeType) {
+        alertDialogTitle.setText("Downloading - " +URLUtil.guessFileName(url, contentDisposition, mimeType));
+        alertDialog.setVisibility(View.VISIBLE);
+        alertAc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SharedPreferences perValue = context.getSharedPreferences("Permissions", Context.MODE_PRIVATE);
+                Boolean perStatus = perValue.getBoolean("3", false);
+                if (!perStatus) {
+                    Intent i = new Intent(context, PermissionManager.class);
+                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    i.putExtra("perNum", 3);
+                    context.startActivity(i);
+                } else {
+                    fileManager.downloadFile(url, userAgent,contentDisposition,mimeType);
+                    alertDialog.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
+        alertDc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                alertDialog.setVisibility(View.INVISIBLE);
+            }
+        });
+    }
 
         /* PermissionManager pM = new PermissionManager();
         int tempResult;
@@ -676,5 +734,5 @@ public class BrowserPage {
                 }
             });
         }*/
-    }
 }
+

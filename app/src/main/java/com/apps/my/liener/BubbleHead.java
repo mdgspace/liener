@@ -1,6 +1,7 @@
 package com.apps.my.liener;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.IntDef;
 import android.util.Log;
 import android.view.Gravity;
@@ -17,7 +18,11 @@ import com.facebook.rebound.SpringListener;
 import com.facebook.rebound.SpringSystem;
 
 import java.lang.annotation.Retention;
-import java.util.logging.Handler;
+
+import android.os.Handler;
+import android.widget.Toast;
+
+import java.util.logging.LogRecord;
 
 import static com.apps.my.liener.Constant.BubbleSizeDelete;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
@@ -54,6 +59,7 @@ public class BubbleHead implements SpringListener {
     public static final int HEAD_TYPE_TAB = 2;
 
     private int defaultType;
+    int tempX;
 
     public BubbleHead(Context context, int height, int width, @HEAD_TYPE int head_type) {
         defaultType = head_type;
@@ -173,8 +179,9 @@ public class BubbleHead implements SpringListener {
                             int y = (int) (event.getRawY() - initialTouchY);
                             if ((x < -Constant.ENABLE_MOVE || x > Constant.ENABLE_MOVE) || (y < -Constant.ENABLE_MOVE || y > Constant.ENABLE_MOVE)) {
                                 isMoveEnabled = true;
-                                if (bubbleListener != null)
+                                if (bubbleListener != null) {
                                     bubbleListener.onMove(true);
+                                }
                             }
                         }
                         return false;
@@ -238,6 +245,7 @@ public class BubbleHead implements SpringListener {
     }
 
     public void moveBubbleToSide() {
+        Handler hand = new Handler();
         if (layoutParams.x > width) {
             if (onRightSide) {
                 layoutParams.gravity = Gravity.BOTTOM | Gravity.LEFT;
@@ -246,8 +254,30 @@ public class BubbleHead implements SpringListener {
                 layoutParams.gravity = Gravity.BOTTOM | Gravity.RIGHT;
                 onRightSide = true;
             }
+            layoutParams.x =(2 * width) - layoutParams.x;
         }
-        layoutParams.x = 0;
+        tempX = layoutParams.x / 10;
+        recursionHandler(hand);
+        //layoutParams.x = 0;
+    }
+
+    public void recursionHandler(final Handler hand) {
+        hand.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (defaultType == 0) {
+                    if (layoutParams.x > 0) {
+                        recursionHandler(hand);
+                        layoutParams.x -= tempX;
+                        bubbleListener.updateView();
+                    } else {
+                        layoutParams.x = 0;
+                    }
+                } else if (defaultType == 1) {
+                    layoutParams.y = 200;
+                }
+            }
+        }, 5);
     }
 
     public void moveBubbleToOldPosition(int initialX, int initialY) {
@@ -322,4 +352,6 @@ public class BubbleHead implements SpringListener {
     public void setBubbleListener(BubbleListener bubbleListener) {
         this.bubbleListener = bubbleListener;
     }
+
+
 }
