@@ -254,7 +254,7 @@ public class BubbleHead implements SpringListener {
                 layoutParams.gravity = Gravity.BOTTOM | Gravity.RIGHT;
                 onRightSide = true;
             }
-            layoutParams.x =(2 * width) - layoutParams.x;
+            layoutParams.x = (2 * width) - layoutParams.x;
         }
         tempX = layoutParams.x / 10;
         recursionHandler(hand);
@@ -265,17 +265,15 @@ public class BubbleHead implements SpringListener {
         hand.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (defaultType == 0) {
-                    if (layoutParams.x > 0) {
-                        recursionHandler(hand);
-                        layoutParams.x -= tempX;
-                        bubbleListener.updateView();
-                    } else {
-                        layoutParams.x = 0;
-                    }
-                } else if (defaultType == 1) {
-                    layoutParams.y = 200;
+
+                if (layoutParams.x > 0) {
+                    recursionHandler(hand);
+                    layoutParams.x -= tempX;
+                    bubbleListener.updateView();
+                } else {
+                    layoutParams.x = 0;
                 }
+
             }
         }, 5);
     }
@@ -345,8 +343,15 @@ public class BubbleHead implements SpringListener {
         return layoutParams.x;
     }
 
+    public int getLayoutParamsY() {
+        return layoutParams.y;
+    }
+
     public void setLayoutParamsX(int x) {
         layoutParams.x = x;
+    }
+    public void setLayoutParamsY(int y) {
+        layoutParams.y = y;
     }
 
     public void setBubbleListener(BubbleListener bubbleListener) {

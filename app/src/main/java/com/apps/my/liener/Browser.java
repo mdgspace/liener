@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
@@ -39,6 +40,8 @@ public class Browser {
     LinearLayout browserLayout;
 
     Context context;
+    int deleteHeight;
+    int tempY;
 
     public Browser(Context context) {
 
@@ -92,8 +95,13 @@ public class Browser {
             public void onMove(boolean isMoving) {
                 if (isMoving) {
                     deleteHead.setViewVisibility(View.VISIBLE);
+                    deleteHeight = heightNew / 4 - BubbleSizeDelete / 2;
+                    tempY = deleteHeight / 10;
+                    Handler hand = new Handler();
+                    recursionHandler(hand,1);
                 } else {
-                    deleteHead.getView().setVisibility(View.INVISIBLE);
+                    Handler hand = new Handler();
+                    recursionHandler(hand,2);
                 }
             }
 
@@ -112,6 +120,34 @@ public class Browser {
         });
     }
 
+    public void recursionHandler(final Handler hand, final int mode) {
+
+
+        hand.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (mode == 1 && deleteHead.getLayoutParamsY() < deleteHeight) {
+                    recursionHandler(hand, mode);
+                    deleteHead.setLayoutParamsY(deleteHead.getLayoutParamsY() + tempY);
+                    bubbleWindow.updateViewLayout(deleteHead.getView(), deleteHead.getLayoutParams());
+
+                } else if (mode == 2 && deleteHead.getLayoutParamsY() > 0) {
+                    recursionHandler(hand, mode);
+                    deleteHead.setLayoutParamsY(deleteHead.getLayoutParamsY() - tempY);
+                    bubbleWindow.updateViewLayout(deleteHead.getView(), deleteHead.getLayoutParams());
+                }
+                else {
+                    if (mode == 1) {
+                        deleteHead.setLayoutParamsY(deleteHeight);
+                    } else {
+                        deleteHead.getView().setVisibility(View.INVISIBLE);
+                        deleteHead.setLayoutParamsY(0);
+                    }
+                }
+            }
+        }, 5);
+    }
+
     public void initParamBrowser() {
         paramBrowser = new WindowManager.LayoutParams(WindowManager.LayoutParams.FILL_PARENT,
                 heightNew,
@@ -127,7 +163,7 @@ public class Browser {
 
     public void initDeleteHead() {
         deleteHead = new BubbleHead(context, heightNew, widthMid, BubbleHead.HEAD_TYPE_DELETE);
-        deleteHead.initParams(0, (int) (heightNew / 4 - BubbleSizeDelete / 2), Gravity.BOTTOM | Gravity.CENTER);
+        deleteHead.initParams(0, 0, Gravity.BOTTOM | Gravity.CENTER);
         bubbleWindow.addView(deleteHead.getView(), deleteHead.getLayoutParams());
     }
 
