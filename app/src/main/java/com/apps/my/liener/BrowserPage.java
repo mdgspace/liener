@@ -57,7 +57,7 @@ public class BrowserPage {
     private String oldTitle = " ";
     private TextView tv, result_text;
     private DBHelper mydb;
-    private long id, ts;
+    private long dbId, ts;
     private Canvas canvas;
     private RectF rectF;
     private Paint paint;
@@ -69,6 +69,7 @@ public class BrowserPage {
     private Button findClose, preFind, nextFind;
     private int totalResult;
     private int curResult;
+    private int id;
 
 //    int alphaColor = 100;
 //    int aColor=Color.argb(alphaColor,160,160,160);
@@ -92,7 +93,8 @@ public class BrowserPage {
     String faviconId;
     FileManager fileManager;
 
-    public BrowserPage(final Context context, int x, int height, int widthMid) {
+    public BrowserPage(final Context context, int x, int height, int widthMid, int id) {
+        this.id = id;
         this.context = context;
         mydb = DBHelper.init(context);
         faviconId = UUID.randomUUID().toString();
@@ -248,7 +250,7 @@ public class BrowserPage {
                 } else {
                     page = new Page(oldTitle, url, String.valueOf(ts), faviconId);
                 }
-                id = mydb.insertPage(true, page);
+                dbId = mydb.insertPage(true, page);
             }
 
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -279,7 +281,7 @@ public class BrowserPage {
                         page.setUrl(browserwv.getUrl());
                         page.setTs(String.valueOf(ts));
                     }
-                    mydb.updateContact(true, (int) id, page);
+                    mydb.updateContact(true, (int) dbId, page);
                     tv.setText(oldTitle);
                 }
             }
@@ -673,6 +675,23 @@ public class BrowserPage {
                 alertDialog.setVisibility(View.INVISIBLE);
             }
         });
+    }
+
+    @Override
+    public boolean equals(Object object)
+    {
+        boolean isSame = false;
+
+        if (object != null && object instanceof BrowserPage)
+        {
+            isSame = this.id == ((BrowserPage) object).id;
+        }
+
+        return isSame;
+    }
+
+    public int getId(){
+        return id;
     }
 
         /* PermissionManager pM = new PermissionManager();

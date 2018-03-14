@@ -15,8 +15,13 @@ import android.webkit.PermissionRequest;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
 import static android.content.Context.WINDOW_SERVICE;
 import static com.apps.my.liener.Constant.BubbleSizeDelete;
+import static com.apps.my.liener.Constant.BubbleSizeLarge;
 
 /**
  * Created by rahul on 5/6/17.
@@ -28,10 +33,13 @@ public class Browser {
     WindowManager.LayoutParams paramBrowser, action_overflow_params;
 
     boolean is_open = false, is_running;
-    int count = 0, current = 0, heightNew, widthMid;
 
-    BrowserPage browserPageArray[] = new BrowserPage[20];
-    int arrIndex[] = new int[20];
+    int heightNew, widthMid;
+    int defaultPage;
+    int idCount;
+
+    static List<BrowserPage> browserPages = new LinkedList<>();
+
 
     BubbleHead bh, deleteHead;
 
@@ -57,13 +65,9 @@ public class Browser {
 
 
     public void initVariables() {
-        current = 0;
-        count = 0;
+        defaultPage = -1;
+        idCount = 0;
 
-
-        for (int i = 0; i < 20; i++) {
-            arrIndex[i] = i;
-        }
 
         bubbleWindow = (WindowManager) context.getSystemService(WINDOW_SERVICE);
         loadDimensions();
@@ -77,7 +81,7 @@ public class Browser {
         bh.setBubbleListener(new BubbleListener() {
             @Override
             public void onClick() {
-                expandBrowser();
+                expandBrowser(null);
             }
 
             @Override
@@ -186,7 +190,7 @@ public class Browser {
         mHomeWatcher.setOnHomePressedListener(new OnHomePressedListener() {
             @Override
             public void onHomePressed() {
-                minimizeBrowser(current);
+                minimizeBrowser();
                 // do something here...
             }
 
@@ -206,13 +210,14 @@ public class Browser {
 
     public void finish() {
         if (is_open) {
-            if (current >= 0 && count > 0) {
-                getBrowserTab(current).performClick();
+            if (!browserPages.isEmpty()) {
+                getCurrentBrowserPage().performClick();
                 // Minimizes before destroying
             }
         } else {
             bubbleWindow.removeView(bh.getView());
         }
+        browserPages.clear();
     }
 
 
@@ -321,83 +326,75 @@ public class Browser {
 //    }
 
 
-    public int getIndex(int BId) {
-        for (int i = 0; i < count; i++) {
-            if (arrIndex[i] == BId) {
-                return i;
-            }
-        }
-        Log.d(TAG, "getIndex() Error called with: BId = [" + BId + "]");
-        return -1;
-    }
+//    public int getIndex(int BId) {
+//        for (int i = 0; i < count; i++) {
+//            if (arrIndex[i] == BId) {
+//                return i;
+//            }
+//        }
+//        Log.d(TAG, "getIndex() Error called with: BId = [" + BId + "]");
+//        return -1;
+//    }
 
 
-    public void shiftBubble(int index) {
-        getBrowserTab(index).setBubbleLayoutX(getBrowserTab(index).getBubbleLayoutX() - Constant.BubbleSizeLarge);
-    }
+//    public void shiftBubble(int index) {
+//        getBrowserTab(index).setBubbleLayoutX(getBrowserTab(index).getBubbleLayoutX() - Constant.BubbleSizeLarge);
+//    }
 
-    private BrowserPage getBrowserTab(int index) {
-        return browserPageArray[arrIndex[index]];
-    }
+//    private BrowserPage getBrowserTab(int index) {
+//        return browserPageArray[arrIndex[index]];
+//    }
 
-    private void addBrowserTab(int index, BrowserPage browserPage) {
-        browserPageArray[arrIndex[index]] = browserPage;
-    }
+//    private void addBrowserTab(int index, BrowserPage browserPage) {
+//        browserPageArray[arrIndex[index]] = browserPage;
+//    }
 
 
     public void addTab(BubbleService bubbleService, String url) {
         is_running = true;
 
-        BrowserPage browserPage = new BrowserPage(context, count * Constant.BubbleSizeLarge, heightNew, widthMid);
-        final int BId = arrIndex[count];
+        final BrowserPage browserPage = new BrowserPage(context, 0, heightNew, widthMid, idCount++);
+//        final int BId = arrIndex[count];
         browserPage.setPageListener(new PageListener() {
             @Override
             public void onMinimize() {
-                minimizeBrowser(getIndex(arrIndex[BId]));
+                minimizeBrowser();
             }
         });
-        addBrowserTab(count, browserPage);
-        getBrowserTab(count).setBubbleListener(new BubbleListener() {
+//        addBrowserTab(count, browserPage);
+
+        browserPage.setBubbleListener(new BubbleListener() {
             @Override
             public void onClick() {
-                minimizeBrowser(getIndex(arrIndex[BId]));
+                onHeadPress(browserPage);
             }
 
             @Override
             public void onDelete() {
                 deleteHead.getView().setVisibility(View.INVISIBLE);
-                deletePage(getIndex(BId));
+                deletePage(browserPage);
             }
 
             @Override
             public void updateView() {
-                bubbleWindow.updateViewLayout(browserPageArray[BId].getBubbleView(), browserPageArray[BId].getBubbleLayout());
+                updateViewLayout(browserPage);
             }
 
             @Override
             public void onMove(boolean isMoving) {
                 if (isMoving) {
-                    deleteHead.setViewVisibility(View.VISIBLE);
-                    bubbleWindow.removeView(browserLayout);
-                    browserLayout.removeView(getBrowserTab(current).getBrowserView());
+                    enableDeleteView();
                 } else {
-                    deleteHead.getView().setVisibility(View.INVISIBLE);
-                    bubbleWindow.updateViewLayout(browserPageArray[BId].getBubbleView(), browserPageArray[BId].getBubbleLayout());
-                    browserLayout.addView(getBrowserTab(current).getBrowserView(), paramBrowser);
-                    bubbleWindow.addView(browserLayout, paramBrowser);
+                    disableDeleteView();
                 }
             }
 
             @Override
             public void overDeleteArea(boolean isOver) {
                 if (isOver) {
-                    deleteHead.setLayoutParamsSize(Constant.BubbleSizeDeleteLarge);
-                    bubbleWindow.updateViewLayout(deleteHead.getView(), deleteHead.getLayoutParams());
-                    deleteHead.setLayoutParamsSize(Constant.BubbleSizeLarge);
-                    bubbleWindow.updateViewLayout(browserPageArray[BId].getBubbleView(), deleteHead.getLayoutParams());
+                    enableOverDelete(browserPage);
                 } else {
-                    deleteHead.getLayoutParams().setSize(BubbleSizeDelete);
-                    bubbleWindow.updateViewLayout(deleteHead.getView(), deleteHead.getLayoutParams());
+                    disableOverDelete();
                 }
             }
         });
@@ -405,126 +402,181 @@ public class Browser {
 
 //        getBrowserTab(count).setListener(this);
 
-        getBrowserTab(count).loadUrl(url);
-        if (count == 0) {
+        browserPage.loadUrl(url);
+
+        browserPages.add(browserPage);
+        if (browserPages.size() == 1) {
             bubbleWindow.addView(bh.getView(), bh.getLayoutParams());    // Adds main bubble head to the display
         } else {
             if (is_open) {
-                browserPageArray[current].performClick();
+                getCurrentBrowserPage().performClick();
             }
         }
-        count++;
+
     }
 
-    public void expandBrowser() {
+    public void enableOverDelete(BrowserPage browserPage){
+        deleteHead.setLayoutParamsSize(Constant.BubbleSizeDeleteLarge);
+        bubbleWindow.updateViewLayout(deleteHead.getView(), deleteHead.getLayoutParams());
+        deleteHead.setLayoutParamsSize(Constant.BubbleSizeLarge);
+        bubbleWindow.updateViewLayout(browserPage.getBubbleView(), deleteHead.getLayoutParams());
+    }
+
+    public void disableOverDelete(){
+        deleteHead.getLayoutParams().setSize(BubbleSizeDelete);
+        bubbleWindow.updateViewLayout(deleteHead.getView(), deleteHead.getLayoutParams());
+    }
+
+    public void enableDeleteView(){
+        deleteHead.setViewVisibility(View.VISIBLE);
+        bubbleWindow.removeView(browserLayout);
+        removeView(getCurrentBrowserPage());
+    }
+
+    public void disableDeleteView(){
+        deleteHead.getView().setVisibility(View.INVISIBLE);
+        bubbleWindow.updateViewLayout(getCurrentBrowserPage().getBubbleView(), getCurrentBrowserPage().getBubbleLayout());
+        browserLayout.addView(getCurrentBrowserPage().getBrowserView(), paramBrowser);
+        bubbleWindow.addView(browserLayout, paramBrowser);
+    }
+
+    public BrowserPage getCurrentBrowserPage(){
+        BrowserPage browserPage;
+        for (Iterator<BrowserPage> iter = browserPages.iterator(); iter.hasNext(); ) {
+            browserPage = iter.next();
+            if(browserPage.getId()==defaultPage)
+                return browserPage;
+        }
+        return null;
+    }
+
+    public void removeView(BrowserPage browserPage){
+        browserLayout.removeView(browserPage.getBrowserView());
+    }
+
+    public void updateViewLayout(BrowserPage browserPage){
+        bubbleWindow.updateViewLayout(browserPage.getBubbleView(), browserPage.getBubbleLayout());
+    }
+
+    public void expandBrowser(BrowserPage browserPage) {
         if (is_running) {
             if (!is_open) {
                 mHomeWatcher.startWatch();
-                if (current == 0) {
-                    getBrowserTab(0).switchToLarge();
-                }
                 bubbleWindow.removeView(bh.getView());
 
-                for (int i = 0; i < count; i++) {
-                    bubbleWindow.addView(getBrowserTab(i).getBubbleView(), getBrowserTab(i).getBubbleLayout());
+                if(browserPage!=null)
+                    defaultPage = browserPage.getId();
+                else
+                    defaultPage = browserPages.get(browserPages.size()-1).getId();
+
+                int x = -BubbleSizeLarge;
+                for (Iterator<BrowserPage> iter = browserPages.iterator(); iter.hasNext(); ) {
+                    browserPage = iter.next();
+                    browserPage.bubbleHead.initParams(x+BubbleSizeLarge, heightNew);
+                    bubbleWindow.addView(browserPage.getBubbleView(),browserPage.getBubbleLayout());
                 }
-                addBrowser(current);
+
+                getCurrentBrowserPage().switchToLarge();
+                addBrowser(getCurrentBrowserPage());
                 is_open = true;
+
             } else {
-                minimizeBrowser(0);
+                swapDefaultPage(browserPage);
             }
         }
     }
 
-    public void addBrowser(final int index) {
-
-        //Add view to layout
-        browserLayout.addView(getBrowserTab(index).getBrowserView(), paramBrowser);
-
-        if (index == current) {
-            bubbleWindow.addView(browserLayout, paramBrowser);
-        }
-
-        getBrowserTab(index).setWebViewKeyListener();
+    public void swapDefaultPage(BrowserPage browserPage){
+        browserLayout.removeView(getCurrentBrowserPage().getBrowserView());
+        getCurrentBrowserPage().switchToSmall();
+        defaultPage = browserPage.getId();
+        getCurrentBrowserPage().switchToLarge();
+        getCurrentBrowserPage().setWebViewKeyListener();
+        browserLayout.addView(getCurrentBrowserPage().getBrowserView());
     }
 
-    public void minimizeBrowser(int index) {
-        if (current == index) {
-            for (int i = 0; i < count; i++) {
-                bubbleWindow.removeView(getBrowserTab(i).getBubbleView());
+    public void addBrowser(BrowserPage browserPage) {
+
+        //Add view to layout
+        browserLayout.addView(browserPage.getBrowserView(), paramBrowser);
+
+//        if (index == current) {
+//            bubbleWindow.addView(browserLayout, paramBrowser);
+//        }
+
+        browserPage.setWebViewKeyListener();
+        bubbleWindow.addView(browserLayout, paramBrowser);
+    }
+
+    public void onHeadPress(BrowserPage browserPage){
+        if (getCurrentBrowserPage().getId() == defaultPage) { //minimize everything
+            minimizeBrowser();
+        } else { //swap default tab
+            swapTab(browserPage);
+        }
+    }
+
+    public void swapTab(BrowserPage browserPage){
+        browserPage.setWebViewKeyListener();
+        browserLayout.addView(browserPage.getBrowserView(), paramBrowser);
+        browserLayout.removeView(getCurrentBrowserPage().getBrowserView());
+        getCurrentBrowserPage().switchToSmall();
+        browserPage.switchToLarge();
+        defaultPage = browserPage.getId();
+    }
+
+    public void minimizeBrowser() {
+
+            BrowserPage browserPage;
+            for (Iterator<BrowserPage> iter = browserPages.iterator(); iter.hasNext(); ) {
+                browserPage = iter.next();
+                bubbleWindow.removeView(browserPage.getBubbleView());
             }
 
             bubbleWindow.removeView(browserLayout);
-            browserLayout.removeView(getBrowserTab(current).getBrowserView());
+            browserLayout.removeView(getCurrentBrowserPage().getBrowserView());
+            getCurrentBrowserPage().switchToSmall();
 
             bubbleWindow.addView(bh.getView(), bh.getLayoutParams());
             is_open = false;
             mHomeWatcher.stopWatch();
-        } else {
-            addBrowser(index);
-
-            //Remove view from layout
-            browserLayout.removeView(getBrowserTab(current).getBrowserView());
-
-            getBrowserTab(index).switchToLarge();
-            bubbleWindow.updateViewLayout(getBrowserTab(index).getBubbleView(), getBrowserTab(index).getBubbleLayout());
-
-            getBrowserTab(current).switchToSmall();
-            bubbleWindow.updateViewLayout(getBrowserTab(current).getBubbleView(), getBrowserTab(current).getBubbleLayout());
-            current = index;
-        }
     }
 
-    public void deletePage(int index) {
-        int current_BId = arrIndex[current];
-        bubbleWindow.removeView(getBrowserTab(index).getBubbleView());
+    public void deletePage(BrowserPage browserPage) {
 
-        int temp = arrIndex[index];
-        for (int i = index; i < count - 1; i++) {
-            arrIndex[i] = arrIndex[i + 1];
-        }
-        arrIndex[count - 1] = temp;
-        count--;
-
-        for (int i = index; i < count; i++) {
-            shiftBubble(i);
-        }
-        if (current >= count) {
-            current = 0;
-            getBrowserTab(0).switchToLarge();
-            bubbleWindow.updateViewLayout(getBrowserTab(0).getBubbleView(), getBrowserTab(0).getBubbleLayout());
-        } else if (arrIndex[count] == current_BId) {
-            getBrowserTab(current).switchToLarge();
-        } else {
-            current = getIndex(current_BId);
-        }
-        for (int i = index; i < count; i++) {
-            bubbleWindow.updateViewLayout(getBrowserTab(i).getBubbleView(), getBrowserTab(i).getBubbleLayout());
-        }
-
-        if (current >= 0 && count > 0) {
-            browserLayout.addView(getBrowserTab(current).getBrowserView(), paramBrowser);
-            bubbleWindow.addView(browserLayout, paramBrowser);
-
-        } else {
-            mHomeWatcher.stopWatch();
+        if(browserPages.size()==1){
+            browserPages.clear();
             stopSelf();
         }
+
+        bubbleWindow.removeView(browserPage.getBubbleView());
+
+        Iterator<BrowserPage> iter = browserPages.iterator();
+        BrowserPage temp;
+        while (iter.hasNext()){
+            temp = iter.next();
+            if(temp.getId()==browserPage.getId())
+                break;
+        }
+        while (iter.hasNext()){
+            temp = iter.next();
+            temp.bubbleHead.initParams(temp.bubbleHead.getLayoutParamsX()-BubbleSizeLarge, heightNew);
+            bubbleWindow.updateViewLayout(temp.getBubbleView(),temp.getBubbleLayout());
+        }
+
+        if(browserPage.getId()==defaultPage){
+            int tempId = browserPages.indexOf(getCurrentBrowserPage());
+            if(tempId==0)
+                defaultPage = 1;
+            else
+                defaultPage = tempId - 1;
+            browserLayout.removeView(browserPage.getBrowserView());
+            browserLayout.addView(getCurrentBrowserPage().getBrowserView(), paramBrowser);
+            getCurrentBrowserPage().switchToLarge();
+        }
+        browserPages.remove(browserPage);
     }
 
-//    @Override
-//    public void onEvent(@BubbleListener.EVENT_TYPE int event_type) {
-//        switch (event_type) {
-//            case EVENT_TYPE_ACTION_OVERFLOW:
-//                minimizeBrowser(current);
-//                break;
-//        }
-//    }
-//
-//    @Override
-//    public void onError(Throwable error) {
-//
-//    }
 
     private void stopSelf() {
         Intent bubbleService = new Intent(context, BubbleService.class);

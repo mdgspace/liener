@@ -47,7 +47,7 @@ public class BubbleService extends Service {
             browser.addTab(this, url);
             setNotification();// Notification in notification panel to keep the activity running in background
             if (intent.getBooleanExtra("isRecent", false)) {
-                browser.expandBrowser();
+                browser.expandBrowser(null);
             }
         }
         return Service.START_STICKY;
